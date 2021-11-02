@@ -1,0 +1,271 @@
+apiVersion: admissionregistration.k8s.io/v1beta1
+kind: MutatingWebhookConfiguration
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: apigee/apigee-serving-cert
+    certmanager.k8s.io/inject-ca-from: apigee/apigee-serving-cert
+  name: apigee-mutating-webhook-configuration
+webhooks:
+- clientConfig:
+    caBundle: Cg==
+    service:
+      name: apigee-webhook-service
+      namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+      path: /mutate-apigee-cloud-google-com-v1alpha1-apigeedatastore
+  failurePolicy: Fail
+  name: mapigeedatastore.apigee.cloud.google.com
+  rules:
+  - apiGroups:
+    - apigee.cloud.google.com
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - apigeedatastores
+- clientConfig:
+    caBundle: Cg==
+    service:
+      name: apigee-webhook-service
+      namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+      path: /mutate-apigee-cloud-google-com-v1alpha2-apigeeenvironment
+  failurePolicy: Fail
+  name: mapigeeenvironment.apigee.cloud.google.com
+  rules:
+  - apiGroups:
+    - apigee.cloud.google.com
+    apiVersions:
+    - v1alpha2
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - apigeeenvironments
+- clientConfig:
+    caBundle: Cg==
+    service:
+      name: apigee-webhook-service
+      namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+      path: /mutate-apigee-cloud-google-com-v1alpha2-apigeeorganization
+  failurePolicy: Fail
+  name: mapigeeorganization.apigee.cloud.google.com
+  rules:
+  - apiGroups:
+    - apigee.cloud.google.com
+    apiVersions:
+    - v1alpha2
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - apigeeorganizations
+- clientConfig:
+    caBundle: Cg==
+    service:
+      name: apigee-webhook-service
+      namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+      path: /mutate-apigee-cloud-google-com-v1alpha1-apigeeredis
+  failurePolicy: Fail
+  name: mapigeeredis.apigee.cloud.google.com
+  rules:
+  - apiGroups:
+    - apigee.cloud.google.com
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - apigeeredis
+- clientConfig:
+    caBundle: Cg==
+    service:
+      name: apigee-webhook-service
+      namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+      path: /mutate-apigee-cloud-google-com-v1alpha1-apigeeroute
+  failurePolicy: Fail
+  name: mapigeeroute.apigee.cloud.google.com
+  rules:
+  - apiGroups:
+    - apigee.cloud.google.com
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - apigeeroutes
+- clientConfig:
+    caBundle: Cg==
+    service:
+      name: apigee-webhook-service
+      namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+      path: /mutate-apigee-cloud-google-com-v1alpha2-apigeetelemetry
+  failurePolicy: Fail
+  name: mapigeetelemetry.apigee.cloud.google.com
+  rules:
+  - apiGroups:
+    - apigee.cloud.google.com
+    apiVersions:
+    - v1alpha2
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - apigeetelemetrys
+- clientConfig:
+    caBundle: Cg==
+    service:
+      name: apigee-webhook-service
+      namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+      path: /mutate-apigee-cloud-google-com-v1alpha3-apigeedeployment
+  failurePolicy: Fail
+  name: mapigeedeployment.apigee.cloud.google.com
+  rules:
+  - apiGroups:
+    - apigee.cloud.google.com
+    apiVersions:
+    - v1alpha3
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - apigeedeployments
+---
+apiVersion: admissionregistration.k8s.io/v1beta1
+kind: ValidatingWebhookConfiguration
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: apigee/apigee-serving-cert
+    certmanager.k8s.io/inject-ca-from: apigee/apigee-serving-cert
+  name: apigee-validating-webhook-configuration
+webhooks:
+- clientConfig:
+    caBundle: Cg==
+    service:
+      name: apigee-webhook-service
+      namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+      path: /validate-apigee-cloud-google-com-v1alpha1-apigeedatastore
+  failurePolicy: Fail
+  name: vapigeedatastore.apigee.cloud.google.com
+  rules:
+  - apiGroups:
+    - apigee.cloud.google.com
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    - DELETE
+    resources:
+    - apigeedatastores
+- clientConfig:
+    caBundle: Cg==
+    service:
+      name: apigee-webhook-service
+      namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+      path: /validate-apigee-cloud-google-com-v1alpha2-apigeeenvironment
+  failurePolicy: Fail
+  name: vapigeeenvironment.apigee.cloud.google.com
+  rules:
+  - apiGroups:
+    - apigee.cloud.google.com
+    apiVersions:
+    - v1alpha2
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - apigeeenvironments
+- clientConfig:
+    caBundle: Cg==
+    service:
+      name: apigee-webhook-service
+      namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+      path: /validate-apigee-cloud-google-com-v1alpha2-apigeeorganization
+  failurePolicy: Fail
+  name: vapigeeorganization.apigee.cloud.google.com
+  rules:
+  - apiGroups:
+    - apigee.cloud.google.com
+    apiVersions:
+    - v1alpha2
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - apigeeorganizations
+- clientConfig:
+    caBundle: Cg==
+    service:
+      name: apigee-webhook-service
+      namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+      path: /validate-apigee-cloud-google-com-v1alpha1-apigeeredis
+  failurePolicy: Fail
+  name: vapigeeredis.apigee.cloud.google.com
+  rules:
+  - apiGroups:
+    - apigee.cloud.google.com
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - apigeeredis
+- clientConfig:
+    caBundle: Cg==
+    service:
+      name: apigee-webhook-service
+      namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+      path: /validate-apigee-cloud-google-com-v1alpha1-apigeeroute
+  failurePolicy: Fail
+  name: vapigeeroute.apigee.cloud.google.com
+  rules:
+  - apiGroups:
+    - apigee.cloud.google.com
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - apigeeroutes
+- clientConfig:
+    caBundle: Cg==
+    service:
+      name: apigee-webhook-service
+      namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+      path: /validate-apigee-cloud-google-com-v1alpha2-apigeetelemetry
+  failurePolicy: Fail
+  name: vapigeetelemetry.apigee.cloud.google.com
+  rules:
+  - apiGroups:
+    - apigee.cloud.google.com
+    apiVersions:
+    - v1alpha2
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - apigeetelemetrys
+- clientConfig:
+    caBundle: Cg==
+    service:
+      name: apigee-webhook-service
+      namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+      path: /validate-apigee-cloud-google-com-v1alpha3-apigeedeployment
+  failurePolicy: Fail
+  name: vapigeedeployment.apigee.cloud.google.com
+  rules:
+  - apiGroups:
+    - apigee.cloud.google.com
+    apiVersions:
+    - v1alpha3
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - apigeedeployments
+---

@@ -1,0 +1,12 @@
+apiVersion: apigee.cloud.google.com/v1alpha1
+kind: ApigeeRouteConfig
+metadata:
+  name: "${ORGANIZATION_NAME}-${ENVIRONMENT_GROUP_NAME}" # kpt-set: ${ORGANIZATION_NAME}-${ENVIRONMENT_GROUP_NAME}
+  namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+spec:
+  selector:
+    app: istio-ingressgateway
+  connectTimeout: 300
+  tls:
+    mode: SIMPLE
+    secretNameRef: "istio-system/${ORGANIZATION_NAME}-${ENVIRONMENT_GROUP_NAME}" # kpt-set: istio-system/${ORGANIZATION_NAME}-${ENVIRONMENT_GROUP_NAME}
