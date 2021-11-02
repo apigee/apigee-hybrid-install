@@ -1,0 +1,35 @@
+kind: ApigeeTelemetry
+apiVersion: apigee.cloud.google.com/v1alpha2
+metadata:
+  name: apigee-telemetry
+  namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+  labels:
+    apigee.cloud.google.com/platform: apigee
+release:
+  forceUpdate: true
+spec:
+  imagePullSecrets:
+  - name: gcr-cred
+  clusterName: "${CLUSTER_NAME}" # kpt-set: ${CLUSTER_NAME}
+  clusterRegion: "${CLUSTER_REGION}" # kpt-set: ${CLUSTER_REGION}
+  gcpProjectID: "${GCP_PROJECT_ID}" # kpt-set: ${GCP_PROJECT_ID}
+  metricsExport:
+    enabled: true
+    defaultMetricsProjectID: "${GCP_PROJECT_ID}" # kpt-set: ${GCP_PROJECT_ID}
+    appMetricsProjectID: "${GCP_PROJECT_ID}" # kpt-set: ${GCP_PROJECT_ID}
+    proxyMetricsProjectID: "${GCP_PROJECT_ID}" # kpt-set: ${GCP_PROJECT_ID}
+    stackdriverAPIEndpoint: "https://monitoring.googleapis.com:443/"
+  containerLogsExport:
+    enabled: true
+    projectID: "${GCP_PROJECT_ID}" # kpt-set: ${GCP_PROJECT_ID}
+  accessLogsExport:
+    enabled: false
+  components:
+    metricsApp:
+      appServiceAccountSecretName: "apigee-metrics-svc-account"
+    metricsProxy:
+      appServiceAccountSecretName: "apigee-metrics-svc-account"
+    metricsAdapter:
+      appServiceAccountSecretName: "apigee-metrics-svc-account"
+    containerLogs:
+      appServiceAccountSecretName: "apigee-logger-svc-account"

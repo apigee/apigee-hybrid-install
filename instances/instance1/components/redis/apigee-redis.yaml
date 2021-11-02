@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: "apigee-redis-default-sa"
+  namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: "apigee-redis-envoy-default-sa"
+  namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+---
+apiVersion: apigee.cloud.google.com/v1alpha1
+kind: ApigeeRedis
+metadata:
+  name: default
+  namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+  labels:
+    apigee.cloud.google.com/platform: apigee
+release:
+  forceUpdate: true
+spec:
+  name: default
+  credentialRef: "apigee-redis-default-creds"
+
