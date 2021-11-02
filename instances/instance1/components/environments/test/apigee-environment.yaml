@@ -1,0 +1,40 @@
+apiVersion: apigee.cloud.google.com/v1alpha2
+kind: ApigeeEnvironment
+metadata:
+  name: "${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}" # kpt-set: ${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
+  namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+  labels:
+    apigee.cloud.google.com/platform: apigee
+spec:
+  name: "${ENVIRONMENT_NAME}" # kpt-set: ${ENVIRONMENT_NAME}
+  organizationRef: "${ORGANIZATION_NAME}" # kpt-set: ${ORGANIZATION_NAME}
+  components:
+    synchronizer:
+      appServiceAccountSecretName: "apigee-synchronizer-svc-account-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}" # kpt-set: apigee-synchronizer-svc-account-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
+    udca:
+      appServiceAccountSecretName: "apigee-udca-svc-account-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}" # kpt-set: apigee-udca-svc-account-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
+    runtime:
+      appServiceAccountSecretName: "apigee-runtime-svc-account-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}" # kpt-set: apigee-runtime-svc-account-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
+      containers:
+      - name: apigee-runtime
+        env:
+        - name: "${ORGANIZATION_NAME_UPPER}_KMS_ENCRYPTION_KEY" # kpt-set: ${ORGANIZATION_NAME_UPPER}_KMS_ENCRYPTION_KEY
+          valueFrom:
+            secretKeyRef:
+              name: "env-encryption-keys" # kpt-set: ${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}-encryption-keys
+              key: kmsEncryptionKey
+        - name: "${ORGANIZATION_NAME_UPPER}_TEST_CACHE_ENCRYPTION_KEY" # kpt-set: ${ORGANIZATION_NAME_UPPER}_TEST_CACHE_ENCRYPTION_KEY
+          valueFrom:
+            secretKeyRef:
+              name: "env-encryption-keys" # kpt-set: ${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}-encryption-keys
+              key: cacheEncryptionKey
+        - name: "${ORGANIZATION_NAME_UPPER}_TEST_KVM_ENCRYPTION_KEY" # kpt-set: ${ORGANIZATION_NAME_UPPER}_TEST_KVM_ENCRYPTION_KEY
+          valueFrom:
+            secretKeyRef:
+              name: "env-encryption-keys" # kpt-set: ${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}-encryption-keys
+              key: envKvmEncryptionKey
+        - name: "${ORGANIZATION_NAME_UPPER}_KVM_ENCRYPTION_KEY" # kpt-set: ${ORGANIZATION_NAME_UPPER}_KVM_ENCRYPTION_KEY
+          valueFrom:
+            secretKeyRef:
+              name: "env-encryption-keys" # kpt-set: ${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}-encryption-keys
+              key: kvmEncryptionKey

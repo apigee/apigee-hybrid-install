@@ -1,0 +1,41 @@
+apiVersion: apigee.cloud.google.com/v1alpha2
+kind: ApigeeOrganization
+metadata:
+  name: "${ORGANIZATION_NAME}" # kpt-set: ${ORGANIZATION_NAME}
+  namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+  labels:
+    apigee.cloud.google.com/platform: apigee
+spec:
+  name: "${ORGANIZATION_NAME}" # kpt-set: ${ORGANIZATION_NAME}
+  datastoreRef: "default"
+  datastoreCredentialRef: "apigee-datastore-default-creds"
+  dataEncryptionRef: "org-data-encryption" # kpt-set: ${ORGANIZATION_NAME}-data-encryption
+  redisRef: "default"
+  axHashingSaltRef: "org-ax-salt" # kpt-set: ${ORGANIZATION_NAME}-ax-salt
+  apigeeEndpoint: "https://staging-apigee.sandbox.googleapis.com"
+  apigeeConnectEndpoint: "staging-apigeeconnect.sandbox.googleapis.com:443"
+  instanceID: "${CLUSTER_NAME}-${CLUSTER_REGION}" # kpt-set: ${CLUSTER_NAME}-${CLUSTER_REGION}
+  clusterName: "${CLUSTER_NAME}" # kpt-set: ${CLUSTER_NAME}
+  clusterRegion: "${CLUSTER_REGION}" # kpt-set: ${CLUSTER_REGION}
+  gcpProjectID: "${GCP_PROJECT_ID}" # kpt-set: ${GCP_PROJECT_ID}
+  components:
+    connectAgent:
+      appServiceAccountSecretName: "apigee-connect-agent-svc-account-${ORGANIZATION_NAME}" # kpt-set: apigee-connect-agent-svc-account-${ORGANIZATION_NAME}
+    watcher:
+      appServiceAccountSecretName: "apigee-watcher-svc-account-${ORGANIZATION_NAME}" # kpt-set: apigee-watcher-svc-account-${ORGANIZATION_NAME}
+      containers:
+      - name: "apigee-watcher"
+        image: "us.gcr.io/apigee-demo-gauravkg/apigee-watcher:gauravkg"
+        imagePullPolicy: "Always"
+    mart:
+      appServiceAccountSecretName: "apigee-mart-svc-account-${ORGANIZATION_NAME}" # kpt-set: apigee-mart-svc-account-${ORGANIZATION_NAME}
+      containers:
+      - name: "apigee-mart"
+        env:
+        - name: "${ORGANIZATION_NAME_UPPER}_KMS_ENCRYPTION_KEY" # kpt-set: ${ORGANIZATION_NAME_UPPER}_KMS_ENCRYPTION_KEY
+          valueFrom:
+            secretKeyRef:
+              name: "org-encryption-keys" # kpt-set: ${ORGANIZATION_NAME}-encryption-keys
+              key: kmsEncryptionKey
+    udca:
+      appServiceAccountSecretName: "apigee-udca-svc-account-${ORGANIZATION_NAME}" # kpt-set: apigee-udca-svc-account-${ORGANIZATION_NAME}
