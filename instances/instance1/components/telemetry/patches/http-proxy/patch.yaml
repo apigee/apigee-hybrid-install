@@ -1,0 +1,11 @@
+apiVersion: apigee.cloud.google.com/v1alpha2
+kind: ApigeeTelemetry
+metadata:
+  name: "telemetry"
+spec:
+  httpForwardProxy:
+    scheme: <HTTP|HTTPS>
+    host: <HOST>
+    port: <PORT>
+    username: <USERNAME>
+    password: <PASSWORD>

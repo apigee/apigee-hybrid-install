@@ -1,0 +1,36 @@
+apiVersion: apigee.cloud.google.com/v1alpha2
+kind: ApigeeEnvironment
+metadata:
+  name: env
+spec:
+  components:
+    synchronizer:
+      nodeAffinityRequired: true
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: cloud.google.com/gke-nodepool
+                  operator: In
+                  values:
+                    - apigee-runtime
+    udca:
+      nodeAffinityRequired: true
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: cloud.google.com/gke-nodepool
+                  operator: In
+                  values:
+                    - apigee-runtime
+    runtime:
+      nodeAffinityRequired: true
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: cloud.google.com/gke-nodepool
+                  operator: In
+                  values:
+                    - apigee-runtime

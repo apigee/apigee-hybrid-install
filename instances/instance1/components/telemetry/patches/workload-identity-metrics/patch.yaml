@@ -1,0 +1,12 @@
+apiVersion: apigee.cloud.google.com/v1alpha2
+kind: ApigeeTelemetry
+metadata:
+  name: "telemetry"
+spec:
+  components:
+    metricsApp:
+      podServiceAccountName: "apigee-metricsApp-workload-identity"
+    metricsProxy:
+      podServiceAccountName: "apigee-metricsProxy-workload-identity"
+    metricsAdapter:
+      podServiceAccountName: "apigee-metricsAdapter-workload-identity"

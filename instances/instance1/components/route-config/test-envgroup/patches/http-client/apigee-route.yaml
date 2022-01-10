@@ -1,0 +1,14 @@
+apiVersion: apigee.cloud.google.com/v1alpha1
+kind: ApigeeRoute
+metadata:
+  name: "custom-additional-route"
+  namespace: apigee # kpt-set: ${APIGEE_NAMESPACE}
+spec:
+  selector:
+    app: istio-ingressgateway
+  hostnames:
+  - "*"
+  ports:
+  - number: 80
+    protocol: HTTP
+  enableNonSniClient: true

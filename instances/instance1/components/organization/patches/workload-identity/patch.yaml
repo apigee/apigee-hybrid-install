@@ -1,0 +1,18 @@
+apiVersion: apigee.cloud.google.com/v1alpha2
+kind: ApigeeOrganization
+metadata:
+  name: org
+spec:
+  components:
+    cassandraUserSetup:
+      podServiceAccountName: "apigee-cassandra-user-setup-workload-identity-${ORGANIZATION_NAME}" # kpt-set: apigee-cassandra-user-setup-workload-identity-${ORGANIZATION_NAME}
+    cassandraSchemaSetup:
+      podServiceAccountName: "apigee-cassandra-schema-setup-workload-identity-${ORGANIZATION_NAME}" # kpt-set: apigee-cassandra-schema-setup-workload-identity-${ORGANIZATION_NAME}
+    connectAgent:
+      podServiceAccountName: "apigee-connect-agent-workload-identity-${ORGANIZATION_NAME}" # kpt-set: apigee-connect-agent-workload-identity-${ORGANIZATION_NAME}
+    watcher:
+      podServiceAccountName: "apigee-watcher-workload-identity-${ORGANIZATION_NAME}" # kpt-set: apigee-watcher-workload-identity-${ORGANIZATION_NAME}
+    mart:
+      podServiceAccountName: "apigee-mart-workload-identity-${ORGANIZATION_NAME}" # kpt-set: apigee-mart-workload-identity-${ORGANIZATION_NAME}
+    udca:
+      podServiceAccountName: "apigee-udca-workload-identity-${ORGANIZATION_NAME}" # kpt-set: apigee-udca-workload-identity-${ORGANIZATION_NAME}

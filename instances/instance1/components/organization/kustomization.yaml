@@ -1,0 +1,9 @@
+resources:
+- apigee-organization.yaml
+- secrets.yaml
+
+components:
+# - ./patches/http-proxy
+# - ./patches/nodeselector/
+# - ./patches/imagepullsecret
+# - ./patches/workload-identity

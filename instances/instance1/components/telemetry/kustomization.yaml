@@ -1,0 +1,11 @@
+resources:
+- apigee-telemetry.yaml
+
+components:
+# - ./patches/logger
+# - ./patches/workload-identity-logger
+- ./patches/metrics
+# - ./patches/workload-identity-metrics
+# - ./patches/http-proxy
+# - ./patches/nodeselector/
+# - ./patches/imagepullsecret

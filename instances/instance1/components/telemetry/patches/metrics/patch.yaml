@@ -1,0 +1,18 @@
+apiVersion: apigee.cloud.google.com/v1alpha2
+kind: ApigeeTelemetry
+metadata:
+  name: "telemetry"
+spec:
+  metricsExport:
+    enabled: true
+    defaultMetricsProjectID: "${GCP_PROJECT_ID}" # kpt-set: ${GCP_PROJECT_ID}
+    appMetricsProjectID: "${GCP_PROJECT_ID}" # kpt-set: ${GCP_PROJECT_ID}
+    proxyMetricsProjectID: "${GCP_PROJECT_ID}" # kpt-set: ${GCP_PROJECT_ID}
+    stackdriverAPIEndpoint: "https://monitoring.googleapis.com:443/"
+  components:
+    metricsApp:
+      appServiceAccountSecretName: "apigee-metrics-svc-account"
+    metricsProxy:
+      appServiceAccountSecretName: "apigee-metrics-svc-account"
+    metricsAdapter:
+      appServiceAccountSecretName: "apigee-metrics-svc-account"
