@@ -1,0 +1,7 @@
+apiVersion: apigee.cloud.google.com/v1alpha2
+kind: ApigeeOrganization
+metadata:
+  name: "org"
+spec:
+  imagePullSecrets:
+    - name: <K8S_SECRET_NAME>

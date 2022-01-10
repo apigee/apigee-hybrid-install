@@ -1,9 +1,9 @@
 ################################################################################
 # Create the root certificate issuer and root certificate
-# 
+#
 # - `apigee-root-certificate-issuer` is used for issuing the root certificates
 #   which will inturn be used to issue other certificates
-# - `apigee-root-certificate` is the certificate which will be used by other 
+# - `apigee-root-certificate` is the certificate which will be used by other
 #   issuers to issue certificates
 ################################################################################
 apiVersion: cert-manager.io/v1

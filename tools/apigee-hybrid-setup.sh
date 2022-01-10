@@ -37,7 +37,7 @@ SCRIPT_NAME="${0##*/}"
 SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 ROOT_DIR="${SCRIPT_DIR}/.."
 
-REL_PATH_CREATE_SERVICE_ACCOUNT="${SCRIPT_DIR}/create-service-account"
+REL_PATH_CREATE_SERVICE_ACCOUNT="${SCRIPT_DIR}/create-service-account.sh"
 SERVICE_ACCOUNT_OUTPUT_DIR="${ROOT_DIR}/service-accounts"
 
 DEFAULT_ENV_DIR_NAME="test"               # Default name of the environment directory.
@@ -325,26 +325,21 @@ create_kubernetes_resources() {
     info "Creating apigee kubernetes components..."
     kubectl apply -f "${ROOT_DIR}/instances/${CLUSTER_NAME}-${CLUSTER_REGION}/components/datastore/secrets.yaml"
     kubectl apply -f "${ROOT_DIR}/instances/${CLUSTER_NAME}-${CLUSTER_REGION}/components/redis/secrets.yaml"
-    kubectl apply --recursive -f "${ROOT_DIR}/instances/${CLUSTER_NAME}-${CLUSTER_REGION}/components"
+    kubectl apply -k "${ROOT_DIR}/instances/${CLUSTER_NAME}-${CLUSTER_REGION}/components/datastore"
+    kubectl apply -k "${ROOT_DIR}/instances/${CLUSTER_NAME}-${CLUSTER_REGION}/components/environments/${ENVIRONMENT_NAME}"
+    kubectl apply -k "${ROOT_DIR}/instances/${CLUSTER_NAME}-${CLUSTER_REGION}/components/organization"
+    kubectl apply -k "${ROOT_DIR}/instances/${CLUSTER_NAME}-${CLUSTER_REGION}/components/redis"
+    kubectl apply -k "${ROOT_DIR}/instances/${CLUSTER_NAME}-${CLUSTER_REGION}/components/route-config/${ENVIRONMENT_GROUP_NAME}"
+    kubectl apply -k "${ROOT_DIR}/instances/${CLUSTER_NAME}-${CLUSTER_REGION}/components/telemetry"
 
-    # Resources having been successfully. Now wait for them to start.
-
+    # Resources having been successfully created. Now wait for them to start.
     banner_info "Resources have been created. Waiting for them to be ready..."
-
-    info "Waiting for apigeedatastore to be available..."
-    kubectl wait "apigeedatastore/default" -n "${APIGEE_NAMESPACE}" --for="jsonpath=.status.state=running" --timeout=10m
-
-    info "Waiting for apigeeredis to be available..."
-    kubectl wait "apigeeredis/default" -n "${APIGEE_NAMESPACE}" --for="jsonpath=.status.state=running" --timeout=10m
-
-    info "Waiting for apigeeenvironment to be available..."
-    kubectl wait "apigeeenvironment/${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}" -n "${APIGEE_NAMESPACE}" --for="jsonpath=.status.state=running" --timeout=10m
-
-    info "Waiting for apigeeorganization to be available..."
-    kubectl wait "apigeeorganization/${ORGANIZATION_NAME}" -n "${APIGEE_NAMESPACE}" --for="jsonpath=.status.state=running" --timeout=10m
-
-    info "Waiting for apigeetelemetry to be available..."
-    kubectl wait "apigeetelemetry/apigee-telemetry" -n "${APIGEE_NAMESPACE}" --for="jsonpath=.status.state=running" --timeout=10m
+    kubectl wait "apigeedatastore/default" \
+        "apigeeredis/default" \
+        "apigeeenvironment/${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}" \
+        "apigeeorganization/${ORGANIZATION_NAME}" \
+        "apigeetelemetry/apigee-telemetry" \
+        -n "${APIGEE_NAMESPACE}" --for="jsonpath=.status.state=running" --timeout=15m
 }
 
 check_if_cert_manager_exists() {

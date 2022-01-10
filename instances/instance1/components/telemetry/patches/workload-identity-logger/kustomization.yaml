@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+resources:
+- apigee-workload-identities.yaml
+
+patches:
+- path: patch.yaml
+  target:
+    group: apigee.cloud.google.com
+    version: v1alpha2
+    kind: ApigeeTelemetry
+- target:
+    group: apigee.cloud.google.com
+    version: v1alpha2
+    kind: ApigeeTelemetry
+  patch: |-
+    - op: remove
+      path: /spec/components/containerLogs/appServiceAccountSecretName

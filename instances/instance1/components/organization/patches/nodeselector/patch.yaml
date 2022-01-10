@@ -1,0 +1,66 @@
+apiVersion: apigee.cloud.google.com/v1alpha2
+kind: ApigeeOrganization
+metadata:
+  name: org
+spec:
+  components:
+    cassandraUserSetup:
+      nodeAffinityRequired: true
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: cloud.google.com/gke-nodepool
+                  operator: In
+                  values:
+                    - apigee-runtime
+    cassandraSchemaSetup:
+      nodeAffinityRequired: true
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: cloud.google.com/gke-nodepool
+                  operator: In
+                  values:
+                    - apigee-runtime
+    connectAgent:
+      nodeAffinityRequired: true
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: cloud.google.com/gke-nodepool
+                  operator: In
+                  values:
+                    - apigee-runtime
+    watcher:
+      nodeAffinityRequired: true
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: cloud.google.com/gke-nodepool
+                  operator: In
+                  values:
+                    - apigee-runtime
+    mart:
+      nodeAffinityRequired: true
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: cloud.google.com/gke-nodepool
+                  operator: In
+                  values:
+                    - apigee-runtime
+    udca:
+      nodeAffinityRequired: true
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: cloud.google.com/gke-nodepool
+                  operator: In
+                  values:
+                    - apigee-runtime
