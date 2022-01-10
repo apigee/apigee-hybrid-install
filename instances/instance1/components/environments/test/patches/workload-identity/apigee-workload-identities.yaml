@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  annotations:
+    iam.gke.io/gcp-service-account: apigee-all-sa@${GCP_PROJECT_ID}.iam.gserviceaccount.com # kpt-set: apigee-all-sa@${GCP_PROJECT_ID}.iam.gserviceaccount.com
+  labels:
+    apigee.cloud.google.com/platform: apigee
+  name: "apigee-synchronizer-workload-identity-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}" # kpt-set: apigee-synchronizer-workload-identity-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
+  namespace: apigee # kpt-set: ${APIGEE_NAMESPACE}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  annotations:
+    iam.gke.io/gcp-service-account: apigee-all-sa@${GCP_PROJECT_ID}.iam.gserviceaccount.com # kpt-set: apigee-all-sa@${GCP_PROJECT_ID}.iam.gserviceaccount.com
+  labels:
+    apigee.cloud.google.com/platform: apigee
+  name: "apigee-udca-workload-identity-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}" # kpt-set: apigee-udca-workload-identity-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
+  namespace: apigee # kpt-set: ${APIGEE_NAMESPACE}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  annotations:
+    iam.gke.io/gcp-service-account: apigee-all-sa@${GCP_PROJECT_ID}.iam.gserviceaccount.com # kpt-set: apigee-all-sa@${GCP_PROJECT_ID}.iam.gserviceaccount.com
+  labels:
+    apigee.cloud.google.com/platform: apigee
+  name: "apigee-runtime-workload-identity-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}" # kpt-set: apigee-runtime-workload-identity-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
+  namespace: apigee # kpt-set: ${APIGEE_NAMESPACE}

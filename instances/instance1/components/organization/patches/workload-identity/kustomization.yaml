@@ -1,0 +1,25 @@
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+resources:
+- apigee-workload-identities.yaml
+
+patches:
+- path: patch.yaml
+  target:
+    group: apigee.cloud.google.com
+    version: v1alpha2
+    kind: ApigeeOrganization
+- target:
+    group: apigee.cloud.google.com
+    version: v1alpha2
+    kind: ApigeeOrganization
+  patch: |-
+    - op: remove
+      path: /spec/components/connectAgent/appServiceAccountSecretName
+    - op: remove
+      path: /spec/components/watcher/appServiceAccountSecretName
+    - op: remove
+      path: /spec/components/mart/appServiceAccountSecretName
+    - op: remove
+      path: /spec/components/udca/appServiceAccountSecretName

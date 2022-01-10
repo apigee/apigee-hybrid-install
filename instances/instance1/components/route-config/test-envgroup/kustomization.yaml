@@ -1,0 +1,7 @@
+resources:
+- apigee-route-config.yaml
+
+components:
+# - ./patches/http-client
+# - ./patches/non-sni-client
+# - ./patches/http-and-non-sni-client

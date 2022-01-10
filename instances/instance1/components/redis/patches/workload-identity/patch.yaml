@@ -1,0 +1,10 @@
+apiVersion: apigee.cloud.google.com/v1alpha1
+kind: ApigeeRedis
+metadata:
+  name: "redis"
+spec:
+  components:
+    redis:
+      podServiceAccountName: "apigee-redis-default-workload-identity"
+    redisEnvoy:
+      podServiceAccountName: "apigee-redis-envoy-default-workload-identity"

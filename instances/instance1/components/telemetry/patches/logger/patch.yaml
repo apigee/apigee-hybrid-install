@@ -1,0 +1,13 @@
+apiVersion: apigee.cloud.google.com/v1alpha2
+kind: ApigeeTelemetry
+metadata:
+  name: "telemetry"
+spec:
+  containerLogsExport:
+    enabled: true
+    projectID: "${GCP_PROJECT_ID}" # kpt-set: ${GCP_PROJECT_ID}
+  accessLogsExport:
+    enabled: false
+  components:
+    containerLogs:
+      appServiceAccountSecretName: "apigee-logger-svc-account"

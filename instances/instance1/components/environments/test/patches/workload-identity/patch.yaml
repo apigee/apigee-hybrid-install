@@ -1,0 +1,12 @@
+apiVersion: apigee.cloud.google.com/v1alpha2
+kind: ApigeeEnvironment
+metadata:
+  name: env
+spec:
+  components:
+    synchronizer:
+      podServiceAccountName: "apigee-synchronizer-workload-identity-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}" # kpt-set: apigee-synchronizer-workload-identity-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
+    udca:
+      podServiceAccountName: "apigee-udca-workload-identity-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}" # kpt-set: apigee-udca-workload-identity-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
+    runtime:
+      podServiceAccountName: "apigee-runtime-workload-identity-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}" # kpt-set: apigee-runtime-workload-identity-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
