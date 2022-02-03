@@ -79,9 +79,9 @@ metadata:
   labels:
     apigee.cloud.google.com/platform: apigee
 spec:
-  commonName: istiod.apigee.svc # kpt-set: istiod.${APIGEE_NAMESPACE}.svc
+  commonName: apigee-istiod.apigee.svc # kpt-set: apigee-istiod.${APIGEE_NAMESPACE}.svc
   dnsNames:
-  - "istiod.apigee.svc" # kpt-set: istiod.${APIGEE_NAMESPACE}.svc
+  - "apigee-istiod.apigee.svc" # kpt-set: apigee-istiod.${APIGEE_NAMESPACE}.svc
   duration: 17520h0m0s # 2 year.
   issuerRef:
     group: cert-manager.io
