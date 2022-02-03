@@ -1,0 +1,15 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: apigee-istiod
+  labels:
+    apigee.cloud.google.com/platform: apigee
+subjects:
+- kind: ServiceAccount
+  name: apigee-istiod
+  namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+  apiGroup: ""
+roleRef:
+  kind: ClusterRole
+  name: apigee-istiod
+  apiGroup: rbac.authorization.k8s.io
