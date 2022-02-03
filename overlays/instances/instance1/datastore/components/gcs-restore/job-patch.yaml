@@ -1,0 +1,28 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: apigee-cassandra-restore
+  namespace: apigee
+spec:
+  template:
+    spec:
+      # imagePullSecrets:
+      # - name: <IMAGE_PULL_SECRET>
+      containers:
+      - name: apigee-cassandra-restore
+        env:
+        - name: APIGEE_CLOUDPROVIDER
+          value: "GCP"
+        - name: DBSTORAGE_BUCKET
+          value: "<CLOUD_STORAGE_BUCKET_PATH>" # To be modified. REQUIRED
+        - name: BACKUP_SNAPSHOT_TIMESTAMP
+          value: "TIMESTAMP" # To be modified. REQUIRED
+        # - name: http_proxy
+        #   value: <HTTP_PROXY_URL>
+        volumeMounts:
+        - name: apigee-cassandra-restore
+          mountPath: /var/secrets/google
+      volumes:
+      - name: apigee-cassandra-restore
+        secret:
+          secretName: "apigee-cassandra-backup-and-restore-svc-account"

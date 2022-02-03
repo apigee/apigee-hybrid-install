@@ -1,0 +1,33 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: apigee-cassandra-backup
+  namespace: apigee
+spec:
+  schedule: "<YOUR_BACKUP_SCHEDULE_CODE>" # To be modified
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          # imagePullSecrets:
+          # - name: <IMAGE_PULL_SECRET>
+          containers:
+          - name: apigee-cassandra-backup
+            env:
+            - name: APIGEE_CLOUDPROVIDER
+              value: "HYBRID"
+            # - name: http_proxy
+            #   value: <HTTP_PROXY_URL>
+            - name: BACKUP_SERVER_IP
+              value: "<BACKUP_SERVER_IP>" # To be modified. REQUIRED
+            - name: BACKUP_STORAGE_DIR
+              value: "<PATH/TO/DIRECTORY>" # To be modified. REQUIRED
+            volumeMounts:
+            - name: apigee-cassandra-backup-key-file
+              mountPath: /var/secrets/keys
+          securityContext:
+            fsGroup: 998
+          volumes:
+          - name: apigee-cassandra-backup-key-file
+            secret:
+              secretName: apigee-cassandra-backup-and-restore-key-file

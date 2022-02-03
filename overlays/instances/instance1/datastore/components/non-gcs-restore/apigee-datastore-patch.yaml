@@ -1,0 +1,36 @@
+apiVersion: apigee.cloud.google.com/v1alpha1
+kind: ApigeeDatastore
+metadata:
+  name: "datastore"
+spec:
+  components:
+    cassandra:
+      containers:
+      - name: "apigee-cassandra"
+        env:
+        - name: APIGEE_CLOUDPROVIDER
+          value: "HYBRID"
+        - name: BACKUP_SERVER_IP
+          value: "<BACKUP_SERVER_IP>" # To be modified. REQUIRED
+        - name: BACKUP_STORAGE_DIR
+          value: "<PATH/TO/DIRECTORY>" # To be modified. REQUIRED
+        - name: BACKUP_KEY_FILE
+          value: "/var/secrets/keys/key"
+        - name: CASSANDRA_DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: apigee-datastore-default-creds
+              key: admin.user
+        - name: CASSANDRA_DB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: apigee-datastore-default-creds
+              key: admin.password
+        volumeMounts:
+        - name: apigee-cassandra-restore-key-file
+          mountPath: /var/secrets/keys
+      volumes:
+      - name: apigee-cassandra-restore-key-file
+        secret:
+          secretName: apigee-cassandra-backup-and-restore-key-file
+

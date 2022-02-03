@@ -1,0 +1,22 @@
+apiVersion:  cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: apigee-cassandra-backup-and-restore-tls
+  namespace: "apigee"
+spec:
+  secretName: apigee-cassandra-backup-and-restore-tls
+  duration: 87600h
+  issuerRef:
+    name: apigee-ca-issuer
+    kind: ClusterIssuer
+  commonName: apigee-cassandra-backup-and-restore
+  dnsNames:
+  - apigee-cassandra-backup
+  - apigee-cassandra-backup.apigee
+  - apigee-cassandra-backup.apigee.svc.cluster.local
+  - apigee-cassandra-restore
+  - apigee-cassandra-restore.apigee
+  - apigee-cassandra-restore.apigee.svc.cluster.local
+  usages:
+    - client auth
+
