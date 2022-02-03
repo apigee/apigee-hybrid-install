@@ -1,0 +1,22 @@
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+resources:
+- ../../../../../../bases/datastore/backup-and-restore/backup
+
+patches:
+- path: apigee-datastore-patch.yaml
+  target:
+    group: apigee.cloud.google.com
+    version: v1alpha1
+    kind: ApigeeDatastore
+- path: cron-patch.yaml
+  target:
+    group: batch
+    version: v1beta1
+    kind: CronJob
+- path: tls-certificate-patch.yaml
+  target:
+    group: cert-manager.io
+    version: v1
+    kind: Certificate

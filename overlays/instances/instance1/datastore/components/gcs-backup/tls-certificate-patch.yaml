@@ -1,0 +1,13 @@
+apiVersion:  cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: apigee-cassandra-backup-and-restore-tls
+spec:
+  dnsNames:
+  - apigee-cassandra-backup
+  - apigee-cassandra-backup.apigee # kpt-set: apigee-cassandra-backup.${APIGEE_NAMESPACE}
+  - apigee-cassandra-backup.apigee.svc.cluster.local # kpt-set: apigee-cassandra-backup.${APIGEE_NAMESPACE}.svc.cluster.local
+  - apigee-cassandra-restore
+  - apigee-cassandra-restore.apigee # kpt-set: apigee-cassandra-restore.${APIGEE_NAMESPACE}
+  - apigee-cassandra-restore.apigee.svc.cluster.local # kpt-set: apigee-cassandra-restore.${APIGEE_NAMESPACE}.svc.cluster.local
+

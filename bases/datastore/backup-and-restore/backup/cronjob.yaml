@@ -1,0 +1,73 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: apigee-cassandra-backup
+  namespace: apigee
+spec:
+  schedule: "0 2 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: apigee-cassandra-backup-and-restore
+          containers:
+          - name: apigee-cassandra-backup
+            command:
+            - /bin/bash
+            - -c
+            - /usr/bin/BackupDBMaster.sh
+            image: gcr.io/apigee-release/hybrid/apigee-cassandra-backup-utility:1.6.0
+            imagePullPolicy: IfNotPresent
+            env:
+            - name: CASSANDRA_CLUSTER_NAME
+              value: apigeecluster
+            - name: CASSANDRA_DC
+              value: dc-1
+            - name: "BACKUP_KEY_FILE" # Used with non-GCS backup and restores only.
+              value: "/var/secrets/keys/key"
+            - name: CASSANDRA_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: apigee-datastore-default-creds # Should be modified in kustomization patch if secret has a different name.
+                  key: admin.user
+            - name: CASSANDRA_DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: apigee-datastore-default-creds # Should be modified in kustomization patch if secret has a different name.
+                  key: admin.password
+            - name: APIGEE_JMX_USER
+              valueFrom:
+                secretKeyRef:
+                  name: apigee-datastore-default-creds # Should be modified in kustomization patch if secret has a different name.
+                  key: jmx.user
+            - name: APIGEE_JMX_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: apigee-datastore-default-creds # Should be modified in kustomization patch if secret has a different name.
+                  key: jmx.password
+            volumeMounts:
+            - name: apigee-cassandra-backup # Used with GCS backup and restores only.
+              mountPath: /var/secrets/google
+            - name: apigee-cassandra-backup-key-file # Used with non-GCS backup and restores only.
+              mountPath: /var/secrets/keys
+            - name: tls-volume
+              readOnly: true
+              mountPath: /opt/apigee/ssl
+          volumes:
+          - name: apigee-cassandra-backup # Used with GCS backup and restores only.
+            secret:
+              defaultMode: 0644
+              items:
+              - key: dbbackup_key.json
+                path: dbbackup_key.json
+              secretName: "apigee-cassandra-backup-and-restore-svc-account"
+              optional: true
+          - name: apigee-cassandra-backup-key-file # Used with non-GCS backup and restores only.
+            secret:
+              defaultMode: 0400
+              secretName: apigee-cassandra-backup-and-restore-key-file
+              optional: true
+          - name: tls-volume
+            secret:
+              secretName: "apigee-cassandra-backup-and-restore-tls"
+          restartPolicy: OnFailure

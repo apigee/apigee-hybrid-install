@@ -1,0 +1,29 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: apigee-cassandra-backup
+  namespace: apigee
+spec:
+  schedule: "<YOUR_BACKUP_SCHEDULE_CODE>" # To be modified
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          # imagePullSecrets:
+          # - name: <IMAGE_PULL_SECRET>
+          containers:
+          - name: apigee-cassandra-backup
+            env:
+            - name: APIGEE_CLOUDPROVIDER
+              value: "GCP"            
+            # - name: http_proxy
+            #   value: <HTTP_PROXY_URL>
+            - name: DBSTORAGE_BUCKET
+              value: "<CLOUD_STORAGE_BUCKET_PATH>" # To be modified. REQUIRED
+            volumeMounts:
+            - name: apigee-cassandra-backup
+              mountPath: /var/secrets/google
+          volumes:
+          - name: apigee-cassandra-backup
+            secret:
+              secretName: "apigee-cassandra-backup-and-restore-svc-account"
