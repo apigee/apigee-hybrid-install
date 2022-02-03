@@ -291,7 +291,7 @@ fill_values_in_yamls() {
         ENVIRONMENT_NAME="${ENVIRONMENT_NAME}" \
         ENVIRONMENT_GROUP_NAME="${ENVIRONMENT_GROUP_NAME}" \
         GCP_PROJECT_ID="${GCP_PROJECT_ID}" \
-        ORGANIZATION_NAME_UPPER="${ORGANIZATION_NAME^^}" \
+        ORGANIZATION_NAME_UPPER="${ORGANIZATION_NAME}" \
         ORGANIZATION_NAME="${ORGANIZATION_NAME}"
 }
 
@@ -308,15 +308,19 @@ create_kubernetes_resources() {
     kubectl apply -f "${ROOT_DIR}/initialization/apigee-certificate-issuers.yaml"
     kubectl apply --server-side --force-conflicts -f "${ROOT_DIR}/initialization/crds"
     kubectl apply -f "${ROOT_DIR}/initialization/webhooks.yaml"
-    kubectl apply -f "${ROOT_DIR}/initialization/rbac.yaml"
-    kubectl apply -f "${ROOT_DIR}/initialization/istio-config"
+    kubectl apply -f "${ROOT_DIR}/initialization/asm-config"
+    kubectl apply -f "${ROOT_DIR}/initialization/rbac/controller"
+    kubectl apply -f "${ROOT_DIR}/initialization/rbac/istiod"
+    kubectl apply -f "${ROOT_DIR}/initialization/ingress"
 
     info "Creating apigee controller..."
     kubectl apply -f "${ROOT_DIR}/controller/apigee-config.yaml"
     kubectl apply -f "${ROOT_DIR}/controller/apigee-controller-manager.yaml"
+    kubectl apply -f "${ROOT_DIR}/controller/apigee-istio-mesh-config.yaml"
+    kubectl apply -f "${ROOT_DIR}/controller/apigee-istiod-deployment.yaml"
 
     info "Waiting for controller to be available..."
-    kubectl wait deployment/apigee-controller-manager -n "${APIGEE_NAMESPACE}" --for=condition=available --timeout=2m
+    kubectl wait deployment/apigee-controller-manager deployment/apigee-istiod -n "${APIGEE_NAMESPACE}" --for=condition=available --timeout=2m
 
     info "Creating apigee kubernetes components..."
     kubectl apply -f "${ROOT_DIR}/instances/${CLUSTER_NAME}-${CLUSTER_REGION}/components/datastore/secrets.yaml"
@@ -328,19 +332,19 @@ create_kubernetes_resources() {
     banner_info "Resources have been created. Waiting for them to be ready..."
 
     info "Waiting for apigeedatastore to be available..."
-    kubectl wait "apigeeds/default" -n "${APIGEE_NAMESPACE}" --for="jsonpath=.status.state=running" --timeout=10m
+    kubectl wait "apigeedatastore/default" -n "${APIGEE_NAMESPACE}" --for="jsonpath=.status.state=running" --timeout=10m
 
     info "Waiting for apigeeredis to be available..."
     kubectl wait "apigeeredis/default" -n "${APIGEE_NAMESPACE}" --for="jsonpath=.status.state=running" --timeout=10m
 
     info "Waiting for apigeeenvironment to be available..."
-    kubectl wait "env/${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}" -n "${APIGEE_NAMESPACE}" --for="jsonpath=.status.state=running" --timeout=10m
+    kubectl wait "apigeeenvironment/${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}" -n "${APIGEE_NAMESPACE}" --for="jsonpath=.status.state=running" --timeout=10m
 
     info "Waiting for apigeeorganization to be available..."
-    kubectl wait "org/${ORGANIZATION_NAME}" -n "${APIGEE_NAMESPACE}" --for="jsonpath=.status.state=running" --timeout=10m
+    kubectl wait "apigeeorganization/${ORGANIZATION_NAME}" -n "${APIGEE_NAMESPACE}" --for="jsonpath=.status.state=running" --timeout=10m
 
     info "Waiting for apigeetelemetry to be available..."
-    kubectl wait "at/apigee-telemetry" -n "${APIGEE_NAMESPACE}" --for="jsonpath=.status.state=running" --timeout=10m
+    kubectl wait "apigeetelemetry/apigee-telemetry" -n "${APIGEE_NAMESPACE}" --for="jsonpath=.status.state=running" --timeout=10m
 }
 
 check_if_cert_manager_exists() {
