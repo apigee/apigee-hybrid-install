@@ -67,3 +67,26 @@ spec:
     group: cert-manager.io
   secretName: webhook-server-cert
 ---
+
+################################################################################
+# `apigee-istiod` is used for communication b/w istiod and ingress
+################################################################################
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: apigee-istiod
+  namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+  labels:
+    apigee.cloud.google.com/platform: apigee
+spec:
+  commonName: istiod.apigee.svc # kpt-set: istiod.${APIGEE_NAMESPACE}.svc
+  dnsNames:
+  - "istiod.apigee.svc" # kpt-set: istiod.${APIGEE_NAMESPACE}.svc
+  duration: 17520h0m0s # 2 year.
+  issuerRef:
+    group: cert-manager.io
+    kind: ClusterIssuer
+    # TODO(b/216376860): Use apigee-ca-issuer to as issuer.
+    name: apigee-root-certificate-issuer
+  renewBefore: 8760h0m0s # 1 year.
+  secretName: apigee-istiod-cert
