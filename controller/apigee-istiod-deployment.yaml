@@ -120,7 +120,7 @@ spec:
         - name: INJECTION_WEBHOOK_CONFIG_NAME
           value: istio-sidecar-injector
         - name: ISTIOD_ADDR
-          value: istiod.apigee.svc:15012 # kpt-set: istiod.${APIGEE_NAMESPACE}.svc:15012
+          value: apigee-istiod.apigee.svc:15012 # kpt-set: apigee-istiod.${APIGEE_NAMESPACE}.svc:15012
         - name: PILOT_ENABLE_ANALYSIS
           value: "false"
         - name: CLUSTER_ID
