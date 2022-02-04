@@ -23,6 +23,7 @@ spec:
       appServiceAccountSecretName: "apigee-connect-agent-svc-account-${ORGANIZATION_NAME}" # kpt-set: apigee-connect-agent-svc-account-${ORGANIZATION_NAME}
     watcher:
       appServiceAccountSecretName: "apigee-watcher-svc-account-${ORGANIZATION_NAME}" # kpt-set: apigee-watcher-svc-account-${ORGANIZATION_NAME}
+      # TODO(b/218168776): Remove the explicitly set watcher image before private preview.
       containers:
       - name: "apigee-watcher"
         image: "us.gcr.io/apigee-demo-gauravkg/apigee-watcher:gauravkg"
