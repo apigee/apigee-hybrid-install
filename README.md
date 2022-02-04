@@ -1,11 +1,14 @@
 # Hybrid Installation
 
 ## Prerequisites
-* [kpt](https://kpt.dev/installation/)
-* [jq](https://stedolan.github.io/jq/download/)
-* gcloud
-* kubectl
-* curl
+* `kpt`([download](https://kpt.dev/installation/))
+    * **NOTE:** KPT versions `v0.39` and below are not supported. Download kpt from the link mentioned above (`v1.0+`) to ensure that its working.
+* `jq`([download](https://stedolan.github.io/jq/download/))
+* envsubst
+    * **NOTE** `envsubst` should be available in most GNU based systems. For macos and other systems, follow  instructions in this [repo](https://github.com/a8m/envsubst).
+* `gcloud`
+* `kubectl`
+* `curl`
 
 ## Usage
 The shell script offers various options. To see a list of all the supported
