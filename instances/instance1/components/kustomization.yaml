@@ -1,0 +1,21 @@
+resources:
+- datastore/
+- environments/
+- organization/
+- redis/
+- route-config/
+- telemetry/
+
+# patches:
+# - target: ApigeeDatastore
+#   patch: |-
+#     path: "spec.version"
+#     values: "1.8.0"
+# - target: ApigeeOrganization
+#   patch: |-
+#     path: "spec.version"
+#     values: "1.8.0"
+# - target: ApigeeRedis
+#   patch: |-
+#     path: "spec.version"
+#     values: "1.8.0"
