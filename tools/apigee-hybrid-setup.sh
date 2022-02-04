@@ -36,6 +36,7 @@ AKUBECTL=""
 SCRIPT_NAME="${0##*/}"
 SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 ROOT_DIR="${SCRIPT_DIR}/.."
+INSTANCE_DIR=""
 
 REL_PATH_CREATE_SERVICE_ACCOUNT="${SCRIPT_DIR}/create-service-account.sh"
 SERVICE_ACCOUNT_OUTPUT_DIR="${ROOT_DIR}/service-accounts"
@@ -157,6 +158,9 @@ configure_defaults() {
     fi
     readonly GCP_PROJECT_ID
     info "GCP_PROJECT_ID='${GCP_PROJECT_ID}'"
+
+    INSTANCE_DIR="${ROOT_DIR}/instances/${CLUSTER_NAME}-${CLUSTER_REGION}"
+    readonly INSTANCE_DIR
 }
 
 ################################################################################
@@ -247,25 +251,21 @@ EOF
 rename_directories() {
     banner_info "Renaming directories..."
 
-    if [[ ! -d "${ROOT_DIR}/instances/${CLUSTER_NAME}-${CLUSTER_REGION}" ]]; then
+    if [[ ! -d "${INSTANCE_DIR}" ]]; then
         info "Renaming default instance '${DEFAULT_INSTANCE_DIR_NAME}' to '${CLUSTER_NAME}-${CLUSTER_REGION}'..."
-        run mv "${ROOT_DIR}/instances/${DEFAULT_INSTANCE_DIR_NAME}" \
-            "${ROOT_DIR}/instances/${CLUSTER_NAME}-${CLUSTER_REGION}"
+        run mv "${ROOT_DIR}/instances/${DEFAULT_INSTANCE_DIR_NAME}" "${INSTANCE_DIR}"
     fi
 
-    local INSTANCE_COMPONENTS_DIR
-    INSTANCE_COMPONENTS_DIR="${ROOT_DIR}/instances/${CLUSTER_NAME}-${CLUSTER_REGION}/components"
-
-    if [[ ! -d "${INSTANCE_COMPONENTS_DIR}/environments/${ENVIRONMENT_NAME}" ]]; then
+    if [[ ! -d "${INSTANCE_DIR}/environments/${ENVIRONMENT_NAME}" ]]; then
         info "Renaming default environment '${DEFAULT_ENV_DIR_NAME}' to '${ENVIRONMENT_NAME}'..."
-        run mv "${INSTANCE_COMPONENTS_DIR}/environments/${DEFAULT_ENV_DIR_NAME}" \
-            "${INSTANCE_COMPONENTS_DIR}/environments/${ENVIRONMENT_NAME}"
+        run mv "${INSTANCE_DIR}/environments/${DEFAULT_ENV_DIR_NAME}" \
+            "${INSTANCE_DIR}/environments/${ENVIRONMENT_NAME}"
     fi
 
-    if [[ ! -d "${INSTANCE_COMPONENTS_DIR}/route-config/${ENVIRONMENT_GROUP_NAME}" ]]; then
+    if [[ ! -d "${INSTANCE_DIR}/route-config/${ENVIRONMENT_GROUP_NAME}" ]]; then
         info "Renaming default envgroup '${DEFAULT_ENVGROUP_DIR_NAME}' to '${ENVIRONMENT_GROUP_NAME}'..."
-        run mv "${INSTANCE_COMPONENTS_DIR}/route-config/${DEFAULT_ENVGROUP_DIR_NAME}" \
-            "${INSTANCE_COMPONENTS_DIR}/route-config/${ENVIRONMENT_GROUP_NAME}"
+        run mv "${INSTANCE_DIR}/route-config/${DEFAULT_ENVGROUP_DIR_NAME}" \
+            "${INSTANCE_DIR}/route-config/${ENVIRONMENT_GROUP_NAME}"
     fi
 }
 
@@ -326,14 +326,14 @@ create_kubernetes_resources() {
     info "Waiting for controller to be available..."
     kubectl wait deployment/apigee-controller-manager deployment/apigee-istiod -n "${APIGEE_NAMESPACE}" --for=condition=available --timeout=2m
 
-    info "Creating apigee kubernetes components..."
+    info "Creating apigee kubernetes resources..."
     # Create the datastore and redis secrets first and the rest of the secrets.
-    kubectl apply -f "${ROOT_DIR}/instances/${CLUSTER_NAME}-${CLUSTER_REGION}/components/datastore/secrets.yaml"
-    kubectl apply -f "${ROOT_DIR}/instances/${CLUSTER_NAME}-${CLUSTER_REGION}/components/redis/secrets.yaml"
-    kubectl apply -f "${ROOT_DIR}/instances/${CLUSTER_NAME}-${CLUSTER_REGION}/components/environments/${ENVIRONMENT_NAME}/secrets.yaml"
-    kubectl apply -f "${ROOT_DIR}/instances/${CLUSTER_NAME}-${CLUSTER_REGION}/components/organization/secrets.yaml"
+    kubectl apply -f "${INSTANCE_DIR}/datastore/secrets.yaml"
+    kubectl apply -f "${INSTANCE_DIR}/redis/secrets.yaml"
+    kubectl apply -f "${INSTANCE_DIR}/environments/${ENVIRONMENT_NAME}/secrets.yaml"
+    kubectl apply -f "${INSTANCE_DIR}/organization/secrets.yaml"
     # Create the remainder of the resources.
-    kubectl apply -k "${ROOT_DIR}/instances/${CLUSTER_NAME}-${CLUSTER_REGION}/components"
+    kubectl apply -k "${INSTANCE_DIR}"
 
     # Resources having been successfully created. Now wait for them to start.
     banner_info "Resources have been created. Waiting for them to be ready..."
