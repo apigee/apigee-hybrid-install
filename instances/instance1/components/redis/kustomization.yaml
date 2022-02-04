@@ -1,8 +1,0 @@
-resources:
-- apigee-redis.yaml
-- secrets.yaml
-
-components:
-# - ./patches/nodeselector/
-# - ./patches/imagepullsecret
-# - ./patches/workload-identity
