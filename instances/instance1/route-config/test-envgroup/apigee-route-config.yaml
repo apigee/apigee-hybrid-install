@@ -9,4 +9,4 @@ spec:
   connectTimeout: 300
   tls:
     mode: SIMPLE
-    secretNameRef: "istio-system/${ORGANIZATION_NAME}-${ENVIRONMENT_GROUP_NAME}" # kpt-set: istio-system/${ORGANIZATION_NAME}-${ENVIRONMENT_GROUP_NAME}
+    secretNameRef: "${ORGANIZATION_NAME}-${ENVIRONMENT_GROUP_NAME}" # kpt-set: ${ORGANIZATION_NAME}-${ENVIRONMENT_GROUP_NAME}
