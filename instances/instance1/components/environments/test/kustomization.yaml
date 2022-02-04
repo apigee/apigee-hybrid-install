@@ -1,6 +1,5 @@
 resources:
 - apigee-environment.yaml
-- secrets.yaml
 
 components:
 # - ./patches/http-proxy

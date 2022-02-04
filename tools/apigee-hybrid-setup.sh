@@ -203,6 +203,11 @@ create_service_accounts() {
         --name "${GCP_SERVICE_ACCOUNT_NAME}" \
         --dir "${SERVICE_ACCOUNT_OUTPUT_DIR}" <<<"y"
 
+    # Remove the json extension from downloaded service account key to prevent
+    # kpt from trying to configure it and erroring out.
+    mv "${SERVICE_ACCOUNT_OUTPUT_DIR}/${ORGANIZATION_NAME}-${GCP_SERVICE_ACCOUNT_NAME}.json" \
+        "${SERVICE_ACCOUNT_OUTPUT_DIR}/${ORGANIZATION_NAME}-${GCP_SERVICE_ACCOUNT_NAME}.key"
+
     info "Calling setSyncAuthoriation API..."
     local JSON_DATA
     JSON_DATA="$(
@@ -216,11 +221,11 @@ create_service_accounts() {
         -K <(auth_header)
 
     banner_info "Creating kubernetes secrets containing the service account keys..."
-    kubectl apply -f "${ROOT_DIR}/initialization/namespaces.yaml"
+    kubectl apply -f "${ROOT_DIR}/initialization/namespace.yaml"
     # TODO(gauravkg): check if we require any other SAs and if the names are correct.
     while read -r k8s_sa_name; do
         kubectl create secret generic "${k8s_sa_name}" \
-            --from-file="client_secret.json=${SERVICE_ACCOUNT_OUTPUT_DIR}/${ORGANIZATION_NAME}-${GCP_SERVICE_ACCOUNT_NAME}.json" \
+            --from-file="client_secret.json=${SERVICE_ACCOUNT_OUTPUT_DIR}/${ORGANIZATION_NAME}-${GCP_SERVICE_ACCOUNT_NAME}.key" \
             -n "${APIGEE_NAMESPACE}" \
             --dry-run=client -o yaml | kubectl apply -f -
     done <<EOF
@@ -283,7 +288,7 @@ fill_values_in_yamls() {
     # TODO(gauravkg): Try to ensure that when multiple environments are added,
     # the same environment name is not used everywhere. Similar for the other
     # values like envgroup etc.
-    run kpt fn eval "${ROOT_DIR}/instances/${CLUSTER_NAME}-${CLUSTER_REGION}/components" \
+    run kpt fn eval "${ROOT_DIR}/" \
         --image gcr.io/kpt-fn/apply-setters:v0.2.0 -- \
         APIGEE_NAMESPACE="${APIGEE_NAMESPACE}" \
         CLUSTER_NAME="${CLUSTER_NAME}" \
@@ -304,11 +309,10 @@ create_kubernetes_resources() {
     check_if_cert_manager_exists
 
     info "Creating apigee initialization kubernetes resources..."
-    kubectl apply -f "${ROOT_DIR}/initialization/namespaces.yaml"
+    kubectl apply -f "${ROOT_DIR}/initialization/namespace.yaml"
     kubectl apply -f "${ROOT_DIR}/initialization/apigee-certificate-issuers.yaml"
     kubectl apply --server-side --force-conflicts -f "${ROOT_DIR}/initialization/crds"
     kubectl apply -f "${ROOT_DIR}/initialization/webhooks.yaml"
-    kubectl apply -f "${ROOT_DIR}/initialization/asm-config"
     kubectl apply -f "${ROOT_DIR}/initialization/rbac/controller"
     kubectl apply -f "${ROOT_DIR}/initialization/rbac/istiod"
     kubectl apply -f "${ROOT_DIR}/initialization/ingress"
@@ -323,14 +327,13 @@ create_kubernetes_resources() {
     kubectl wait deployment/apigee-controller-manager deployment/apigee-istiod -n "${APIGEE_NAMESPACE}" --for=condition=available --timeout=2m
 
     info "Creating apigee kubernetes components..."
+    # Create the datastore and redis secrets first and the rest of the secrets.
     kubectl apply -f "${ROOT_DIR}/instances/${CLUSTER_NAME}-${CLUSTER_REGION}/components/datastore/secrets.yaml"
     kubectl apply -f "${ROOT_DIR}/instances/${CLUSTER_NAME}-${CLUSTER_REGION}/components/redis/secrets.yaml"
-    kubectl apply -k "${ROOT_DIR}/instances/${CLUSTER_NAME}-${CLUSTER_REGION}/components/datastore"
-    kubectl apply -k "${ROOT_DIR}/instances/${CLUSTER_NAME}-${CLUSTER_REGION}/components/environments/${ENVIRONMENT_NAME}"
-    kubectl apply -k "${ROOT_DIR}/instances/${CLUSTER_NAME}-${CLUSTER_REGION}/components/organization"
-    kubectl apply -k "${ROOT_DIR}/instances/${CLUSTER_NAME}-${CLUSTER_REGION}/components/redis"
-    kubectl apply -k "${ROOT_DIR}/instances/${CLUSTER_NAME}-${CLUSTER_REGION}/components/route-config/${ENVIRONMENT_GROUP_NAME}"
-    kubectl apply -k "${ROOT_DIR}/instances/${CLUSTER_NAME}-${CLUSTER_REGION}/components/telemetry"
+    kubectl apply -f "${ROOT_DIR}/instances/${CLUSTER_NAME}-${CLUSTER_REGION}/components/environments/${ENVIRONMENT_NAME}/secrets.yaml"
+    kubectl apply -f "${ROOT_DIR}/instances/${CLUSTER_NAME}-${CLUSTER_REGION}/components/organization/secrets.yaml"
+    # Create the remainder of the resources.
+    kubectl apply -k "${ROOT_DIR}/instances/${CLUSTER_NAME}-${CLUSTER_REGION}/components"
 
     # Resources having been successfully created. Now wait for them to start.
     banner_info "Resources have been created. Waiting for them to be ready..."
