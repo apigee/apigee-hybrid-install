@@ -7,7 +7,7 @@
 * envsubst
     * **NOTE** `envsubst` should be available in most GNU based systems. For macos and other systems, follow  instructions in this [repo](https://github.com/a8m/envsubst).
 * `gcloud`
-* `kubectl`
+* `kubectl` version >= `1.18` ([download](https://kubernetes.io/docs/tasks/tools/#kubectl))
 * `curl`
 
 ## Usage
