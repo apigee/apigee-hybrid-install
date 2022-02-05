@@ -5,7 +5,7 @@ metadata:
   namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
 spec:
   selector:
-    app: istio-ingressgateway
+    app: apigee-ingressgateway
   connectTimeout: 300
   tls:
     mode: SIMPLE
