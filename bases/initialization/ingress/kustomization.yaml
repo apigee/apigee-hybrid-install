@@ -1,0 +1,2 @@
+resources:
+- ./envoyfilter-1.11.yaml

@@ -1,0 +1,3 @@
+resources:
+- mutatingwebhookconfiguration.yaml
+- validatingwebhookconfiguration.yaml

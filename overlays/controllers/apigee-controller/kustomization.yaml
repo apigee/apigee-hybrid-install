@@ -1,0 +1,9 @@
+namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+
+resources:
+- apigee-config.yaml
+- ../../../bases/controllers/apigee-controller
+
+components:
+- ./components/imagepullsecret/
+# - ./components/nodeselector/

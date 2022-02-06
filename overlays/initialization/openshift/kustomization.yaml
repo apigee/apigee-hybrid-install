@@ -1,0 +1,13 @@
+namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+
+resources:
+- ../../../bases/initialization/openshift/
+
+patches:
+- path: scc.yaml
+  target:
+    group: security.openshift.io
+    version: v1
+    kind: SecurityContextConstraints
+  options:
+    allowNameChange: true
