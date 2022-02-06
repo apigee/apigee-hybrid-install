@@ -1,0 +1,31 @@
+apiVersion: security.openshift.io/v1
+kind: SecurityContextConstraints
+metadata:
+  name: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+priority: 9
+allowHostDirVolumePlugin: false
+allowHostIPC: false
+allowHostNetwork: false
+allowHostPID: false
+allowHostPorts: false
+allowPrivilegeEscalation: true
+allowPrivilegedContainer: false
+readOnlyRootFilesystem: false
+runAsUser:
+  type: MustRunAsRange
+  uidRangeMin: 999
+  uidRangeMax: 999
+seLinuxContext:
+  type: MustRunAs
+supplementalGroups:
+  type: MustRunAs
+  ranges:
+  - min: 998
+    max: 998
+fsGroup:
+  type: MustRunAs
+  ranges:
+  - min: 998
+    max: 998
+groups:
+- system:serviceaccounts:apigee # kpt-set: system:serviceaccounts:${APIGEE_NAMESPACE}
