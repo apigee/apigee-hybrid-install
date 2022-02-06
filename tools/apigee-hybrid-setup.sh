@@ -26,7 +26,6 @@ SHOULD_CREATE_INGRESS_TLS_CERTS="0"           # --create-ingress-tls-certs
 SHOULD_FILL_VALUES="0"                        # --fill-values
 SHOULD_APPLY_CONFIGURATION="0"                # --apply-configuration
 
-DRY_RUN="0" # --dry-run
 VERBOSE="0" # --verbose
 
 HAS_TS="0"
@@ -501,11 +500,6 @@ parse_args() {
             readonly VERBOSE
             shift 1
             ;;
-        --dry-run)
-            DRY_RUN="1"
-            readonly DRY_RUN
-            shift 1
-            ;;
         --help)
             usage
             exit
@@ -559,7 +553,6 @@ EOF
     --apply-configuration:Create the kubernetes resources in their correct order.
     --setup-all:Used to execute all the tasks that can be performed by the script.
     --verbose:Show detailed output for debugging.
-    --dry-run:Do not execute commands that change the state of some resource and only show the sequence of tasks that would be performed.
     --help:Display usage information.
 EOF
     )"
@@ -594,14 +587,10 @@ EOF
 
 ################################################################################
 # run takes a list of arguments that represents a command.
-# If DRY_RUN or VERBOSE is enabled, it will print the command, and if DRY_RUN is
-# not enabled it runs the command.
+# If VERBOSE is enabled, it will print and run the command.
 ################################################################################
 run() {
-    if [[ "${DRY_RUN}" -eq 1 ]]; then
-        warn "Would have executed: ${*}"
-        return
-    elif [[ "${VERBOSE}" -eq 0 ]]; then
+    if [[ "${VERBOSE}" -eq 0 ]]; then
         "${@}" 2>/dev/null
         return "$?"
     fi
@@ -619,7 +608,7 @@ run() {
 # Wrapper functions
 #
 # These functions wrap other utilities with the `run` function for supporting
-# --verbose and --dry-run
+# --verbose
 ################################################################################
 gcloud() {
     run "${AGCLOUD}" "${@}"
