@@ -9,3 +9,4 @@ components:
 # - ./components/http-proxy
 # - ./components/nodeselector/
 # - ./components/imagepullsecret
+# - ./components/openshift-scc

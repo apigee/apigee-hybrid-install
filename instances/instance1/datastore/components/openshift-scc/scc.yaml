@@ -1,0 +1,34 @@
+apiVersion: security.openshift.io/v1
+kind: SecurityContextConstraints
+metadata:
+  name: "apigee-apigee-datastore" # kpt-set: ${APIGEE_NAMESPACE}-apigee-datastore
+priority: 9
+allowHostNetwork: true
+allowHostPorts: true
+allowHostDirVolumePlugin: false
+allowHostIPC: false
+allowHostPID: false
+allowPrivilegeEscalation: true
+allowPrivilegedContainer: false
+readOnlyRootFilesystem: false
+allowedCapabilities:
+- 'IPC_LOCK'
+- 'SYS_RESOURCE'
+runAsUser:
+  type: MustRunAsRange
+  uidRangeMin: 999
+  uidRangeMax: 999
+seLinuxContext:
+  type: MustRunAs
+supplementalGroups:
+  type: MustRunAs
+  ranges:
+  - min: 998
+    max: 998
+fsGroup:
+  type: MustRunAs
+  ranges:
+  - min: 998
+    max: 998
+users:
+- system:serviceaccount:apigee:apigee-datastore-default-sa # kpt-set: system:serviceaccount:${APIGEE_NAMESPACE}:apigee-datastore-default-sa

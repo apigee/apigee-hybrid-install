@@ -1,0 +1,29 @@
+apiVersion: security.openshift.io/v1
+kind: SecurityContextConstraints
+metadata:
+  name: "apigee-apigee-logger" # kpt-set: ${APIGEE_NAMESPACE}-apigee-logger
+priority: 9
+allowHostIPC: false
+allowHostNetwork: false
+allowHostPID: false
+allowHostPorts: false
+allowPrivilegeEscalation: true
+allowPrivilegedContainer: false
+allowHostDirVolumePlugin: true
+readOnlyRootFilesystem: false
+runAsUser:
+  type: RunAsAny
+seLinuxContext:
+  type: MustRunAs
+  seLinuxOptions:
+    type: spc_t
+fsGroup:
+  type: RunAsAny
+volumes:
+- configMap
+- downwardAPI
+- emptyDir
+- hostPath
+- secret
+users:
+- system:serviceaccount:apigee:apigee-container-logs-workload-identity # system:serviceaccount:${APIGEE_NAMESPACE}:apigee-container-logs-workload-identity

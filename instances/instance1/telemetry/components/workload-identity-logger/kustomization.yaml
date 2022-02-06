@@ -5,11 +5,6 @@ resources:
 - apigee-workload-identities.yaml
 
 patches:
-- path: patch.yaml
-  target:
-    group: apigee.cloud.google.com
-    version: v1alpha2
-    kind: ApigeeTelemetry
 - target:
     group: apigee.cloud.google.com
     version: v1alpha2
