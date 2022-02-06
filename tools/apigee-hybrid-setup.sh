@@ -308,6 +308,13 @@ create_kubernetes_resources() {
 
     check_if_cert_manager_exists
 
+    if is_open_shift; then
+        info "Creating SecurityContextConstraints for OpenShift..."
+        kubectl apply -f "${ROOT_DIR}/openshift/scc.yaml"
+        kubectl apply -f "${INSTANCE_DIR}/datastore/components/openshift-scc/scc.yaml"
+        kubectl apply -f "${INSTANCE_DIR}/telemetry/components/openshift-scc/scc.yaml"
+    fi
+
     info "Creating apigee initialization kubernetes resources..."
     kubectl apply -f "${ROOT_DIR}/initialization/namespace.yaml"
     kubectl apply -f "${ROOT_DIR}/initialization/apigee-certificate-issuers.yaml"
@@ -631,6 +638,15 @@ auth_header() {
     local TOKEN
     TOKEN="$(gcloud --project="${ORGANIZATION_NAME}" auth print-access-token)"
     echo "--header \"Authorization: Bearer ${TOKEN}\""
+}
+
+# Checks if the current cluster is uses openshift
+is_open_shift() {
+    if [[ "$(kubectl api-resources --api-group security.openshift.io -o name || true)" == *"securitycontextconstraints.security.openshift.io"* ]]; then
+        return 0
+    else
+        return 1
+    fi
 }
 
 warn() {

@@ -6,6 +6,7 @@ resources:
 - route-config/
 - telemetry/
 
+# TODO(b/218178140): Populate version field in instances kustomization
 # patches:
 # - target: ApigeeDatastore
 #   patch: |-
