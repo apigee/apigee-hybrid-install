@@ -1,0 +1,2 @@
+resources:
+- apigee-istiod-deployment.yaml

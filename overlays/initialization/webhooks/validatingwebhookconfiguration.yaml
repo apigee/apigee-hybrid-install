@@ -1,0 +1,33 @@
+apiVersion: admissionregistration.k8s.io/v1beta1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: apigee-validating-webhook-configuration
+webhooks:
+- name: vapigeedatastore.apigee.cloud.google.com
+  clientConfig:
+    service:
+      namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+- name: vapigeeenvironment.apigee.cloud.google.com
+  clientConfig:
+    service:
+      namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+- name: vapigeeorganization.apigee.cloud.google.com
+  clientConfig:
+    service:
+      namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+- name: vapigeeredis.apigee.cloud.google.com
+  clientConfig:
+    service:
+      namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+- name: vapigeeroute.apigee.cloud.google.com
+  clientConfig:
+    service:
+      namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+- name: vapigeetelemetry.apigee.cloud.google.com
+  clientConfig:
+    service:
+      namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+- name: vapigeedeployment.apigee.cloud.google.com
+  clientConfig:
+    service:
+      namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}

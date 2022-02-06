@@ -1,0 +1,33 @@
+apiVersion: admissionregistration.k8s.io/v1beta1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: apigee-mutating-webhook-configuration
+webhooks:
+- name: mapigeedatastore.apigee.cloud.google.com
+  clientConfig:
+    service:
+      namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+- name: mapigeeorganization.apigee.cloud.google.com
+  clientConfig:
+    service:
+      namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+- name: mapigeeredis.apigee.cloud.google.com
+  clientConfig:
+    service:
+      namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+- name: mapigeeroute.apigee.cloud.google.com
+  clientConfig:
+    service:
+      namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+- name: mapigeetelemetry.apigee.cloud.google.com
+  clientConfig:
+    service:
+      namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+- name: mapigeedeployment.apigee.cloud.google.com
+  clientConfig:
+    service:
+      namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+- name: mapigeeenvironment.apigee.cloud.google.com
+  clientConfig:
+    service:
+      namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}

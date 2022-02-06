@@ -1,0 +1,4 @@
+namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+
+resources:
+- ../../../bases/initialization/ingress/

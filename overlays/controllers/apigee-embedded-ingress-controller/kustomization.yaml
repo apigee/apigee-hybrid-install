@@ -1,0 +1,16 @@
+namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+
+resources:
+- apigee-istio-mesh-config.yaml
+- ../../../bases/controllers/apigee-embedded-ingress-controller
+
+components:
+# - ./components/imagepullsecret/
+# - ./components/nodeselector/
+
+patches:
+- path: apigee-istiod-deployment-patch.yaml
+  target:
+    group: apps
+    version: v1
+    kind: Deployment

@@ -158,7 +158,7 @@ configure_defaults() {
     readonly GCP_PROJECT_ID
     info "GCP_PROJECT_ID='${GCP_PROJECT_ID}'"
 
-    INSTANCE_DIR="${ROOT_DIR}/instances/${CLUSTER_NAME}-${CLUSTER_REGION}"
+    INSTANCE_DIR="${ROOT_DIR}/overlays/instances/${CLUSTER_NAME}-${CLUSTER_REGION}"
     readonly INSTANCE_DIR
 }
 
@@ -224,7 +224,7 @@ create_service_accounts() {
         -K <(auth_header)
 
     banner_info "Creating kubernetes secrets containing the service account keys..."
-    kubectl apply -f "${ROOT_DIR}/initialization/namespace.yaml"
+    kubectl apply -f "${ROOT_DIR}/overlays/initialization/namespace.yaml"
     # TODO(gauravkg): check if we require any other SAs and if the names are correct.
     while read -r k8s_sa_name; do
         kubectl create secret generic "${k8s_sa_name}" \
@@ -252,7 +252,7 @@ rename_directories() {
 
     if [[ ! -d "${INSTANCE_DIR}" ]]; then
         info "Renaming default instance '${DEFAULT_INSTANCE_DIR_NAME}' to '${CLUSTER_NAME}-${CLUSTER_REGION}'..."
-        run mv "${ROOT_DIR}/instances/${DEFAULT_INSTANCE_DIR_NAME}" "${INSTANCE_DIR}"
+        run mv "${ROOT_DIR}/overlays/instances/${DEFAULT_INSTANCE_DIR_NAME}" "${INSTANCE_DIR}"
     fi
 
     if [[ ! -d "${INSTANCE_DIR}/environments/${ENVIRONMENT_NAME}" ]]; then
@@ -287,7 +287,7 @@ fill_values_in_yamls() {
     # TODO(gauravkg): Try to ensure that when multiple environments are added,
     # the same environment name is not used everywhere. Similar for the other
     # values like envgroup etc.
-    run kpt fn eval "${ROOT_DIR}/" \
+    run kpt fn eval "${ROOT_DIR}/overlays/" \
         --image gcr.io/kpt-fn/apply-setters:v0.2.0 -- \
         APIGEE_NAMESPACE="${APIGEE_NAMESPACE}" \
         CLUSTER_NAME="${CLUSTER_NAME}" \
@@ -309,27 +309,23 @@ create_kubernetes_resources() {
 
     if is_open_shift; then
         info "Creating SecurityContextConstraints for OpenShift..."
-        kubectl apply -f "${ROOT_DIR}/openshift/scc.yaml"
+        kubectl apply -k "${ROOT_DIR}/overlays/initialization/openshift"
         kubectl apply -f "${INSTANCE_DIR}/datastore/components/openshift-scc/scc.yaml"
         kubectl apply -f "${INSTANCE_DIR}/telemetry/components/openshift-scc/scc.yaml"
     fi
 
     info "Creating apigee initialization kubernetes resources..."
-    kubectl apply -f "${ROOT_DIR}/initialization/namespace.yaml"
-    kubectl apply -f "${ROOT_DIR}/initialization/apigee-certificate-issuers.yaml"
-    kubectl apply --server-side --force-conflicts -f "${ROOT_DIR}/initialization/crds"
-    kubectl apply -f "${ROOT_DIR}/initialization/webhooks.yaml"
-    kubectl apply -f "${ROOT_DIR}/initialization/rbac/controller"
-    kubectl apply -f "${ROOT_DIR}/initialization/rbac/istiod"
-    kubectl apply -f "${ROOT_DIR}/initialization/ingress"
+    kubectl apply -f "${ROOT_DIR}/overlays/initialization/namespace.yaml"
+    kubectl apply -k "${ROOT_DIR}/overlays/initialization/certificates"
+    kubectl apply --server-side --force-conflicts -k "${ROOT_DIR}/overlays/initialization/crds"
+    kubectl apply -k "${ROOT_DIR}/overlays/initialization/webhooks"
+    kubectl apply -k "${ROOT_DIR}/overlays/initialization/rbac"
+    kubectl apply -k "${ROOT_DIR}/overlays/initialization/ingress"
 
-    info "Creating apigee controller..."
-    kubectl apply -f "${ROOT_DIR}/controller/apigee-config.yaml"
-    kubectl apply -f "${ROOT_DIR}/controller/apigee-controller-manager.yaml"
-    kubectl apply -f "${ROOT_DIR}/controller/apigee-istio-mesh-config.yaml"
-    kubectl apply -f "${ROOT_DIR}/controller/apigee-istiod-deployment.yaml"
+    info "Creating controllers..."
+    kubectl apply -k "${ROOT_DIR}/overlays/controllers"
 
-    info "Waiting for controller to be available..."
+    info "Waiting for controllers to be available..."
     kubectl wait deployment/apigee-controller-manager deployment/apigee-istiod -n "${APIGEE_NAMESPACE}" --for=condition=available --timeout=2m
 
     info "Creating apigee kubernetes resources..."
