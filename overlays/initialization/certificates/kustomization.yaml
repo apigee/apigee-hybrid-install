@@ -1,0 +1,12 @@
+namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+
+resources:
+- ../../../bases/initialization/certificates/
+
+patches:
+- path: apigee-istiod-certificate.yaml
+  target:
+    group: cert-manager.io
+    version: v1
+    kind: Certificate
+    name: apigee-istiod

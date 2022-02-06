@@ -1,0 +1,10 @@
+resources:
+- ./customresourcedefinition-apigeedatastores.apigee.cloud.google.com.yaml
+- ./customresourcedefinition-apigeedeployments.apigee.cloud.google.com.yaml
+- ./customresourcedefinition-apigeeenvironments.apigee.cloud.google.com.yaml
+- ./customresourcedefinition-apigeeorganizations.apigee.cloud.google.com.yaml
+- ./customresourcedefinition-apigeeredis.apigee.cloud.google.com.yaml
+- ./customresourcedefinition-apigeerouteconfigs.apigee.cloud.google.com.yaml
+- ./customresourcedefinition-apigeeroutes.apigee.cloud.google.com.yaml
+- ./customresourcedefinition-apigeetelemetries.apigee.cloud.google.com.yaml
+- ./customresourcedefinition-cassandradatareplications.apigee.cloud.google.com.yaml

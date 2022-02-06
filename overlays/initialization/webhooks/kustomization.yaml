@@ -1,0 +1,16 @@
+namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+
+resources:
+- ../../../bases/initialization/webhooks/
+
+patches:
+- path: mutatingwebhookconfiguration.yaml
+  target:
+    group: admissionregistration.k8s.io
+    version: v1beta1
+    kind: MutatingWebhookConfiguration
+- path: validatingwebhookconfiguration.yaml
+  target:
+    group: admissionregistration.k8s.io
+    version: v1beta1
+    kind: ValidatingWebhookConfiguration
