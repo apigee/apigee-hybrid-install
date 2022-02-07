@@ -61,6 +61,8 @@ spec:
                 type: string
               apigeeEndpoint:
                 type: string
+              udcaEnabled:
+                type: bool
               apigeeMonetizationAddon:
                 properties:
                   enabled:
@@ -25479,6 +25481,8 @@ spec:
                 type: string
               apigeeEndpoint:
                 type: string
+              udcaEnabled:
+                type: bool
               apigeeMonetizationAddon:
                 properties:
                   enabled:
