@@ -2,13 +2,16 @@
 
 set -eo pipefail
 
+# shellcheck disable=SC1090
+source "${PWD}/common.sh" || exit 1
+
 ################################################################################
 #                           User modifiable variables
 ################################################################################
 
+APIGEE_NAMESPACE="apigee"                           # The kubernetes namespace name where Apigee components will be created
 APIGEE_API_ENDPOINT="https://apigee.googleapis.com" # API endpoint to be used to Apigee API calls
 GCP_SERVICE_ACCOUNT_NAME="apigee-all-sa"            # Name of the service account that will be created
-APIGEE_NAMESPACE="apigee"                           # The kubernetes namespace name where Apigee components will be created
 
 ORGANIZATION_NAME="${ORGANIZATION_NAME:-""}"                   # --org
 ENVIRONMENT_NAME="${ENVIRONMENT_NAME:-""}"                     # --env
@@ -504,6 +507,10 @@ parse_args() {
             usage
             exit
             ;;
+        --version)
+            echo "Apigee Hybrid Setup Version: ${APIGEE_HYBRID_VERSION}"
+            exit
+            ;;    
         *)
             fatal "Unknown option '${1}'"
             ;;
@@ -552,6 +559,7 @@ EOF
     --setup-all:Used to execute all the tasks that can be performed by the script.
     --verbose:Show detailed output for debugging.
     --help:Display usage information.
+    --version:Display version of apigee hybrid setup.
 EOF
     )"
 
