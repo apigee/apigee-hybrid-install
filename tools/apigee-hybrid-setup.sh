@@ -2,9 +2,6 @@
 
 set -eo pipefail
 
-# shellcheck disable=SC1090
-source "${PWD}/common.sh" || exit 1
-
 ################################################################################
 #                           User modifiable variables
 ################################################################################
@@ -39,6 +36,9 @@ SCRIPT_NAME="${0##*/}"
 SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 ROOT_DIR="${SCRIPT_DIR}/.."
 INSTANCE_DIR=""
+
+# shellcheck disable=SC1090
+source "${SCRIPT_DIR}/common.sh" || exit 1
 
 REL_PATH_CREATE_SERVICE_ACCOUNT="${SCRIPT_DIR}/create-service-account.sh"
 SERVICE_ACCOUNT_OUTPUT_DIR="${ROOT_DIR}/service-accounts"
@@ -510,7 +510,7 @@ parse_args() {
         --version)
             echo "Apigee Hybrid Setup Version: ${APIGEE_HYBRID_VERSION}"
             exit
-            ;;    
+            ;;
         *)
             fatal "Unknown option '${1}'"
             ;;
@@ -536,30 +536,51 @@ usage() {
 
     # Flags that require an argument
     FLAGS_1="$(
-        column --table --table-wrap 3 -s':' <<EOF
-    --org:<ORGANIZATION_NAME>:Set the Apigee Organization. If not set, the project configured in gcloud will be used.
-    --env:<ENVIRONMENT_NAME>:Set the Apigee Environment. If not set, a random environment within the organization will be selected.
-    --envgroup:<ENVIRONMENT_GROUP_NAME>:Set the Apigee Environment Group. If not set, a random environment group within the organization will be selected.
-    --ingress-domain:<ENVIRONMENT_GROUP_HOSTNAME>:Set the hostname. This will be used to generate self signed certificates.
-    --namespace:<APIGEE_NAMESPACE>:The name of the namespace where apigee components will be installed. Defaults to "apigee".
-    --cluster-name:<CLUSTER_NAME>:The Kubernetes cluster name.
-    --cluster-region:<CLUSTER_REGION>:The region in which the Kubernetes cluster resides.
-    --gcp-project-id:<GCP_PROJECT_ID>:The GCP Project ID where the Kubernetes cluster exists. This can be different from the Apigee Organization name.
+        cat <<EOF
+    --org             <ORGANIZATION_NAME>           Set the Apigee Organization.
+                                                    If not set, the project configured
+                                                    in gcloud will be used.
+    --env             <ENVIRONMENT_NAME>            Set the Apigee Environment.
+                                                    If not set, a random environment
+                                                    within the organization will be
+                                                    selected.
+    --envgroup        <ENVIRONMENT_GROUP_NAME>      Set the Apigee Environment Group.
+                                                    If not set, a random environment
+                                                    group within the organization
+                                                    will be selected.
+    --ingress-domain  <ENVIRONMENT_GROUP_HOSTNAME>  Set the hostname. This will be
+                                                    used to generate self signed
+                                                    certificates.
+    --namespace       <APIGEE_NAMESPACE>            The name of the namespace where
+                                                    apigee components will be installed.
+                                                    Defaults to "apigee".
+    --cluster-name    <CLUSTER_NAME>                The Kubernetes cluster name.
+    --cluster-region  <CLUSTER_REGION>              The region in which the
+                                                    Kubernetes cluster resides.
+    --gcp-project-id  <GCP_PROJECT_ID>              The GCP Project ID where the
+                                                    Kubernetes cluster exists.
+                                                    This can be different from
+                                                    the Apigee Organization name.
 EOF
     )"
 
     # Flags that DON'T require an argument
     FLAGS_2="$(
-        column --table --table-wrap 2 -s':' <<EOF
-    --create-gcp-sa-and-secrets:Create GCP service account and corresponding secret containing the keys in the kubernetes cluster.
-    --rename-directories:Rename the environment and environment group to the names of the correct environment and environment group.
-    --create-ingress-tls-certs:Create Certificate resource which will generate a self signed TLS cert for the ENVIRONMENT_GROUP_HOSTNAME
-    --fill-values:Replace the values organization, environment, etc. in the kubernetes yaml files.
-    --apply-configuration:Create the kubernetes resources in their correct order.
-    --setup-all:Used to execute all the tasks that can be performed by the script.
-    --verbose:Show detailed output for debugging.
-    --help:Display usage information.
-    --version:Display version of apigee hybrid setup.
+        cat <<EOF
+    --create-gcp-sa-and-secrets  Create GCP service account and corresponding 
+                                 secret containing the keys in the kubernetes cluster.
+    --rename-directories         Rename the instnce, environment and environment group
+                                 to their correct names.
+    --create-ingress-tls-certs   Create Certificate resource which will generate
+                                 a self signed TLS cert for the ENVIRONMENT_GROUP_HOSTNAME
+    --fill-values                Replace the values for organization, environment, etc.
+                                 in the kubernetes yaml files.
+    --apply-configuration        Create the kubernetes resources in their correct order.
+    --setup-all                  Used to execute all the tasks that can be performed
+                                 by the script.
+    --verbose                    Show detailed output for debugging.
+    --version                    Display version of apigee hybrid setup.
+    --help                       Display usage information.
 EOF
     )"
 
