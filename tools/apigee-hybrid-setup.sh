@@ -225,7 +225,7 @@ create_service_accounts() {
 
     banner_info "Creating kubernetes secrets containing the service account keys..."
     kubectl apply -f "${ROOT_DIR}/overlays/initialization/namespace.yaml"
-    # TODO(gauravkg): check if we require any other SAs and if the names are correct.
+
     while read -r k8s_sa_name; do
         kubectl create secret generic "${k8s_sa_name}" \
             --from-file="client_secret.json=${SERVICE_ACCOUNT_OUTPUT_DIR}/${ORGANIZATION_NAME}-${GCP_SERVICE_ACCOUNT_NAME}.key" \
@@ -284,9 +284,7 @@ create_ingress_tls_certs() {
 ################################################################################
 fill_values_in_yamls() {
     banner_info "Filling values in YAMLs..."
-    # TODO(gauravkg): Try to ensure that when multiple environments are added,
-    # the same environment name is not used everywhere. Similar for the other
-    # values like envgroup etc.
+
     run kpt fn eval "${ROOT_DIR}/overlays/" \
         --image gcr.io/kpt-fn/apply-setters:v0.2.0 -- \
         APIGEE_NAMESPACE="${APIGEE_NAMESPACE}" \
@@ -297,6 +295,10 @@ fill_values_in_yamls() {
         GCP_PROJECT_ID="${GCP_PROJECT_ID}" \
         ORGANIZATION_NAME_UPPER="$(echo "${ORGANIZATION_NAME}" | tr 'a-z' 'A-Z')" \
         ORGANIZATION_NAME="${ORGANIZATION_NAME}"
+
+    # Replace correct namespace in istio discoveryAddress which cannot be done
+    # with kpt.
+    sed -i -E -e "s/(discoveryAddress: apigee-istiod\.).*(\.svc:15012)/\1${APIGEE_NAMESPACE}\2/" "${ROOT_DIR}/overlays/controllers/apigee-embedded-ingress-controller/apigee-istio-mesh-config.yaml"
 }
 
 ################################################################################
@@ -400,6 +402,7 @@ curl
 jq
 kpt
 envsubst
+sed
 $AGCLOUD
 $AKUBECTL
 EOF
@@ -523,8 +526,6 @@ parse_args() {
 ################################################################################
 usage() {
     local FLAGS_1 FLAGS_2
-
-    # TODO(gauravkg): Discuss if words breaking dute to wrapping is a problem.
 
     # Flags that require an argument
     FLAGS_1="$(
