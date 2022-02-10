@@ -4,7 +4,13 @@ resources:
 - ../../../bases/initialization/certificates/
 
 patches:
-- path: apigee-istiod-certificate.yaml
+- path: apigee-serving-cert-patch.yaml
+  target:
+    group: cert-manager.io
+    version: v1
+    kind: Certificate
+    name: apigee-serving-cert
+- path: apigee-istiod-certificate-patch.yaml
   target:
     group: cert-manager.io
     version: v1
