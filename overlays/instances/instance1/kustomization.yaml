@@ -6,17 +6,45 @@ resources:
 - route-config/
 - telemetry/
 
-# TODO(b/218178140): Populate version field in instances kustomization
-# patches:
-# - target: ApigeeDatastore
-#   patch: |-
-#     path: "spec.version"
-#     values: "1.8.0"
-# - target: ApigeeOrganization
-#   patch: |-
-#     path: "spec.version"
-#     values: "1.8.0"
-# - target: ApigeeRedis
-#   patch: |-
-#     path: "spec.version"
-#     values: "1.8.0"
+# TODO(b/218899819): Change version values to a relevant version before the initial release.
+patches:
+- target:
+    group: apigee.cloud.google.com
+    version: v1alpha1
+    kind: ApigeeDatastore
+  patch: |-
+    - op: add
+      path: /spec/version
+      value: 1-6-1
+- target:
+    group: apigee.cloud.google.com
+    version: v1alpha2
+    kind: ApigeeEnvironment
+  patch: |-
+    - op: add
+      path: /spec/version
+      value: 1-6-1
+- target:
+    group: apigee.cloud.google.com
+    version: v1alpha2
+    kind: ApigeeOrganization
+  patch: |-
+    - op: add
+      path: /spec/version
+      value: 1-6-1
+- target:
+    group: apigee.cloud.google.com
+    version: v1alpha1
+    kind: ApigeeRedis
+  patch: |-
+    - op: add
+      path: /spec/version
+      value: 1-6-1
+- target:
+    group: apigee.cloud.google.com
+    version: v1alpha2
+    kind: ApigeeTelemetry
+  patch: |-
+    - op: add
+      path: /spec/version
+      value: 1-6-1
