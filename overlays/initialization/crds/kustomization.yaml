@@ -1,4 +1,8 @@
-namespace: "random" # kpt-set: ${APIGEE_NAMESPACE}
+namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+
+commonAnnotations:
+  cert-manager.io/inject-ca-from: apigee/apigee-serving-cert # kpt-set: ${APIGEE_NAMESPACE}/apigee-serving-cert
+  certmanager.k8s.io/inject-ca-from: apigee/apigee-serving-cert # kpt-set: ${APIGEE_NAMESPACE}/apigee-serving-cert
 
 resources:
 - ../../../bases/initialization/crds/
