@@ -3,7 +3,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     cert-manager.io/inject-ca-from: apigee/apigee-serving-cert
-    controller-gen.kubebuilder.io/version: v0.3.0
+    controller-gen.kubebuilder.io/version: v0.4.1
   name: apigeedeployments.apigee.cloud.google.com
 spec:
   conversion:
@@ -378,6 +378,7 @@ spec:
                           format: int32
                           type: integer
                         protocol:
+                          default: TCP
                           type: string
                         targetPort:
                           anyOf:
@@ -1072,6 +1073,7 @@ spec:
                                   name:
                                     type: string
                                   protocol:
+                                    default: TCP
                                     type: string
                                 required:
                                 - containerPort
@@ -1653,6 +1655,7 @@ spec:
                                   name:
                                     type: string
                                   protocol:
+                                    default: TCP
                                     type: string
                                 required:
                                 - containerPort
@@ -2233,6 +2236,7 @@ spec:
                                   name:
                                     type: string
                                   protocol:
+                                    default: TCP
                                     type: string
                                 required:
                                 - containerPort
@@ -4237,6 +4241,7 @@ spec:
                           format: int32
                           type: integer
                         protocol:
+                          default: TCP
                           type: string
                         targetPort:
                           anyOf:
@@ -4931,6 +4936,7 @@ spec:
                                   name:
                                     type: string
                                   protocol:
+                                    default: TCP
                                     type: string
                                 required:
                                 - containerPort
@@ -5512,6 +5518,7 @@ spec:
                                   name:
                                     type: string
                                   protocol:
+                                    default: TCP
                                     type: string
                                 required:
                                 - containerPort
@@ -6092,6 +6099,7 @@ spec:
                                   name:
                                     type: string
                                   protocol:
+                                    default: TCP
                                     type: string
                                 required:
                                 - containerPort

@@ -3,7 +3,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     cert-manager.io/inject-ca-from: apigee/apigee-serving-cert
-    controller-gen.kubebuilder.io/version: v0.3.0
+    controller-gen.kubebuilder.io/version: v0.4.1
   name: apigeetelemetries.apigee.cloud.google.com
 spec:
   conversion:
@@ -1055,6 +1055,8 @@ spec:
                             type: boolean
                           enableSysctlInitContainer:
                             type: boolean
+                          envoyGatewayContractPollIntervalSeconds:
+                            type: integer
                           externalSeedHost:
                             type: string
                           gatewayConfigURI:
@@ -1224,6 +1226,7 @@ spec:
                                   format: int32
                                   type: integer
                                 protocol:
+                                  default: TCP
                                   type: string
                                 targetPort:
                                   anyOf:
@@ -3207,6 +3210,8 @@ spec:
                             type: boolean
                           enableSysctlInitContainer:
                             type: boolean
+                          envoyGatewayContractPollIntervalSeconds:
+                            type: integer
                           externalSeedHost:
                             type: string
                           gatewayConfigURI:
@@ -3376,6 +3381,7 @@ spec:
                                   format: int32
                                   type: integer
                                 protocol:
+                                  default: TCP
                                   type: string
                                 targetPort:
                                   anyOf:
@@ -5359,6 +5365,8 @@ spec:
                             type: boolean
                           enableSysctlInitContainer:
                             type: boolean
+                          envoyGatewayContractPollIntervalSeconds:
+                            type: integer
                           externalSeedHost:
                             type: string
                           gatewayConfigURI:
@@ -5528,6 +5536,7 @@ spec:
                                   format: int32
                                   type: integer
                                 protocol:
+                                  default: TCP
                                   type: string
                                 targetPort:
                                   anyOf:
@@ -7511,6 +7520,8 @@ spec:
                             type: boolean
                           enableSysctlInitContainer:
                             type: boolean
+                          envoyGatewayContractPollIntervalSeconds:
+                            type: integer
                           externalSeedHost:
                             type: string
                           gatewayConfigURI:
@@ -7680,6 +7691,7 @@ spec:
                                   format: int32
                                   type: integer
                                 protocol:
+                                  default: TCP
                                   type: string
                                 targetPort:
                                   anyOf:
@@ -9663,6 +9675,8 @@ spec:
                             type: boolean
                           enableSysctlInitContainer:
                             type: boolean
+                          envoyGatewayContractPollIntervalSeconds:
+                            type: integer
                           externalSeedHost:
                             type: string
                           gatewayConfigURI:
@@ -9832,6 +9846,7 @@ spec:
                                   format: int32
                                   type: integer
                                 protocol:
+                                  default: TCP
                                   type: string
                                 targetPort:
                                   anyOf:
@@ -10882,6 +10897,8 @@ spec:
                 type: object
               prioritizeTelemetryDaemons:
                 type: boolean
+              version:
+                type: string
             type: object
           status:
             properties:
@@ -13240,6 +13257,8 @@ spec:
                             type: boolean
                           enableSysctlInitContainer:
                             type: boolean
+                          envoyGatewayContractPollIntervalSeconds:
+                            type: integer
                           externalSeedHost:
                             type: string
                           gatewayConfigURI:
@@ -13409,6 +13428,7 @@ spec:
                                   format: int32
                                   type: integer
                                 protocol:
+                                  default: TCP
                                   type: string
                                 targetPort:
                                   anyOf:
@@ -15478,6 +15498,8 @@ spec:
                             type: boolean
                           enableSysctlInitContainer:
                             type: boolean
+                          envoyGatewayContractPollIntervalSeconds:
+                            type: integer
                           externalSeedHost:
                             type: string
                           gatewayConfigURI:
@@ -15647,6 +15669,7 @@ spec:
                                   format: int32
                                   type: integer
                                 protocol:
+                                  default: TCP
                                   type: string
                                 targetPort:
                                   anyOf:
@@ -17716,6 +17739,8 @@ spec:
                             type: boolean
                           enableSysctlInitContainer:
                             type: boolean
+                          envoyGatewayContractPollIntervalSeconds:
+                            type: integer
                           externalSeedHost:
                             type: string
                           gatewayConfigURI:
@@ -17885,6 +17910,7 @@ spec:
                                   format: int32
                                   type: integer
                                 protocol:
+                                  default: TCP
                                   type: string
                                 targetPort:
                                   anyOf:
@@ -19954,6 +19980,8 @@ spec:
                             type: boolean
                           enableSysctlInitContainer:
                             type: boolean
+                          envoyGatewayContractPollIntervalSeconds:
+                            type: integer
                           externalSeedHost:
                             type: string
                           gatewayConfigURI:
@@ -20123,6 +20151,7 @@ spec:
                                   format: int32
                                   type: integer
                                 protocol:
+                                  default: TCP
                                   type: string
                                 targetPort:
                                   anyOf:
@@ -22192,6 +22221,8 @@ spec:
                             type: boolean
                           enableSysctlInitContainer:
                             type: boolean
+                          envoyGatewayContractPollIntervalSeconds:
+                            type: integer
                           externalSeedHost:
                             type: string
                           gatewayConfigURI:
@@ -22361,6 +22392,7 @@ spec:
                                   format: int32
                                   type: integer
                                 protocol:
+                                  default: TCP
                                   type: string
                                 targetPort:
                                   anyOf:
@@ -24430,6 +24462,8 @@ spec:
                             type: boolean
                           enableSysctlInitContainer:
                             type: boolean
+                          envoyGatewayContractPollIntervalSeconds:
+                            type: integer
                           externalSeedHost:
                             type: string
                           gatewayConfigURI:
@@ -24599,6 +24633,7 @@ spec:
                                   format: int32
                                   type: integer
                                 protocol:
+                                  default: TCP
                                   type: string
                                 targetPort:
                                   anyOf:
@@ -25649,6 +25684,8 @@ spec:
                 type: object
               prioritizeTelemetryDaemons:
                 type: boolean
+              version:
+                type: string
             type: object
           status:
             properties:
