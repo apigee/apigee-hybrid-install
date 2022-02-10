@@ -278,7 +278,7 @@ rename_directories() {
 create_ingress_tls_certs() {
     banner_info "Creating ingress Certificate..."
 
-    export ORGANIZATION_NAME ENVIRONMENT_GROUP_NAME ENVIRONMENT_GROUP_HOSTNAME
+    export APIGEE_NAMESPACE ORGANIZATION_NAME ENVIRONMENT_GROUP_NAME ENVIRONMENT_GROUP_HOSTNAME HOSTNAME
     kubectl apply -f <(envsubst <"${ROOT_DIR}/templates/ingress-certificate.yaml")
 }
 
