@@ -5,14 +5,14 @@ metadata:
 spec:
   components:
     cassandraUserSetup:
-      podServiceAccountName: "apigee-cassandra-user-setup-workload-identity-${ORGANIZATION_NAME}" # kpt-set: apigee-cassandra-user-setup-workload-identity-${ORGANIZATION_NAME}
+      podServiceAccountName: "apigee-cassandra-user-setup-svc-account-${ORGANIZATION_NAME}" # kpt-set: apigee-cassandra-user-setup-svc-account-${ORGANIZATION_NAME}
     cassandraSchemaSetup:
-      podServiceAccountName: "apigee-cassandra-schema-setup-workload-identity-${ORGANIZATION_NAME}" # kpt-set: apigee-cassandra-schema-setup-workload-identity-${ORGANIZATION_NAME}
+      podServiceAccountName: "apigee-cassandra-schema-setup-svc-account-${ORGANIZATION_NAME}" # kpt-set: apigee-cassandra-schema-setup-svc-account-${ORGANIZATION_NAME}
     connectAgent:
-      podServiceAccountName: "apigee-connect-agent-workload-identity-${ORGANIZATION_NAME}" # kpt-set: apigee-connect-agent-workload-identity-${ORGANIZATION_NAME}
+      podServiceAccountName: "apigee-connect-agent-svc-account-${ORGANIZATION_NAME}" # kpt-set: apigee-connect-agent-svc-account-${ORGANIZATION_NAME}
     watcher:
-      podServiceAccountName: "apigee-watcher-workload-identity-${ORGANIZATION_NAME}" # kpt-set: apigee-watcher-workload-identity-${ORGANIZATION_NAME}
+      podServiceAccountName: "apigee-watcher-svc-account-${ORGANIZATION_NAME}" # kpt-set: apigee-watcher-svc-account-${ORGANIZATION_NAME}
     mart:
-      podServiceAccountName: "apigee-mart-workload-identity-${ORGANIZATION_NAME}" # kpt-set: apigee-mart-workload-identity-${ORGANIZATION_NAME}
+      podServiceAccountName: "apigee-mart-svc-account-${ORGANIZATION_NAME}" # kpt-set: apigee-mart-svc-account-${ORGANIZATION_NAME}
     udca:
-      podServiceAccountName: "apigee-udca-workload-identity-${ORGANIZATION_NAME}" # kpt-set: apigee-udca-workload-identity-${ORGANIZATION_NAME}
+      podServiceAccountName: "apigee-udca-svc-account-${ORGANIZATION_NAME}" # kpt-set: apigee-udca-svc-account-${ORGANIZATION_NAME}

@@ -10,5 +10,5 @@ spec:
     enabled: false
   components:
     containerLogs:
-      appServiceAccountSecretName: "apigee-logger-svc-account"
-      podServiceAccountName: "apigee-container-logs-workload-identity"
+      appServiceAccountSecretName: "apigee-logger-gcp-sa-key"
+      podServiceAccountName: "apigee-container-logs-svc-account"

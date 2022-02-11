@@ -11,8 +11,8 @@ spec:
     stackdriverAPIEndpoint: "https://monitoring.googleapis.com:443/"
   components:
     metricsApp:
-      appServiceAccountSecretName: "apigee-metrics-svc-account"
+      appServiceAccountSecretName: "apigee-metrics-gcp-sa-key"
     metricsProxy:
-      appServiceAccountSecretName: "apigee-metrics-svc-account"
+      appServiceAccountSecretName: "apigee-metrics-gcp-sa-key"
     metricsAdapter:
-      appServiceAccountSecretName: "apigee-metrics-svc-account"
+      appServiceAccountSecretName: "apigee-metrics-gcp-sa-key"

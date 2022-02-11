@@ -5,7 +5,7 @@ metadata:
     iam.gke.io/gcp-service-account: apigee-all-sa@${GCP_PROJECT_ID}.iam.gserviceaccount.com # kpt-set: apigee-all-sa@${GCP_PROJECT_ID}.iam.gserviceaccount.com
   labels:
     apigee.cloud.google.com/platform: apigee
-  name: "apigee-cassandra-user-setup-workload-identity-${ORGANIZATION_NAME}" # kpt-set: apigee-cassandra-user-setup-workload-identity-${ORGANIZATION_NAME}
+  name: "apigee-cassandra-user-setup-svc-account-${ORGANIZATION_NAME}" # kpt-set: apigee-cassandra-user-setup-svc-account-${ORGANIZATION_NAME}
   namespace: apigee # kpt-set: ${APIGEE_NAMESPACE}
 ---
 apiVersion: v1
@@ -15,7 +15,7 @@ metadata:
     iam.gke.io/gcp-service-account: apigee-all-sa@${GCP_PROJECT_ID}.iam.gserviceaccount.com # kpt-set: apigee-all-sa@${GCP_PROJECT_ID}.iam.gserviceaccount.com
   labels:
     apigee.cloud.google.com/platform: apigee
-  name: "apigee-cassandra-schema-setup-workload-identity-${ORGANIZATION_NAME}" # kpt-set: apigee-cassandra-schema-setup-workload-identity-${ORGANIZATION_NAME}
+  name: "apigee-cassandra-schema-setup-svc-account-${ORGANIZATION_NAME}" # kpt-set: apigee-cassandra-schema-setup-svc-account-${ORGANIZATION_NAME}
   namespace: apigee # kpt-set: ${APIGEE_NAMESPACE}
 ---
 apiVersion: v1
@@ -25,7 +25,7 @@ metadata:
     iam.gke.io/gcp-service-account: apigee-all-sa@${GCP_PROJECT_ID}.iam.gserviceaccount.com # kpt-set: apigee-all-sa@${GCP_PROJECT_ID}.iam.gserviceaccount.com
   labels:
     apigee.cloud.google.com/platform: apigee
-  name: "apigee-connect-agent-workload-identity-${ORGANIZATION_NAME}" # kpt-set: apigee-connect-agent-workload-identity-${ORGANIZATION_NAME}
+  name: "apigee-connect-agent-svc-account-${ORGANIZATION_NAME}" # kpt-set: apigee-connect-agent-svc-account-${ORGANIZATION_NAME}
   namespace: apigee # kpt-set: ${APIGEE_NAMESPACE}
 ---
 apiVersion: v1
@@ -35,7 +35,7 @@ metadata:
     iam.gke.io/gcp-service-account: apigee-all-sa@${GCP_PROJECT_ID}.iam.gserviceaccount.com # kpt-set: apigee-all-sa@${GCP_PROJECT_ID}.iam.gserviceaccount.com
   labels:
     apigee.cloud.google.com/platform: apigee
-  name: "apigee-watcher-workload-identity-${ORGANIZATION_NAME}" # kpt-set: apigee-watcher-workload-identity-${ORGANIZATION_NAME}
+  name: "apigee-watcher-svc-account-${ORGANIZATION_NAME}" # kpt-set: apigee-watcher-svc-account-${ORGANIZATION_NAME}
   namespace: apigee # kpt-set: ${APIGEE_NAMESPACE}
 ---
 apiVersion: v1
@@ -45,7 +45,7 @@ metadata:
     iam.gke.io/gcp-service-account: apigee-all-sa@${GCP_PROJECT_ID}.iam.gserviceaccount.com # kpt-set: apigee-all-sa@${GCP_PROJECT_ID}.iam.gserviceaccount.com
   labels:
     apigee.cloud.google.com/platform: apigee
-  name: "apigee-mart-workload-identity-${ORGANIZATION_NAME}" # kpt-set: apigee-mart-workload-identity-${ORGANIZATION_NAME}
+  name: "apigee-mart-svc-account-${ORGANIZATION_NAME}" # kpt-set: apigee-mart-svc-account-${ORGANIZATION_NAME}
   namespace: apigee # kpt-set: ${APIGEE_NAMESPACE}
 ---
 apiVersion: v1
@@ -55,6 +55,6 @@ metadata:
     iam.gke.io/gcp-service-account: apigee-all-sa@${GCP_PROJECT_ID}.iam.gserviceaccount.com # kpt-set: apigee-all-sa@${GCP_PROJECT_ID}.iam.gserviceaccount.com
   labels:
     apigee.cloud.google.com/platform: apigee
-  name: "apigee-udca-workload-identity-${ORGANIZATION_NAME}" # kpt-set: apigee-udca-workload-identity-${ORGANIZATION_NAME}
+  name: "apigee-udca-svc-account-${ORGANIZATION_NAME}" # kpt-set: apigee-udca-svc-account-${ORGANIZATION_NAME}
   namespace: apigee # kpt-set: ${APIGEE_NAMESPACE}
 ---
