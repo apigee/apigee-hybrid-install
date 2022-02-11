@@ -20,10 +20,10 @@ GCP_PROJECT_ID="${GCP_PROJECT_ID:-""}"                         # --gcp-project-i
 # X~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~X END X~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~X
 
 # The following variables control individual actions performed by the script.
-SHOULD_CREATE_SERVICE_ACCOUNT_AND_SECRETS="0" # --create-gcp-sa-and-secrets
-SHOULD_RENAME_DIRECTORIES="0"                 # --rename-directories
-SHOULD_CREATE_INGRESS_TLS_CERTS="0"           # --create-ingress-tls-certs
+SHOULD_RENAME_DIRECTORIES="0"                 # --configure-directory-names
 SHOULD_FILL_VALUES="0"                        # --fill-values
+SHOULD_CREATE_SERVICE_ACCOUNT_AND_SECRETS="0" # --create-gcp-sa-and-secrets
+SHOULD_CREATE_INGRESS_TLS_CERTS="0"           # --create-ingress-tls-certs
 SHOULD_APPLY_CONFIGURATION="0"                # --apply-configuration
 
 VERBOSE="0" # --verbose
@@ -60,20 +60,20 @@ main() {
 
     validate_vars
 
-    if [[ "${SHOULD_CREATE_SERVICE_ACCOUNT_AND_SECRETS}" == "1" ]]; then
-        create_service_accounts
-    fi
-
     if [[ "${SHOULD_RENAME_DIRECTORIES}" == "1" ]]; then
         rename_directories
     fi
 
-    if [[ "${SHOULD_CREATE_INGRESS_TLS_CERTS}" == "1" ]]; then
-        create_ingress_tls_certs
-    fi
-
     if [[ "${SHOULD_FILL_VALUES}" == "1" ]]; then
         fill_values_in_yamls
+    fi
+
+    if [[ "${SHOULD_CREATE_SERVICE_ACCOUNT_AND_SECRETS}" == "1" ]]; then
+        create_service_accounts
+    fi
+
+    if [[ "${SHOULD_CREATE_INGRESS_TLS_CERTS}" == "1" ]]; then
+        create_ingress_tls_certs
     fi
 
     if [[ "${SHOULD_APPLY_CONFIGURATION}" == "1" ]]; then
@@ -251,7 +251,7 @@ EOF
 # Rename directories according to their actual names.
 ################################################################################
 rename_directories() {
-    banner_info "Renaming directories..."
+    banner_info "Configuring proper names for instance, environment and environment group directories..."
 
     if [[ ! -d "${INSTANCE_DIR}" ]]; then
         info "Renaming default instance '${DEFAULT_INSTANCE_DIR_NAME}' to '${CLUSTER_NAME}-${CLUSTER_REGION}'..."
@@ -461,20 +461,20 @@ parse_args() {
             GCP_PROJECT_ID="${2}"
             shift 2
             ;;
-        --create-gcp-sa-and-secrets)
-            SHOULD_CREATE_SERVICE_ACCOUNT_AND_SECRETS="1"
-            shift 1
-            ;;
-        --rename-directories)
+        --configure-directory-names)
             SHOULD_RENAME_DIRECTORIES="1"
-            shift 1
-            ;;
-        --create-ingress-tls-certs)
-            SHOULD_CREATE_INGRESS_TLS_CERTS="1"
             shift 1
             ;;
         --fill-values)
             SHOULD_FILL_VALUES="1"
+            shift 1
+            ;;
+        --create-gcp-sa-and-secrets)
+            SHOULD_CREATE_SERVICE_ACCOUNT_AND_SECRETS="1"
+            shift 1
+            ;;
+        --create-ingress-tls-certs)
+            SHOULD_CREATE_INGRESS_TLS_CERTS="1"
             shift 1
             ;;
         --apply-configuration)
@@ -482,10 +482,10 @@ parse_args() {
             shift 1
             ;;
         --setup-all)
-            SHOULD_CREATE_SERVICE_ACCOUNT_AND_SECRETS="1"
             SHOULD_RENAME_DIRECTORIES="1"
-            SHOULD_CREATE_INGRESS_TLS_CERTS="1"
             SHOULD_FILL_VALUES="1"
+            SHOULD_CREATE_SERVICE_ACCOUNT_AND_SECRETS="1"
+            SHOULD_CREATE_INGRESS_TLS_CERTS="1"
             SHOULD_APPLY_CONFIGURATION="1"
             shift 1
             ;;
@@ -558,14 +558,14 @@ EOF
     # Flags that DON'T require an argument
     FLAGS_2="$(
         cat <<EOF
-    --create-gcp-sa-and-secrets  Create GCP service account and corresponding 
-                                 secret containing the keys in the kubernetes cluster.
-    --rename-directories         Rename the instnce, environment and environment group
-                                 to their correct names.
-    --create-ingress-tls-certs   Create Certificate resource which will generate
-                                 a self signed TLS cert for the ENVIRONMENT_GROUP_HOSTNAME
+    --configure-directory-names  Rename the instance, environment and environment group
+                                 directories to their correct names.
     --fill-values                Replace the values for organization, environment, etc.
                                  in the kubernetes yaml files.
+    --create-gcp-sa-and-secrets  Create GCP service account and corresponding 
+                                 secret containing the keys in the kubernetes cluster.
+    --create-ingress-tls-certs   Create Certificate resource which will generate
+                                 a self signed TLS cert for the ENVIRONMENT_GROUP_HOSTNAME
     --apply-configuration        Create the kubernetes resources in their correct order.
     --setup-all                  Used to execute all the tasks that can be performed
                                  by the script.
