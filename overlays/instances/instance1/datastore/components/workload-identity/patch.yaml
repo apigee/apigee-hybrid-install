@@ -5,4 +5,4 @@ metadata:
 spec:
   components:
     cassandra:
-      podServiceAccountName: "apigee-datastore-workload-identity"
+      podServiceAccountName: "apigee-datastore-svc-account"

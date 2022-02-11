@@ -235,15 +235,15 @@ create_service_accounts() {
             -n "${APIGEE_NAMESPACE}" \
             --dry-run=client -o yaml | kubectl apply -f -
     done <<EOF
-apigee-synchronizer-svc-account-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
-apigee-udca-svc-account-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
-apigee-runtime-svc-account-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
-apigee-watcher-svc-account-${ORGANIZATION_NAME}
-apigee-connect-agent-svc-account-${ORGANIZATION_NAME}
-apigee-mart-svc-account-${ORGANIZATION_NAME}
-apigee-udca-svc-account-${ORGANIZATION_NAME}
-apigee-metrics-svc-account
-apigee-logger-svc-account
+apigee-synchronizer-gcp-sa-key-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
+apigee-udca-gcp-sa-key-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
+apigee-runtime-gcp-sa-key-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
+apigee-watcher-gcp-sa-key-${ORGANIZATION_NAME}
+apigee-connect-agent-gcp-sa-key-${ORGANIZATION_NAME}
+apigee-mart-gcp-sa-key-${ORGANIZATION_NAME}
+apigee-udca-gcp-sa-key-${ORGANIZATION_NAME}
+apigee-metrics-gcp-sa-key
+apigee-logger-gcp-sa-key
 EOF
 }
 

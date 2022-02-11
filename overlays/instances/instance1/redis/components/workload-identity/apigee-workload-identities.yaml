@@ -5,7 +5,7 @@ metadata:
     iam.gke.io/gcp-service-account: apigee-all-sa@${GCP_PROJECT_ID}.iam.gserviceaccount.com # kpt-set: apigee-all-sa@${GCP_PROJECT_ID}.iam.gserviceaccount.com
   labels:
     apigee.cloud.google.com/platform: apigee
-  name: "apigee-redis-default-workload-identity"
+  name: "apigee-redis-default-svc-account"
   namespace: apigee # kpt-set: ${APIGEE_NAMESPACE}
 ---
 apiVersion: v1
@@ -15,5 +15,5 @@ metadata:
     iam.gke.io/gcp-service-account: apigee-all-sa@${GCP_PROJECT_ID}.iam.gserviceaccount.com # kpt-set: apigee-all-sa@${GCP_PROJECT_ID}.iam.gserviceaccount.com
   labels:
     apigee.cloud.google.com/platform: apigee
-  name: "apigee-redis-envoy-default-workload-identity"
+  name: "apigee-redis-envoy-default-svc-account"
   namespace: apigee # kpt-set: ${APIGEE_NAMESPACE}
