@@ -21,11 +21,11 @@ spec:
   gcpProjectID: "${GCP_PROJECT_ID}" # kpt-set: ${GCP_PROJECT_ID}
   components:
     connectAgent:
-      appServiceAccountSecretName: "apigee-connect-agent-svc-account-${ORGANIZATION_NAME}" # kpt-set: apigee-connect-agent-svc-account-${ORGANIZATION_NAME}
+      appServiceAccountSecretName: "apigee-connect-agent-gcp-sa-key-${ORGANIZATION_NAME}" # kpt-set: apigee-connect-agent-gcp-sa-key-${ORGANIZATION_NAME}
     watcher:
-      appServiceAccountSecretName: "apigee-watcher-svc-account-${ORGANIZATION_NAME}" # kpt-set: apigee-watcher-svc-account-${ORGANIZATION_NAME}
+      appServiceAccountSecretName: "apigee-watcher-gcp-sa-key-${ORGANIZATION_NAME}" # kpt-set: apigee-watcher-gcp-sa-key-${ORGANIZATION_NAME}
     mart:
-      appServiceAccountSecretName: "apigee-mart-svc-account-${ORGANIZATION_NAME}" # kpt-set: apigee-mart-svc-account-${ORGANIZATION_NAME}
+      appServiceAccountSecretName: "apigee-mart-gcp-sa-key-${ORGANIZATION_NAME}" # kpt-set: apigee-mart-gcp-sa-key-${ORGANIZATION_NAME}
       containers:
       - name: "apigee-mart"
         env:
@@ -35,6 +35,6 @@ spec:
               name: "org-encryption-keys" # kpt-set: ${ORGANIZATION_NAME}-encryption-keys
               key: kmsEncryptionKey
     udca:
-      appServiceAccountSecretName: "apigee-udca-svc-account-${ORGANIZATION_NAME}" # kpt-set: apigee-udca-svc-account-${ORGANIZATION_NAME}
+      appServiceAccountSecretName: "apigee-udca-gcp-sa-key-${ORGANIZATION_NAME}" # kpt-set: apigee-udca-gcp-sa-key-${ORGANIZATION_NAME}
     ingressGateways:
     - name: "prod-1"

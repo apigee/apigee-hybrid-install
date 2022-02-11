@@ -5,5 +5,5 @@ metadata:
     iam.gke.io/gcp-service-account: apigee-all-sa@${GCP_PROJECT_ID}.iam.gserviceaccount.com # kpt-set: apigee-all-sa@${GCP_PROJECT_ID}.iam.gserviceaccount.com
   labels:
     apigee.cloud.google.com/platform: apigee
-  name: "apigee-containerLogs-workload-identity"
+  name: "apigee-containerLogs-svc-account"
   namespace: apigee # kpt-set: ${APIGEE_NAMESPACE}

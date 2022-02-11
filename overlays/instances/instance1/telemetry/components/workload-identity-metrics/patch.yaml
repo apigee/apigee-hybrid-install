@@ -5,8 +5,8 @@ metadata:
 spec:
   components:
     metricsApp:
-      podServiceAccountName: "apigee-metricsApp-workload-identity"
+      podServiceAccountName: "apigee-metricsApp-svc-account"
     metricsProxy:
-      podServiceAccountName: "apigee-metricsProxy-workload-identity"
+      podServiceAccountName: "apigee-metricsProxy-svc-account"
     metricsAdapter:
-      podServiceAccountName: "apigee-metricsAdapter-workload-identity"
+      podServiceAccountName: "apigee-metricsAdapter-svc-account"

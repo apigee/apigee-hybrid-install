@@ -26,4 +26,4 @@ volumes:
 - hostPath
 - secret
 users:
-- system:serviceaccount:apigee:apigee-container-logs-workload-identity # system:serviceaccount:${APIGEE_NAMESPACE}:apigee-container-logs-workload-identity
+- system:serviceaccount:apigee:apigee-container-logs-svc-account # system:serviceaccount:${APIGEE_NAMESPACE}:apigee-container-logs-svc-account

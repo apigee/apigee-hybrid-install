@@ -5,6 +5,6 @@ metadata:
 spec:
   components:
     redis:
-      podServiceAccountName: "apigee-redis-default-workload-identity"
+      podServiceAccountName: "apigee-redis-default-svc-account"
     redisEnvoy:
-      podServiceAccountName: "apigee-redis-envoy-default-workload-identity"
+      podServiceAccountName: "apigee-redis-envoy-default-svc-account"

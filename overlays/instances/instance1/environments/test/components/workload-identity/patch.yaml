@@ -5,8 +5,8 @@ metadata:
 spec:
   components:
     synchronizer:
-      podServiceAccountName: "apigee-synchronizer-workload-identity-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}" # kpt-set: apigee-synchronizer-workload-identity-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
+      podServiceAccountName: "apigee-synchronizer-svc-account-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}" # kpt-set: apigee-synchronizer-svc-account-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
     udca:
-      podServiceAccountName: "apigee-udca-workload-identity-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}" # kpt-set: apigee-udca-workload-identity-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
+      podServiceAccountName: "apigee-udca-svc-account-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}" # kpt-set: apigee-udca-svc-account-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
     runtime:
-      podServiceAccountName: "apigee-runtime-workload-identity-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}" # kpt-set: apigee-runtime-workload-identity-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
+      podServiceAccountName: "apigee-runtime-svc-account-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}" # kpt-set: apigee-runtime-svc-account-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
