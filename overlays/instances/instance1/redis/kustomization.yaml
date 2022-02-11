@@ -1,7 +1,7 @@
 resources:
 - apigee-redis.yaml
 
-components:
+# components:
 # - ./components/nodeselector/
 # - ./components/imagepullsecret
 # - ./components/workload-identity

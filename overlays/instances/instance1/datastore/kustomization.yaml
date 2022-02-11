@@ -3,7 +3,7 @@ namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
 resources:
 - apigee-datastore.yaml
 
-components:
+# components:
 # - ./components/http-proxy
 # - ./components/nodeselector/
 # - ./components/imagepullsecret

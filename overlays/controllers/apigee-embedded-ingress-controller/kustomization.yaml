@@ -4,7 +4,7 @@ resources:
 - apigee-istio-mesh-config.yaml
 - ../../../bases/controllers/apigee-embedded-ingress-controller
 
-components:
+# components:
 # - ./components/imagepullsecret/
 # - ./components/nodeselector/
 
