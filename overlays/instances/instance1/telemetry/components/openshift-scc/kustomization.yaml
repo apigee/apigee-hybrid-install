@@ -3,3 +3,6 @@ kind: Component
 
 resources:
 - scc.yaml
+
+components:
+- ../workload-identity-logger/
