@@ -5,7 +5,7 @@ metadata:
     iam.gke.io/gcp-service-account: apigee-all-sa@${GCP_PROJECT_ID}.iam.gserviceaccount.com # kpt-set: ${GCP_SERVICE_ACCOUNT_NAME}@${GCP_PROJECT_ID}.iam.gserviceaccount.com
   labels:
     apigee.cloud.google.com/platform: apigee
-  name: "apigee-metricsApp-svc-account"
+  name: "apigee-metrics-app-svc-account"
   namespace: apigee # kpt-set: ${APIGEE_NAMESPACE}
 ---
 apiVersion: v1
@@ -15,7 +15,7 @@ metadata:
     iam.gke.io/gcp-service-account: apigee-all-sa@${GCP_PROJECT_ID}.iam.gserviceaccount.com # kpt-set: ${GCP_SERVICE_ACCOUNT_NAME}@${GCP_PROJECT_ID}.iam.gserviceaccount.com
   labels:
     apigee.cloud.google.com/platform: apigee
-  name: "apigee-metricsProxy-svc-account"
+  name: "apigee-metrics-proxy-svc-account"
   namespace: apigee # kpt-set: ${APIGEE_NAMESPACE}
 ---
 apiVersion: v1
@@ -25,6 +25,6 @@ metadata:
     iam.gke.io/gcp-service-account: apigee-all-sa@${GCP_PROJECT_ID}.iam.gserviceaccount.com # kpt-set: ${GCP_SERVICE_ACCOUNT_NAME}@${GCP_PROJECT_ID}.iam.gserviceaccount.com
   labels:
     apigee.cloud.google.com/platform: apigee
-  name: "apigee-metricsAdapter-svc-account"
+  name: "apigee-metrics-adapter-svc-account"
   namespace: apigee # kpt-set: ${APIGEE_NAMESPACE}
 ---

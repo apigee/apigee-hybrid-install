@@ -192,62 +192,6 @@ validate_vars() {
 }
 
 ################################################################################
-# Create GCP service accounts and corresponding kubernetes secrets.
-#
-# Utilizes the tools/create-service-account shell script for creating GCP SAs.
-################################################################################
-create_service_accounts() {
-    # Unset the PROJECT_ID variable because the `create-service-account` script
-    # errors out if both the flag `--project-id` and environment variable are
-    # set.
-    unset PROJECT_ID
-
-    banner_info "Creating GCP service account..."
-    run "${REL_PATH_CREATE_SERVICE_ACCOUNT}" \
-        --project-id "${ORGANIZATION_NAME}" \
-        --env "non-prod" \
-        --name "${GCP_SERVICE_ACCOUNT_NAME}" \
-        --dir "${SERVICE_ACCOUNT_OUTPUT_DIR}" <<<"y"
-
-    # Remove the json extension from downloaded service account key to prevent
-    # kpt from trying to configure it and erroring out.
-    mv "${SERVICE_ACCOUNT_OUTPUT_DIR}/${ORGANIZATION_NAME}-${GCP_SERVICE_ACCOUNT_NAME}.json" \
-        "${SERVICE_ACCOUNT_OUTPUT_DIR}/${ORGANIZATION_NAME}-${GCP_SERVICE_ACCOUNT_NAME}.key"
-
-    info "Calling setSyncAuthoriation API..."
-    local JSON_DATA
-    JSON_DATA="$(
-        curl --fail --show-error --silent "${APIGEE_API_ENDPOINT}/v1/organizations/${ORGANIZATION_NAME}:getSyncAuthorization" \
-            -K <(auth_header) |
-            jq '.identities += ["serviceAccount:'"${GCP_SERVICE_ACCOUNT_NAME}"'@'"${ORGANIZATION_NAME}"'.iam.gserviceaccount.com"] | .identities'
-    )"
-    run curl --fail --show-error --silent "${APIGEE_API_ENDPOINT}/v1/organizations/${ORGANIZATION_NAME}:setSyncAuthorization" \
-        -X POST -H "Content-Type:application/json" \
-        -d '{"identities":'"${JSON_DATA}"'}' \
-        -K <(auth_header)
-
-    banner_info "Creating kubernetes secrets containing the service account keys..."
-    kubectl apply -f "${ROOT_DIR}/overlays/initialization/namespace.yaml"
-
-    while read -r k8s_sa_name; do
-        kubectl create secret generic "${k8s_sa_name}" \
-            --from-file="client_secret.json=${SERVICE_ACCOUNT_OUTPUT_DIR}/${ORGANIZATION_NAME}-${GCP_SERVICE_ACCOUNT_NAME}.key" \
-            -n "${APIGEE_NAMESPACE}" \
-            --dry-run=client -o yaml | kubectl apply -f -
-    done <<EOF
-apigee-synchronizer-gcp-sa-key-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
-apigee-udca-gcp-sa-key-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
-apigee-runtime-gcp-sa-key-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
-apigee-watcher-gcp-sa-key-${ORGANIZATION_NAME}
-apigee-connect-agent-gcp-sa-key-${ORGANIZATION_NAME}
-apigee-mart-gcp-sa-key-${ORGANIZATION_NAME}
-apigee-udca-gcp-sa-key-${ORGANIZATION_NAME}
-apigee-metrics-gcp-sa-key
-apigee-logger-gcp-sa-key
-EOF
-}
-
-################################################################################
 # Rename directories according to their actual names.
 ################################################################################
 rename_directories() {
@@ -272,17 +216,6 @@ rename_directories() {
 }
 
 ################################################################################
-# Create kubernetes Certificate which will generate a self signed cert/key pair
-# to be used to ingress TLS communication
-################################################################################
-create_ingress_tls_certs() {
-    banner_info "Creating ingress Certificate..."
-
-    export APIGEE_NAMESPACE ORGANIZATION_NAME ENVIRONMENT_GROUP_NAME ENVIRONMENT_GROUP_HOSTNAME HOSTNAME
-    kubectl apply -f <(envsubst <"${ROOT_DIR}/templates/ingress-certificate.yaml")
-}
-
-################################################################################
 # Replace appropriate values like org, env, envgroup name in the yamls.
 ################################################################################
 fill_values_in_yamls() {
@@ -303,6 +236,84 @@ fill_values_in_yamls() {
     # Replace correct namespace in istio discoveryAddress which cannot be done
     # with kpt.
     sed -i -E -e "s/(discoveryAddress: apigee-istiod\.).*(\.svc:15012)/\1${APIGEE_NAMESPACE}\2/" "${ROOT_DIR}/overlays/controllers/apigee-embedded-ingress-controller/apigee-istio-mesh-config.yaml"
+
+    # If the current cluster uses openshift, uncomment the openshift patches by
+    # the '# ' prefix from those lines.
+    if is_open_shift; then
+        info "Enabling SecurityContextConstraints for OpenShift..."
+
+        sed -i -E -e '/initialization\/openshift/s/^# *//g' "${ROOT_DIR}/overlays/initialization/openshift/kustomization.yaml"
+        
+        sed -i -E -e '/components:/s/^# *//g' "${INSTANCE_DIR}/datastore/kustomization.yaml"
+        sed -i -E -e '/components\/openshift-scc/s/^# *//g' "${INSTANCE_DIR}/datastore/kustomization.yaml"
+        
+        sed -i -E -e '/components:/s/^# *//g' "${INSTANCE_DIR}/telemetry/kustomization.yaml"
+        sed -i -E -e '/components\/openshift-scc/s/^# *//g' "${INSTANCE_DIR}/telemetry/kustomization.yaml"
+    fi
+}
+
+################################################################################
+# Create GCP service accounts and corresponding kubernetes secrets.
+#
+# Utilizes the tools/create-service-account shell script for creating GCP SAs.
+################################################################################
+create_service_accounts() {
+    # Unset the PROJECT_ID variable because the `create-service-account` script
+    # errors out if both the flag `--project-id` and environment variable are
+    # set.
+    unset PROJECT_ID
+
+    banner_info "Creating GCP service account..."
+    run "${REL_PATH_CREATE_SERVICE_ACCOUNT}" \
+        --project-id "${ORGANIZATION_NAME}" \
+        --env "non-prod" \
+        --name "${GCP_SERVICE_ACCOUNT_NAME}" \
+        --dir "${SERVICE_ACCOUNT_OUTPUT_DIR}" <<<"y"
+
+    info "Calling setSyncAuthoriation API..."
+    local JSON_DATA
+    JSON_DATA="$(
+        curl --fail --show-error --silent "${APIGEE_API_ENDPOINT}/v1/organizations/${ORGANIZATION_NAME}:getSyncAuthorization" \
+            -K <(auth_header) |
+            jq '.identities += ["serviceAccount:'"${GCP_SERVICE_ACCOUNT_NAME}"'@'"${ORGANIZATION_NAME}"'.iam.gserviceaccount.com"] | .identities'
+    )"
+    run curl --fail --show-error --silent "${APIGEE_API_ENDPOINT}/v1/organizations/${ORGANIZATION_NAME}:setSyncAuthorization" \
+        -X POST -H "Content-Type:application/json" \
+        -d '{"identities":'"${JSON_DATA}"'}' \
+        -K <(auth_header)
+
+    banner_info "Creating kubernetes secrets containing the service account keys..."
+    kubectl apply -f "${ROOT_DIR}/overlays/initialization/namespace.yaml"
+
+    while read -r k8s_sa_name; do
+        kubectl create secret generic "${k8s_sa_name}" \
+            --from-file="client_secret.json=${SERVICE_ACCOUNT_OUTPUT_DIR}/${ORGANIZATION_NAME}-${GCP_SERVICE_ACCOUNT_NAME}.json" \
+            -n "${APIGEE_NAMESPACE}" \
+            --dry-run=client -o yaml | kubectl apply -f -
+    done <<EOF
+apigee-synchronizer-gcp-sa-key-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
+apigee-udca-gcp-sa-key-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
+apigee-runtime-gcp-sa-key-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
+apigee-watcher-gcp-sa-key-${ORGANIZATION_NAME}
+apigee-connect-agent-gcp-sa-key-${ORGANIZATION_NAME}
+apigee-mart-gcp-sa-key-${ORGANIZATION_NAME}
+apigee-udca-gcp-sa-key-${ORGANIZATION_NAME}
+apigee-metrics-gcp-sa-key
+apigee-logger-gcp-sa-key
+EOF
+}
+
+################################################################################
+# Create kubernetes Certificate which will generate a self signed cert/key pair
+# to be used to ingress TLS communication
+################################################################################
+create_ingress_tls_certs() {
+    banner_info "Creating ingress Certificate..."
+
+    kubectl apply -f "${ROOT_DIR}/overlays/initialization/namespace.yaml"
+
+    export APIGEE_NAMESPACE ORGANIZATION_NAME ENVIRONMENT_GROUP_NAME ENVIRONMENT_GROUP_HOSTNAME HOSTNAME
+    kubectl apply -f <(envsubst <"${ROOT_DIR}/templates/ingress-certificate.yaml")
 }
 
 ################################################################################
@@ -314,10 +325,7 @@ create_kubernetes_resources() {
     check_if_cert_manager_exists
 
     if is_open_shift; then
-        info "Creating SecurityContextConstraints for OpenShift..."
         kubectl apply -k "${ROOT_DIR}/overlays/initialization/openshift"
-        kubectl apply -f "${INSTANCE_DIR}/datastore/components/openshift-scc/scc.yaml"
-        kubectl apply -f "${INSTANCE_DIR}/telemetry/components/openshift-scc/scc.yaml"
     fi
 
     info "Creating apigee initialization kubernetes resources..."
@@ -648,7 +656,7 @@ auth_header() {
     echo "--header \"Authorization: Bearer ${TOKEN}\""
 }
 
-# Checks if the current cluster is uses openshift
+# Checks if the current cluster uses openshift
 is_open_shift() {
     if [[ "$(kubectl api-resources --api-group security.openshift.io -o name || true)" == *"securitycontextconstraints.security.openshift.io"* ]]; then
         return 0

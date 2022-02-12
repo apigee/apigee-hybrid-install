@@ -1,7 +1,7 @@
 namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
 
 resources:
-- ../../../bases/initialization/openshift/
+# - ../../../bases/initialization/openshift/
 
 patches:
 - path: scc.yaml
