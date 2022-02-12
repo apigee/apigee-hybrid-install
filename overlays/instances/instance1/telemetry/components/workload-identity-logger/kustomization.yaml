@@ -5,6 +5,19 @@ resources:
 - apigee-workload-identities.yaml
 
 patches:
+- path: patch.yaml
+  target:
+    group: apigee.cloud.google.com
+    version: v1alpha2
+    kind: ApigeeTelemetry
+- target:
+    group: apigee.cloud.google.com
+    version: v1alpha2
+    kind: ApigeeTelemetry
+  patch: |- # Ensures that the next remove operation is always valid.
+    - op: add
+      path: /spec/components/containerLogs/appServiceAccountSecretName
+      value: "dummy"
 - target:
     group: apigee.cloud.google.com
     version: v1alpha2

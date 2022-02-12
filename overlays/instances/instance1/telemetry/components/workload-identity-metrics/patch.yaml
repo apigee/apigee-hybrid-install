@@ -5,8 +5,8 @@ metadata:
 spec:
   components:
     metricsApp:
-      podServiceAccountName: "apigee-metricsApp-svc-account"
+      podServiceAccountName: "apigee-metrics-app-svc-account"
     metricsProxy:
-      podServiceAccountName: "apigee-metricsProxy-svc-account"
+      podServiceAccountName: "apigee-metrics-proxy-svc-account"
     metricsAdapter:
-      podServiceAccountName: "apigee-metricsAdapter-svc-account"
+      podServiceAccountName: "apigee-metrics-adapter-svc-account"
