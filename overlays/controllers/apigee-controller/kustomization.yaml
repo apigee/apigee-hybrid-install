@@ -5,5 +5,5 @@ resources:
 - ../../../bases/controllers/apigee-controller
 
 components:
-- ./components/imagepullsecret/
+# - ./components/imagepullsecret/
 # - ./components/nodeselector/
