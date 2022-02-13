@@ -25,4 +25,4 @@ spec:
       volumes:
       - name: apigee-cassandra-restore
         secret:
-          secretName: "apigee-cassandra-backup-and-restore-svc-account"
+          secretName: "apigee-cassandra-backup-and-restore-gcp-sa-key"

@@ -313,7 +313,7 @@ create_ingress_tls_certs() {
     kubectl apply -f "${ROOT_DIR}/overlays/initialization/namespace.yaml"
 
     export APIGEE_NAMESPACE ORGANIZATION_NAME ENVIRONMENT_GROUP_NAME ENVIRONMENT_GROUP_HOSTNAME HOSTNAME
-    kubectl apply -f <(envsubst <"${ROOT_DIR}/templates/ingress-certificate.yaml")
+    kubectl apply -f <(envsubst <"${ROOT_DIR}/templates/certificate-org-envgroup.yaml")
 }
 
 ################################################################################
