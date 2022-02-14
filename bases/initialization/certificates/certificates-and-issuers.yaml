@@ -82,11 +82,10 @@ spec:
   commonName: apigee-istiod.apigee.svc
   dnsNames:
   - "apigee-istiod.apigee.svc"
-  duration: 17520h0m0s # 2 year.
+  duration: 48h0m0s
   issuerRef:
     group: cert-manager.io
     kind: ClusterIssuer
-    # TODO(b/216376860): Use apigee-ca-issuer to as issuer.
-    name: apigee-root-certificate-issuer
-  renewBefore: 8760h0m0s # 1 year.
+    name: apigee-ca-issuer
+  renewBefore: 24h0m0s
   secretName: apigee-istiod-cert
