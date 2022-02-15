@@ -1,4 +1,4 @@
 namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
 
 resources:
-- ../../../bases/initialization/ingress/
+- ./envoyfilter-1.11.yaml
