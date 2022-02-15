@@ -4,8 +4,8 @@ metadata:
   name: "telemetry"
 spec:
   httpForwardProxy:
-    scheme: <HTTP|HTTPS>
-    host: <HOST>
-    port: <PORT>
-    username: <USERNAME>
-    password: <PASSWORD>
+    scheme: <HTTP|HTTPS> # To be modified. REQUIRED
+    host: <HOST> # To be modified. REQUIRED
+    port: <PORT> # To be modified. REQUIRED
+    username: <USERNAME> # Can be modified. OPTIONAL
+    password: <PASSWORD> # Can be modified. OPTIONAL

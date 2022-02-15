@@ -4,4 +4,4 @@ metadata:
   name: "telemetry"
 spec:
   imagePullSecrets:
-    - name: <K8S_SECRET_NAME>
+    - name: <K8S_SECRET_NAME> # Can be modified. OPTIONAL

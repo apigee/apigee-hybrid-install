@@ -13,4 +13,4 @@ spec:
                 - key: cloud.google.com/gke-nodepool
                   operator: In
                   values:
-                    - apigee-data
+                    - apigee-data # Can be modified. OPTIONAL
