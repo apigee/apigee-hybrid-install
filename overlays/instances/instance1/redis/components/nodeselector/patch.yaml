@@ -13,7 +13,7 @@ spec:
                 - key: cloud.google.com/gke-nodepool
                   operator: In
                   values:
-                    - apigee-runtime
+                    - apigee-runtime # Can be modified. OPTIONAL
     redisEnvoy:
       nodeAffinityRequired: true
       nodeAffinity:
@@ -23,4 +23,4 @@ spec:
                 - key: cloud.google.com/gke-nodepool
                   operator: In
                   values:
-                    - apigee-runtime
+                    - apigee-runtime # Can be modified. OPTIONAL

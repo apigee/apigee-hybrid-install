@@ -4,4 +4,4 @@ metadata:
   name: "redis"
 spec:
   imagePullSecrets:
-    - name: <K8S_SECRET_NAME>
+    - name: <K8S_SECRET_NAME> # To be modified. REQUIRED

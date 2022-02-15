@@ -13,7 +13,7 @@ spec:
                 - key: cloud.google.com/gke-nodepool
                   operator: In
                   values:
-                    - apigee-runtime
+                    - apigee-runtime # Can be modified. OPTIONAL
     metricsProxy:
       nodeAffinityRequired: true
       nodeAffinity:
@@ -23,7 +23,7 @@ spec:
                 - key: cloud.google.com/gke-nodepool
                   operator: In
                   values:
-                    - apigee-runtime
+                    - apigee-runtime # Can be modified. OPTIONAL
     metricsAdapter:
       nodeAffinityRequired: true
       nodeAffinity:
@@ -33,7 +33,7 @@ spec:
                 - key: cloud.google.com/gke-nodepool
                   operator: In
                   values:
-                    - apigee-runtime
+                    - apigee-runtime # Can be modified. OPTIONAL
     containerLogs:
       nodeAffinityRequired: true
       nodeAffinity:
@@ -43,4 +43,4 @@ spec:
                 - key: cloud.google.com/gke-nodepool
                   operator: In
                   values:
-                    - apigee-runtime
+                    - apigee-runtime # Can be modified. OPTIONAL
