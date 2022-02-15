@@ -13,7 +13,7 @@ spec:
                 - key: cloud.google.com/gke-nodepool
                   operator: In
                   values:
-                    - apigee-runtime
+                    - apigee-runtime # Can be modified. OPTIONAL
     cassandraSchemaSetup:
       nodeAffinityRequired: true
       nodeAffinity:
@@ -23,7 +23,7 @@ spec:
                 - key: cloud.google.com/gke-nodepool
                   operator: In
                   values:
-                    - apigee-runtime
+                    - apigee-runtime # Can be modified. OPTIONAL
     connectAgent:
       nodeAffinityRequired: true
       nodeAffinity:
@@ -33,7 +33,7 @@ spec:
                 - key: cloud.google.com/gke-nodepool
                   operator: In
                   values:
-                    - apigee-runtime
+                    - apigee-runtime # Can be modified. OPTIONAL
     watcher:
       nodeAffinityRequired: true
       nodeAffinity:
@@ -43,7 +43,7 @@ spec:
                 - key: cloud.google.com/gke-nodepool
                   operator: In
                   values:
-                    - apigee-runtime
+                    - apigee-runtime # Can be modified. OPTIONAL
     mart:
       nodeAffinityRequired: true
       nodeAffinity:
@@ -53,7 +53,7 @@ spec:
                 - key: cloud.google.com/gke-nodepool
                   operator: In
                   values:
-                    - apigee-runtime
+                    - apigee-runtime # Can be modified. OPTIONAL
     udca:
       nodeAffinityRequired: true
       nodeAffinity:
@@ -63,4 +63,4 @@ spec:
                 - key: cloud.google.com/gke-nodepool
                   operator: In
                   values:
-                    - apigee-runtime
+                    - apigee-runtime # Can be modified. OPTIONAL

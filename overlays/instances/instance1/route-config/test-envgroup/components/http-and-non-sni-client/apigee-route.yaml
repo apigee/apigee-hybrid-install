@@ -14,7 +14,7 @@ spec:
   - number: 443
     protocol: HTTPS
     tls:
-      credentialName: <CREDENTIAL_NAME>
+      credentialName: <CREDENTIAL_NAME> # To be modified. REQUIRED
       mode: SIMPLE
       #optional
       minProtocolVersion: TLS_AUTO
