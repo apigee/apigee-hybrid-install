@@ -12,7 +12,7 @@ data:
     kind: EnvoyFilter
     metadata:
       name: apigee-envoyfilter-1-11
-      namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+      namespace: 'apigee'
     spec:
       workloadSelector:
         labels:
