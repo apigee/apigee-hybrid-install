@@ -224,6 +224,7 @@ fill_values_in_yamls() {
     run kpt fn eval "${ROOT_DIR}/overlays/" \
         --image gcr.io/kpt-fn/apply-setters:v0.2.0 -- \
         APIGEE_NAMESPACE="${APIGEE_NAMESPACE}" \
+        CASSANDRA_DC_NAME="${CLUSTER_NAME}-${CLUSTER_REGION}" \
         CLUSTER_NAME="${CLUSTER_NAME}" \
         CLUSTER_REGION="${CLUSTER_REGION}" \
         ENVIRONMENT_NAME="${ENVIRONMENT_NAME}" \
@@ -238,17 +239,16 @@ fill_values_in_yamls() {
     sed -i -E -e "s/(discoveryAddress: apigee-istiod\.).*(\.svc:15012)/\1${APIGEE_NAMESPACE}\2/" "${ROOT_DIR}/overlays/controllers/istiod/apigee-istio-mesh-config.yaml"
     sed -i -E -e "s/namespace: 'apigee'/namespace: '${APIGEE_NAMESPACE}'/" "${ROOT_DIR}/overlays/initialization/ingress/envoyfilter-1.11.yaml"
 
-
     # If the current cluster uses openshift, uncomment the openshift patches by
     # the '# ' prefix from those lines.
     if is_open_shift; then
         info "Enabling SecurityContextConstraints for OpenShift..."
 
         sed -i -E -e '/initialization\/openshift/s/^# *//g' "${ROOT_DIR}/overlays/initialization/openshift/kustomization.yaml"
-        
+
         sed -i -E -e '/components:/s/^# *//g' "${INSTANCE_DIR}/datastore/kustomization.yaml"
         sed -i -E -e '/components\/openshift-scc/s/^# *//g' "${INSTANCE_DIR}/datastore/kustomization.yaml"
-        
+
         sed -i -E -e '/components:/s/^# *//g' "${INSTANCE_DIR}/telemetry/kustomization.yaml"
         sed -i -E -e '/components\/openshift-scc/s/^# *//g' "${INSTANCE_DIR}/telemetry/kustomization.yaml"
     fi

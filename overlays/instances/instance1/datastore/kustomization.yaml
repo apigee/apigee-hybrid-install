@@ -13,3 +13,4 @@ resources:
 # - ./components/gcs-restore
 # - ./components/non-gcs-backup
 # - ./components/non-gcs-restore
+# - ./components/multi-region

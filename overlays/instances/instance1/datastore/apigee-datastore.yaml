@@ -11,3 +11,5 @@ spec:
     cassandra:
       storage:
         storageSize: 10Gi
+      properties:
+        datacenter: "dc-1" # kpt-set: ${CASSANDRA_DC_NAME}
