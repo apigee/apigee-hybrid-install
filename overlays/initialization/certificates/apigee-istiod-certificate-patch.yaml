@@ -2,6 +2,8 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: apigee-istiod
+  annotations:
+    apigeeNamespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
 spec:
   commonName: apigee-istiod.apigee.svc # kpt-set: apigee-istiod.${APIGEE_NAMESPACE}.svc
   dnsNames:
