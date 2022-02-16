@@ -2,6 +2,8 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: apigee-serving-cert
+  annotations:
+    apigeeNamespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
 spec:
   dnsNames:
   - apigee-webhook-service.apigee.svc # kpt-set: apigee-webhook-service.${APIGEE_NAMESPACE}.svc
