@@ -1,0 +1,9 @@
+apiVersion: apigee.cloud.google.com/v1alpha1
+kind: CassandraDataReplication
+metadata:
+  name: "region-expansion" # kpt-set: ${CLUSTER_REGION}-region-expansion
+spec:
+  organizationRef: "${ORGANIZATION_NAME}" # kpt-set: ${ORGANIZATION_NAME}
+  force: false
+  source:
+    region: <SOURCE_CASSANDRA_DC_NAME> # To be modified. REQUIRED

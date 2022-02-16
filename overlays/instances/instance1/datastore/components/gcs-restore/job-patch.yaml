@@ -17,6 +17,8 @@ spec:
           value: "<CLOUD_STORAGE_BUCKET_PATH>" # To be modified. REQUIRED
         - name: BACKUP_SNAPSHOT_TIMESTAMP
           value: "TIMESTAMP" # To be modified. REQUIRED
+        - name: CASSANDRA_DC
+          value: dc-1 # kpt-set: ${CASSANDRA_DC_NAME}
         # - name: http_proxy
         #   value: <HTTP_PROXY_URL>
         volumeMounts:

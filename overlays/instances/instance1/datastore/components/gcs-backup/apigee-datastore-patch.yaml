@@ -9,7 +9,7 @@ spec:
       - name: "apigee-cassandra"
         env:
         - name: APIGEE_CLOUDPROVIDER
-          value: "GCP"            
+          value: "GCP"
         - name: DBSTORAGE_BUCKET
           value: "<CLOUD_STORAGE_BUCKET_PATH>" # To be modified. REQUIRED
         volumeMounts:
