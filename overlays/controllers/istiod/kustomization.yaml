@@ -2,7 +2,7 @@ namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
 
 resources:
 - apigee-istio-mesh-config.yaml
-- ../../../bases/controllers/apigee-embedded-ingress-controller
+- ../../../bases/controllers/istiod
 
 # components:
 # - ./components/imagepullsecret/
