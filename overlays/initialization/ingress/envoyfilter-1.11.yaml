@@ -101,11 +101,17 @@ data:
 
                   -- Add X-APIGEE-MESSAGE-ID and handle Gooogle LB health check requests.
                   request_handle:headers():replace("X-APIGEE-MESSAGE-ID", request_handle:headers():get("X-REQUEST-ID"))
-                  if request_handle:headers():get("USER-AGENT") ~= nil and request_handle:headers():get("USER-AGENT"):sub(1, 8) == "GoogleHC" then
-                    if request_handle:headers():get(":PATH") == "/healthz/ingress" then
+                  user_agent = request_handle:headers():get("USER-AGENT")
+                  if user_agent ~= nil and (user_agent:sub(1, 8) == "GoogleHC"
+                    or user_agent == "GoogleStackdriverMonitoring-UptimeChecks(https://cloud.google.com/monitoring)") then
+                    p = request_handle:headers():get(":PATH")
+                    if p == "/healthz/ingress" then
                       request_handle:respond({[":status"] = "200"}, "Apigee Ingress is healthy")
                     end
-                    request_handle:headers():add("x-apigee-heartbeat", "true")
+                    if p:sub(1,8) == "/healthz" then
+                     request_handle:headers():add("x-apigee-heartbeat", "true")
+                     request_handle:headers():replace(":PATH", p:sub(9,-1))
+                    end
                   end
                 end
 
