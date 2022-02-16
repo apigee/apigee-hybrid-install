@@ -1,6 +1,9 @@
 resources:
 - ../../../bases/initialization/certificates/
 
+# components:
+# - ./components/disable-apigee-root-certificate-generation
+
 patches:
 - path: apigee-serving-cert-patch.yaml
   target:

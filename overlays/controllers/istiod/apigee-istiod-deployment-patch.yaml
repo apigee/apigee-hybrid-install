@@ -9,4 +9,4 @@ spec:
       - name: discovery
         env:
         - name: ISTIOD_ADDR
-          value: apigee-istiod.apigee.svc:15012 # kpt-set: apigee-istiod.${APIGEE_NAMESPACE}.svc:15012       
+          value: apigee-istiod.apigee.svc:15012 # kpt-set: apigee-istiod.${APIGEE_NAMESPACE}.svc:15012
