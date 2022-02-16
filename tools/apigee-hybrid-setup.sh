@@ -235,7 +235,7 @@ fill_values_in_yamls() {
 
     # Replace correct namespace in istio discoveryAddress and envoyfilter which
     # cannot be done with kpt.
-    sed -i -E -e "s/(discoveryAddress: apigee-istiod\.).*(\.svc:15012)/\1${APIGEE_NAMESPACE}\2/" "${ROOT_DIR}/overlays/controllers/apigee-embedded-ingress-controller/apigee-istio-mesh-config.yaml"
+    sed -i -E -e "s/(discoveryAddress: apigee-istiod\.).*(\.svc:15012)/\1${APIGEE_NAMESPACE}\2/" "${ROOT_DIR}/overlays/controllers/istiod/apigee-istio-mesh-config.yaml"
     sed -i -E -e "s/namespace: 'apigee'/namespace: '${APIGEE_NAMESPACE}'/" "${ROOT_DIR}/overlays/initialization/ingress/envoyfilter-1.11.yaml"
 
 
