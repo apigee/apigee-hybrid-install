@@ -10,6 +10,8 @@ apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
   name: apigee-root-certificate-issuer
+  labels:
+    apigee.cloud.google.com/platform: apigee
 spec:
   selfSigned: {}
 ---
@@ -17,7 +19,9 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: apigee-root-certificate
-  namespace: cert-manager
+  namespace: "cert-manager"
+  labels:
+    apigee.cloud.google.com/platform: apigee
 spec:
   isCA: true
   duration: 87600h # 10 years
@@ -29,11 +33,11 @@ spec:
   subject:
     organizations:
     - cluster.local
-    - cert-manager
+    - apigee
   issuerRef:
-    name: apigee-root-certificate-issuer # Uses apigee-root-certificate-issuer
-    kind: ClusterIssuer
     group: cert-manager.io
+    kind: ClusterIssuer
+    name: apigee-root-certificate-issuer # Uses apigee-root-certificate-issuer
 ---
 
 ################################################################################
@@ -44,6 +48,8 @@ apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
   name: apigee-ca-issuer
+  labels:
+    apigee.cloud.google.com/platform: apigee
 spec:
   ca:
     secretName: apigee-root-certificate
@@ -57,14 +63,16 @@ kind: Certificate
 metadata:
   name: apigee-serving-cert
   namespace: "apigee"
+  labels:
+    apigee.cloud.google.com/platform: apigee
 spec:
   dnsNames:
   - apigee-webhook-service.apigee.svc
   - apigee-webhook-service.apigee.svc.cluster.local
   issuerRef:
-    name: apigee-ca-issuer
-    kind: ClusterIssuer
     group: cert-manager.io
+    kind: ClusterIssuer
+    name: apigee-ca-issuer
   secretName: webhook-server-cert
 ---
 
