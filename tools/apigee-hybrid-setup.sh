@@ -266,12 +266,23 @@ create_service_accounts() {
     # set.
     unset PROJECT_ID
 
-    banner_info "Creating GCP service account..."
-    run "${REL_PATH_CREATE_SERVICE_ACCOUNT}" \
-        --project-id "${ORGANIZATION_NAME}" \
-        --env "non-prod" \
-        --name "${GCP_SERVICE_ACCOUNT_NAME}" \
-        --dir "${SERVICE_ACCOUNT_OUTPUT_DIR}" <<<"y"
+    banner_info "Configuring GCP service account..."
+
+    if [ ! -f "${SERVICE_ACCOUNT_OUTPUT_DIR}/${ORGANIZATION_NAME}-${GCP_SERVICE_ACCOUNT_NAME}.json" ]; then
+        info "Service account keys NOT FOUND. Attempting to create a new service account and downloading its keys."
+        run "${REL_PATH_CREATE_SERVICE_ACCOUNT}" \
+            --project-id "${ORGANIZATION_NAME}" \
+            --env "non-prod" \
+            --name "${GCP_SERVICE_ACCOUNT_NAME}" \
+            --dir "${SERVICE_ACCOUNT_OUTPUT_DIR}" <<<"y"
+    else
+        info "Service account keys FOUND at '${SERVICE_ACCOUNT_OUTPUT_DIR}/${ORGANIZATION_NAME}-${GCP_SERVICE_ACCOUNT_NAME}.json'."
+        info "Skipping recreation of service account and keys."
+    fi
+
+    info "Checking if the key is valid..."
+    GOOGLE_APPLICATION_CREDENTIALS="${SERVICE_ACCOUNT_OUTPUT_DIR}/${ORGANIZATION_NAME}-${GCP_SERVICE_ACCOUNT_NAME}.json" \
+        gcloud auth application-default print-access-token >/dev/null
 
     info "Calling setSyncAuthoriation API..."
     local JSON_DATA
