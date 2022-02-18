@@ -235,6 +235,9 @@ spec:
         - mountPath: "/additional-istio-config"
           name: additional-config
           readOnly: true
+        - mountPath: "/istiod-cert"
+          name: apigee-istiod-cert
+          readOnly: true
       - args:
         - --secure-listen-address=0.0.0.0:8443
         - --upstream=http://127.0.0.1:8080/
