@@ -1,0 +1,34 @@
+""" Copybara project config for exporting apigee-hybrid-install to public repo """
+
+source_url = "rpc://edge-internal/hybrid/apigee-hybrid-install"
+destination_url = "https://github.com/apigee/apigee-hybrid-install"
+default_author = "Apigee Team <noreply@google.com>"
+
+core.workflow(
+    name = "default",
+    description = "Copies apigee-hybrid-install project from GOB to public repo",
+    dry_run = True,
+    origin = git.origin(
+        url = source_url,
+        ref = "master",
+    ),
+    origin_files = glob(
+        include = [
+            "**",
+        ],
+        exclude = [
+            "copy.bara.sky",
+            "README.md",
+        ],
+    ),
+    destination = git.destination(
+        url = destination_url,
+        push = "master",
+    ),
+    authoring = authoring.pass_thru(default_author),
+    mode = "ITERATIVE",
+    transformations = [
+        metadata.replace_message("${COPYBARA_CURRENT_MESSAGE_TITLE}"),
+        metadata.scrubber("b/[0-9]* "),
+    ],
+)
