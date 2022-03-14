@@ -208,6 +208,10 @@ spec:
         - --enable-api-client=true
         - --disable-istio-config-in-apiserver=true
         env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
         - name: POD_NAMESPACE
           valueFrom:
             fieldRef:
