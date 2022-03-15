@@ -27,7 +27,7 @@ REPOSITORY=""
 TAG="${APIGEE_HYBRID_VERSION}"
 
 APIGEE_COMPONENTS=("apigee-mart-server" "apigee-synchronizer" "apigee-runtime" "apigee-hybrid-cassandra-client" "apigee-hybrid-cassandra" "apigee-cassandra-backup-utility" "apigee-udca" "apigee-connect-agent" "apigee-watcher" "apigee-operators" "apigee-installer" "apigee-redis" "apigee-diagnostics-collector" "apigee-diagnostics-runner")
-THIRD_PARTY_COMPONENTS=("apigee-asm-istiod:1.11.2-asm.17" "apigee-asm-ingress:1.11.2-asm.17" "apigee-stackdriver-logging-agent:1.8.9" "apigee-prom-prometheus:v2.25.0" "apigee-stackdriver-prometheus-sidecar:0.9.0" "apigee-kube-rbac-proxy:v0.8.0" "apigee-envoy:v1.16-latest" "apigee-prometheus-adapter:v0.9.1")
+THIRD_PARTY_COMPONENTS=("apigee-asm-istiod:1.11.2-asm.17" "apigee-asm-ingress:1.11.2-asm.17" "apigee-stackdriver-logging-agent:1.8.9" "apigee-prom-prometheus:v2.25.0" "apigee-stackdriver-prometheus-sidecar:0.9.0" "apigee-kube-rbac-proxy:v0.8.0" "apigee-envoy:v1.21.0" "apigee-prometheus-adapter:v0.9.1")
 
 main() {
     # Validate prerequisite.
@@ -163,18 +163,11 @@ docker_exe() {
     for i in "${APIGEE_COMPONENTS[@]}"
     do
         docker "${action}" "${repo}/${i}:${tag}"
-        if [[ "${action}" == "push" ]]; then
-          docker "${action}" "${repo}/${i}:apigee-${tag}"
-        fi
     done
 
     for i in "${THIRD_PARTY_COMPONENTS[@]}"
     do
         docker "${action}" "${repo}/${i}"
-        if [[ "${action}" == "push" ]]; then
-          readarray -d : -t component <<< "${i}"
-          docker "${action}" "${repo}/${component[0]}:apigee-${tag}"
-        fi
     done
 }
 
@@ -186,14 +179,11 @@ docker_tag() {
     for i in "${APIGEE_COMPONENTS[@]}"
     do
         docker tag "${source}/${i}:${tag}" "${dest}/${i}:${tag}"
-        docker tag "${source}/${i}:${tag}" "${dest}/${i}:apigee-${tag}"
     done
 
     for i in "${THIRD_PARTY_COMPONENTS[@]}"
     do
-        readarray -d : -t component <<< "${i}"
         docker tag "${source}/${i}" "${dest}/${i}"
-        docker tag "${source}/${i}" "${dest}/${component[0]}:apigee-${tag}"
     done
 }
 
