@@ -72,8 +72,8 @@ NOTE: 1. Please make sure you have docker installed.
       2. If <PROJECT_ID> is not provided, and you have gcloud installed
          then it uses gcloud default configured <PROJECT_ID> to push images.
 
-Example: ${SCRIPT_NAME} --repo=foo.docker.com/hybrid-images
-         ${SCRIPT_NAME} --project-id=hybrid-setup
+Example: ${SCRIPT_NAME} --repo foo.docker.com/hybrid-images
+         ${SCRIPT_NAME} --project-id hybrid-setup
 EOF
 }
 

@@ -12,15 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# TODO(b/217129147): Change the default values present in the ConfigMap that holds the controller defaults.
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: apigee-config
+  name: apigee-hybrid-config
   namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
 data:
-  imageHub: "{{IMAGE_HUB:-gcr.io/apigee-release/hybrid}}"
-  forwardProxy: |
-    scheme: HTTP
-    host: 10.12.0.47
-    port: 3128
+  imageHub: "gcr.io/apigee-release/hybrid"
