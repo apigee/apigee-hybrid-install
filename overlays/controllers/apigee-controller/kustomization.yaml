@@ -15,7 +15,7 @@
 namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
 
 resources:
-- apigee-config.yaml
+- apigee-hybrid-config.yaml
 - ../../../bases/controllers/apigee-controller
 
 components:

@@ -93,11 +93,10 @@ spec:
         - --disable-embedded-asm-apigee-deployment-controller=true
         - --enable-api-client=true
         - --disable-istio-config-in-apiserver=true
-        # TODO(b/218900526): Change imageHub from controller flag to ConfigMap before release
-        - --image-repository-hub=us.gcr.io/apigee-demo-gauravkg/new-hybrid-install
+        - --disable-common-config-controller=false
         command:
         - /manager
-        image: us.gcr.io/apigee-demo-gauravkg/apigee-controller:gauravkg
+        image: gcr.io/apigee-release/hybrid/apigee-operators:1.8.0-preview.2
         imagePullPolicy: Always
         name: manager
         ports:

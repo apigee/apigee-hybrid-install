@@ -19,11 +19,11 @@
     gcloud config set project ${ORGANIZATION_NAME}
     ```
     (you can also use the `--org ${ORGANIZATION_NAME}`) flag in the shell script to explicitly pass the Apigee organization name.
-3. For easing internal testing, the project by default uses the `staging` APIs. If you are using an `autopush` or `prod` org, make sure to change the `apigeeEndpoint` and `apigeeConnectEndpoint` fields in [apigee-organization.yaml](overlays/instances/instance1/organization/apigee-organization.yaml)
-    * prod endpoints:
+3. The project by default uses the `prod` APIs. If you are using an `autopush` or `staging` org, make sure to change the `apigeeEndpoint` and `apigeeConnectEndpoint` fields in [apigee-organization.yaml](overlays/instances/instance1/organization/apigee-organization.yaml)
+    * staging endpoints:
     ```yaml
-    apigeeEndpoint: "https://apigee.googleapis.com"
-    apigeeConnectEndpoint: "apigeeconnect.googleapis.com:443" 
+    apigeeEndpoint: "https://staging-apigee.sandbox.googleapis.com"
+    apigeeConnectEndpoint: "staging-apigeeconnect.sandbox.googleapis.com:443" 
     ```
     * autopush endpoints:
     ```yaml
@@ -48,7 +48,7 @@
     ```bash
     kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.7.1/cert-manager.yaml
     ```
-7. For easing internal testing, the script currently uses images from the [`us.gcr.io/apigee-demo-gauravkg/new-hybrid-install`](https://us.gcr.io/apigee-demo-gauravkg/new-hybrid-install). Your project might not have the permission to pull images from this repo in which case you have the following options:
+7. Change the `imageHub` value in [overlays/controllers/apigee-controller/apigee-hybrid-config.yaml](overlays/controllers/apigee-controller/apigee-hybrid-config.yaml) to [`us.gcr.io/apigee-demo-gauravkg/new-hybrid-install2`](https://us.gcr.io/apigee-demo-gauravkg/new-hybrid-install2). Your project might not have the permission to pull images from this repo in which case you have the following options:
     1. You can try to temporarily give your projects service account "`<YOUR_PROJECT_NUMBER>-compute@developer.gserviceaccount.com`" the `Storage Object Viewer` role within the `apigee-demo-gauravkg` project. This permission will only last untill Latchkey resets those permissions.
     2. To make the above arrangement permanent, modify the `iam_policy.yaml` file for the project [here](http://google3/configs/cloud/gong/org_hierarchy/google.com/teams/apigee-teams/shared/hybrid/project.apigee-demo-gauravkg/iam_policy.yaml) by adding the following lines:
         ```yaml
@@ -60,16 +60,16 @@
             role: roles/storage.objectViewer
         # ...
         ```
-    3. You can try pulling the images from the above mentioned [repo](https://us.gcr.io/apigee-demo-gauravkg/new-hybrid-install) and add them to your project. (Steps left as an exercise for the reader :) ). Then you need to make the controller point to this new image hub in your project by modifying [bases/controllers/apigee-controller/apigee-controller-deployment.yaml](bases/controllers/apigee-controller/apigee-controller-deployment.yaml):
+    3. You can try pulling the images from the above mentioned [repo](https://us.gcr.io/apigee-demo-gauravkg/new-hybrid-install2) and add them push them to your project. (Steps left as an exercise for the reader :) ). Then change the `imageHub` in [overlays/controllers/apigee-controller/apigee-hybrid-config.yaml](overlays/controllers/apigee-controller/apigee-hybrid-config.yaml) 
         ```yaml
-        # --image-repository-hub=us.gcr.io/apigee-demo-gauravkg/new-hybrid-install
-        --image-repository-hub=<YOUR_IMAGEHUB_PATH>
+        # imageHub: "gcr.io/apigee-release/hybrid"
+        imageHub: "<YOUR_IMAGEHUB_PATH>"
         ```
-        and change the controllers image itself:
-        ```yaml
-        # image: us.gcr.io/apigee-demo-gauravkg/apigee-controller:gauravkg
-        image: <YOUR_IMAGEHUB_PATH>/apigee-operators:<TAGGED_VERSION>
-        ```
+7. Change the controller image in [bases/controllers/apigee-controller/apigee-controller-deployment.yaml](bases/controllers/apigee-controller/apigee-controller-deployment.yaml):
+    ```yaml
+    # image: us.gcr.io/apigee-demo-gauravkg/apigee-controller:gauravkg
+    image: <YOUR_IMAGEHUB_PATH>/apigee-operators:<TAGGED_VERSION>
+    ```
 
 
 ## How to use [`apigee-hybrid-setup.sh`](tools/apigee-hybrid-setup.sh)?
