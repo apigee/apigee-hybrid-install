@@ -10,7 +10,7 @@ core.workflow(
     dry_run = True,
     origin = git.origin(
         url = source_url,
-        ref = "master",
+        ref = "main",
     ),
     origin_files = glob(
         include = [
@@ -23,7 +23,7 @@ core.workflow(
     ),
     destination = git.destination(
         url = destination_url,
-        push = "master",
+        push = "main",
     ),
     authoring = authoring.pass_thru(default_author),
     mode = "ITERATIVE",
