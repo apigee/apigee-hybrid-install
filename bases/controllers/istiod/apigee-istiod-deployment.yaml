@@ -218,7 +218,7 @@ spec:
               fieldPath: metadata.namespace
         command:
         - /manager
-        image: gcr.io/apigee-release/hybrid/apigee-operators:1.8.0-preview.1
+        image: gcr.io/apigee-release/hybrid/apigee-operators:1.8.0-preview.2
         imagePullPolicy: Always
         name: manager
         ports:
@@ -261,7 +261,7 @@ spec:
         - --upstream=http://127.0.0.1:8080/
         - --logtostderr=true
         - --v=10
-        image: gcr.io/apigee-release/hybrid/apigee-kube-rbac-proxy:v0.8.0
+        image: gcr.io/apigee-release/hybrid/apigee-kube-rbac-proxy:v0.11.0
         imagePullPolicy: IfNotPresent
         name: kube-rbac-proxy
         ports:
