@@ -23,7 +23,7 @@ spec:
       serviceAccountName: apigee-cassandra-backup-and-restore
       initContainers:
       - name: check-user
-        image: "us.gcr.io/google.com/edge-ci/integration/data-services/apigee-hybrid-cassandra-client/master/apigee-cassandra-client:20312_7b0af57" # TODO: Replace with path for actual image
+        image: gcr.io/apigee-release/hybrid/apigee-hybrid-cassandra-client:1.8.0-preview.2
         imagePullPolicy: Always
         command: [
           'bash',
@@ -55,7 +55,7 @@ spec:
         - /bin/bash
         - -c
         - /usr/bin/RestoreDBMaster.sh
-        image: gcr.io/apigee-release/hybrid/apigee-cassandra-backup-utility:1.6.0
+        image: gcr.io/apigee-release/hybrid/apigee-cassandra-backup-utility:1.8.0-preview.2
         imagePullPolicy: Always
         env:
         - name: CASSANDRA_CLUSTER_NAME

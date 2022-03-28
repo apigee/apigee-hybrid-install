@@ -30,7 +30,7 @@ spec:
             - /bin/bash
             - -c
             - /usr/bin/BackupDBMaster.sh
-            image: gcr.io/apigee-release/hybrid/apigee-cassandra-backup-utility:1.6.0
+            image: gcr.io/apigee-release/hybrid/apigee-cassandra-backup-utility:1.8.0-preview.2
             imagePullPolicy: IfNotPresent
             env:
             - name: CASSANDRA_CLUSTER_NAME
