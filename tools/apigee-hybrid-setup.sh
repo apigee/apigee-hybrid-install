@@ -16,6 +16,18 @@
 
 set -eo pipefail
 
+if [[ "${BASH_VERSINFO:-0}" -lt 4 ]]; then
+  cat << EOF >&2
+WARNING: bash ${BASH_VERSION} does not support several modern safety features.
+This script was written with the latest POSIX standard in mind, and was only
+tested with modern shell standards. This script may not perform correctly in
+this environment.
+EOF
+  sleep 1
+else
+  set -u
+fi
+
 ################################################################################
 #                           User modifiable variables
 ################################################################################
@@ -108,7 +120,7 @@ configure_defaults() {
     local APIGEE_API_ENDPOINT_OVERRIDES
     APIGEE_API_ENDPOINT_OVERRIDES="$(gcloud config get-value api_endpoint_overrides/apigee)"
     if [[ "${APIGEE_API_ENDPOINT_OVERRIDES}" != "(unset)" && "${APIGEE_API_ENDPOINT_OVERRIDES}" != "" ]]; then
-        APIGEE_API_ENDPOINT="${APIGEE_API_ENDPOINT_OVERRIDES::-1}"
+        APIGEE_API_ENDPOINT="${APIGEE_API_ENDPOINT_OVERRIDES:0:-1}"
     fi
     readonly APIGEE_API_ENDPOINT
     info "APIGEE_API_ENDPOINT='${APIGEE_API_ENDPOINT}'"
