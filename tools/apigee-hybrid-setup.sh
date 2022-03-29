@@ -133,19 +133,28 @@ configure_defaults() {
     info "ORGANIZATION_NAME='${ORGANIZATION_NAME}'"
 
     # Configure environment name
+    local ENVIRONMENTS_LIST NUMBER_OF_ENVIRONMENTS
+    ENVIRONMENTS_LIST="$(gcloud beta apigee environments list --organization="${ORGANIZATION_NAME}" --format='value(.)')"
+    NUMBER_OF_ENVIRONMENTS=$(echo "${ENVIRONMENTS_LIST}" | wc -l)
     if [[ -z "${ENVIRONMENT_NAME}" ]]; then
-        local ENVIRONMENTS_LIST NUMBER_OF_ENVIRONMENTS
-
-        ENVIRONMENTS_LIST="$(gcloud beta apigee environments list --organization="${ORGANIZATION_NAME}" --format='value(.)')"
-        NUMBER_OF_ENVIRONMENTS=$(echo "${ENVIRONMENTS_LIST}" | wc -l)
         if ((NUMBER_OF_ENVIRONMENTS < 1)); then
             fatal "No environment exists in organization '${ORGANIZATION_NAME}'. Please create an environment and try again."
         elif ((NUMBER_OF_ENVIRONMENTS > 1)); then
             printf "Environments found:\n%s\n" "${ENVIRONMENTS_LIST}"
             fatal "Multiple environments found. Select one explicitly using --env and try again."
         fi
-
         ENVIRONMENT_NAME="$(echo "${ENVIRONMENTS_LIST}" | head --lines 1)"
+    else
+      local VALID_ENVIRONMENT="0"
+      for ENVIRONMENT in "${ENVIRONMENTS_LIST[@]}"; do
+        if [[ "${ENVIRONMENT}" == "${ENVIRONMENT_NAME}" ]]; then
+          VALID_ENVIRONMENT="1"
+        fi
+      done
+      if [[ "${VALID_ENVIRONMENT}" == "0" ]]; then
+        printf "Environments found:\n%s\n" "${ENVIRONMENTS_LIST}"
+        fatal "Invalid environment ${ENVIRONMENT_NAME} provided. Exiting."
+      fi
     fi
     readonly ENVIRONMENT_NAME
     info "ENVIRONMENT_NAME='${ENVIRONMENT_NAME}'"
@@ -154,28 +163,36 @@ configure_defaults() {
     #
     # Will only be executed when both envgroup and hostname are not set. Thus
     # the user is expected to either input both, or none of them.
+    local RESPONSE ENVIRONMENT_GROUPS_LIST NUMBER_OF_ENVIRONMENT_GROUPS
+    RESPONSE="$(
+        run curl --fail --show-error --silent "${APIGEE_API_ENDPOINT}/v1/organizations/${ORGANIZATION_NAME}/envgroups/" \
+            -K <(auth_header)
+    )"
+    NUMBER_OF_ENVIRONMENT_GROUPS=0
+    if [[ "${RESPONSE}" != "{}" ]]; then
+        ENVIRONMENT_GROUPS_LIST="$(echo "${RESPONSE}" | jq -r '.environmentGroups[].name')"
+        NUMBER_OF_ENVIRONMENT_GROUPS=$(echo "${ENVIRONMENT_GROUPS_LIST}" | wc -l)
+    fi
     if [[ -z "${ENVIRONMENT_GROUP_NAME}" && -z "${ENVIRONMENT_GROUP_HOSTNAME}" ]]; then
-        local RESPONSE
-        RESPONSE="$(
-            run curl --fail --show-error --silent "${APIGEE_API_ENDPOINT}/v1/organizations/${ORGANIZATION_NAME}/envgroups/" \
-                -K <(auth_header)
-        )"
-
-        local ENVIRONMENT_GROUPS_LIST NUMBER_OF_ENVIRONMENT_GROUPS
-        NUMBER_OF_ENVIRONMENT_GROUPS=0
-        if [[ "${RESPONSE}" != "{}" ]]; then
-            ENVIRONMENT_GROUPS_LIST="$(echo "${RESPONSE}" | jq -r '.environmentGroups[].name')"
-            NUMBER_OF_ENVIRONMENT_GROUPS=$(echo "${ENVIRONMENT_GROUPS_LIST}" | wc -l)
-        fi
         if ((NUMBER_OF_ENVIRONMENT_GROUPS < 1)); then
             fatal "No environment group exists in organization '${ORGANIZATION_NAME}'. Please create an environment group and try again."
         elif ((NUMBER_OF_ENVIRONMENT_GROUPS > 1)); then
             printf "Environments groups found:\n%s\n" "${ENVIRONMENT_GROUPS_LIST}"
             fatal "Multiple environment groups found. Select one explicitly using --envgroup and try again."
         fi
-
         ENVIRONMENT_GROUP_NAME="$(echo "${RESPONSE}" | jq -r '.environmentGroups[0].name')"
         ENVIRONMENT_GROUP_HOSTNAME="$(echo "${RESPONSE}" | jq -r '.environmentGroups[0].hostnames[0]')"
+    else
+      local VALID_ENVIRONMENT_GROUP="0"
+      for ENVIRONMENT_GROUP in "${ENVIRONMENT_GROUPS_LIST[@]}"; do
+        if [[ "${ENVIRONMENT_GROUP}" == "${ENVIRONMENT_GROUP_NAME}" ]]; then
+          VALID_ENVIRONMENT_GROUP="1"
+        fi
+      done
+      if [[ "${VALID_ENVIRONMENT_GROUP}" == "0" ]]; then
+        printf "Environments groups found:\n%s\n" "${ENVIRONMENT_GROUPS_LIST}"
+        fatal "Invalid environment group ${ENVIRONMENT_GROUP_NAME} provided. Exiting."
+      fi
     fi
     readonly ENVIRONMENT_GROUP_NAME ENVIRONMENT_GROUP_HOSTNAME
     info "ENVIRONMENT_GROUP_NAME='${ENVIRONMENT_GROUP_NAME}'"
