@@ -28,7 +28,6 @@ spec:
   axHashingSaltRef: "org-ax-salt" # kpt-set: ${ORGANIZATION_NAME}-ax-salt
   apigeeEndpoint: "https://apigee.googleapis.com"
   apigeeConnectEndpoint: "apigeeconnect.googleapis.com:443"
-  udcaEnabled: true
   instanceID: "${CLUSTER_NAME}-${CLUSTER_REGION}" # kpt-set: ${CLUSTER_NAME}-${CLUSTER_REGION}
   clusterName: "${CLUSTER_NAME}" # kpt-set: ${CLUSTER_NAME}
   clusterRegion: "${CLUSTER_REGION}" # kpt-set: ${CLUSTER_REGION}
