@@ -28,6 +28,7 @@ core.workflow(
     authoring = authoring.pass_thru(default_author),
     mode = "ITERATIVE",
     transformations = [
+        core.move("README_public.md", "README.md"),
         metadata.replace_message("${COPYBARA_CURRENT_MESSAGE_TITLE}"),
         metadata.scrubber("b/[0-9]* "),
     ],
