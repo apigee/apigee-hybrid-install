@@ -18,7 +18,7 @@ core.workflow(
         ],
         exclude = [
             "copy.bara.sky",
-            "README.md",
+            "README_internal.md",
         ],
     ),
     destination = git.destination(
