@@ -94,6 +94,7 @@ spec:
         - --enable-api-client=true
         - --disable-istio-config-in-apiserver=true
         - --disable-common-config-controller=false
+        - --disable-control-plane-validation=false
         command:
         - /manager
         image: gcr.io/apigee-release/hybrid/apigee-operators:1.8.0-preview.2
