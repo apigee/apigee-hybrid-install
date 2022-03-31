@@ -1028,7 +1028,7 @@ _Appears in:_
 | `metricsProxy` _[Component](#component)_ |  |
 | `metricsAdapter` _[Component](#component)_ |  |
 | `accessLogs` _[Component](#component)_ |  |
-| `containerLogs` _[Component](#component)_ | TODO(b/214804572): Rename this to HybridLogs without breaking existing configs. |
+| `containerLogs` _[Component](#component)_ |  |
 | `containerOSLogs` _[Component](#component)_ |  |
 
 
