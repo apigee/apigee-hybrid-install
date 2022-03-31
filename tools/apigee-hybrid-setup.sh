@@ -17,15 +17,15 @@
 set -eo pipefail
 
 if [[ "${BASH_VERSINFO:-0}" -lt 4 ]]; then
-  cat << EOF >&2
+    cat <<EOF >&2
 WARNING: bash ${BASH_VERSION} does not support several modern safety features.
 This script was written with the latest POSIX standard in mind, and was only
 tested with modern shell standards. This script may not perform correctly in
 this environment.
 EOF
-  sleep 1
+    sleep 1
 else
-  set -u
+    set -u
 fi
 
 ################################################################################
@@ -145,16 +145,16 @@ configure_defaults() {
         fi
         ENVIRONMENT_NAME="$(echo "${ENVIRONMENTS_LIST}" | head --lines 1)"
     else
-      local VALID_ENVIRONMENT="0"
-      for ENVIRONMENT in "${ENVIRONMENTS_LIST[@]}"; do
-        if [[ "${ENVIRONMENT}" == "${ENVIRONMENT_NAME}" ]]; then
-          VALID_ENVIRONMENT="1"
+        local VALID_ENVIRONMENT="0"
+        for ENVIRONMENT in "${ENVIRONMENTS_LIST[@]}"; do
+            if [[ "${ENVIRONMENT}" == "${ENVIRONMENT_NAME}" ]]; then
+                VALID_ENVIRONMENT="1"
+            fi
+        done
+        if [[ "${VALID_ENVIRONMENT}" == "0" ]]; then
+            printf "Environments found:\n%s\n" "${ENVIRONMENTS_LIST}"
+            fatal "Invalid environment ${ENVIRONMENT_NAME} provided. Exiting."
         fi
-      done
-      if [[ "${VALID_ENVIRONMENT}" == "0" ]]; then
-        printf "Environments found:\n%s\n" "${ENVIRONMENTS_LIST}"
-        fatal "Invalid environment ${ENVIRONMENT_NAME} provided. Exiting."
-      fi
     fi
     readonly ENVIRONMENT_NAME
     info "ENVIRONMENT_NAME='${ENVIRONMENT_NAME}'"
@@ -183,16 +183,16 @@ configure_defaults() {
         ENVIRONMENT_GROUP_NAME="$(echo "${RESPONSE}" | jq -r '.environmentGroups[0].name')"
         ENVIRONMENT_GROUP_HOSTNAME="$(echo "${RESPONSE}" | jq -r '.environmentGroups[0].hostnames[0]')"
     else
-      local VALID_ENVIRONMENT_GROUP="0"
-      for ENVIRONMENT_GROUP in "${ENVIRONMENT_GROUPS_LIST[@]}"; do
-        if [[ "${ENVIRONMENT_GROUP}" == "${ENVIRONMENT_GROUP_NAME}" ]]; then
-          VALID_ENVIRONMENT_GROUP="1"
+        local VALID_ENVIRONMENT_GROUP="0"
+        for ENVIRONMENT_GROUP in "${ENVIRONMENT_GROUPS_LIST[@]}"; do
+            if [[ "${ENVIRONMENT_GROUP}" == "${ENVIRONMENT_GROUP_NAME}" ]]; then
+                VALID_ENVIRONMENT_GROUP="1"
+            fi
+        done
+        if [[ "${VALID_ENVIRONMENT_GROUP}" == "0" ]]; then
+            printf "Environments groups found:\n%s\n" "${ENVIRONMENT_GROUPS_LIST}"
+            fatal "Invalid environment group ${ENVIRONMENT_GROUP_NAME} provided. Exiting."
         fi
-      done
-      if [[ "${VALID_ENVIRONMENT_GROUP}" == "0" ]]; then
-        printf "Environments groups found:\n%s\n" "${ENVIRONMENT_GROUPS_LIST}"
-        fatal "Invalid environment group ${ENVIRONMENT_GROUP_NAME} provided. Exiting."
-      fi
     fi
     readonly ENVIRONMENT_GROUP_NAME ENVIRONMENT_GROUP_HOSTNAME
     info "ENVIRONMENT_GROUP_NAME='${ENVIRONMENT_GROUP_NAME}'"
