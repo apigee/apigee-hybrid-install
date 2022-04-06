@@ -406,7 +406,7 @@ create_kubernetes_resources() {
     kubectl apply -f "${INSTANCE_DIR}/environments/${ENVIRONMENT_NAME}/secrets.yaml"
     kubectl apply -f "${INSTANCE_DIR}/organization/secrets.yaml"
     # Create the remainder of the resources.
-    kubectl apply -k "${INSTANCE_DIR}"
+    kubectl kustomize "${INSTANCE_DIR}" --reorder none | kubectl apply -f -
 
     # Resources having been successfully created. Now wait for them to start.
     banner_info "Resources have been created. Waiting for them to be ready..."

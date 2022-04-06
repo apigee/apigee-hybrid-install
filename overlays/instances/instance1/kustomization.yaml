@@ -14,11 +14,11 @@
 
 resources:
 - datastore/
-- environments/
 - organization/
+- environments/
 - redis/
-- route-config/
 - telemetry/
+- route-config/
 
 patches:
 - target:
@@ -32,7 +32,7 @@ patches:
 - target:
     group: apigee.cloud.google.com
     version: v1alpha2
-    kind: ApigeeEnvironment
+    kind: ApigeeOrganization
   patch: |-
     - op: add
       path: /spec/version
@@ -40,7 +40,7 @@ patches:
 - target:
     group: apigee.cloud.google.com
     version: v1alpha2
-    kind: ApigeeOrganization
+    kind: ApigeeEnvironment
   patch: |-
     - op: add
       path: /spec/version
