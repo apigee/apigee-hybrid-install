@@ -19,11 +19,11 @@
     gcloud config set project ${ORGANIZATION_NAME}
     ```
     (you can also use the `--org ${ORGANIZATION_NAME}`) flag in the shell script to explicitly pass the Apigee organization name.
-3. For easing internal testing, the project by default uses the `staging` APIs. If you are using an `autopush` or `prod` org, make sure to change the `apigeeEndpoint` and `apigeeConnectEndpoint` fields in [apigee-organization.yaml](overlays/instances/instance1/organization/apigee-organization.yaml)
-    * prod endpoints:
+3. The project by default uses the `prod` APIs. If you are using an `autopush` or `staging` org, make sure to change the `apigeeEndpoint` and `apigeeConnectEndpoint` fields in [apigee-organization.yaml](overlays/instances/instance1/organization/apigee-organization.yaml)
+    * staging endpoints:
     ```yaml
-    apigeeEndpoint: "https://apigee.googleapis.com"
-    apigeeConnectEndpoint: "apigeeconnect.googleapis.com:443"
+    apigeeEndpoint: "https://staging-apigee.sandbox.googleapis.com"
+    apigeeConnectEndpoint: "staging-apigeeconnect.sandbox.googleapis.com:443"
     ```
     * autopush endpoints:
     ```yaml
