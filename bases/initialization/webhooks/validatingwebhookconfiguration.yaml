@@ -11,8 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-apiVersion: admissionregistration.k8s.io/v1beta1
+apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingWebhookConfiguration
 metadata:
   annotations:
@@ -20,13 +19,17 @@ metadata:
     certmanager.k8s.io/inject-ca-from: apigee/apigee-serving-cert
   name: apigee-validating-webhook-configuration
 webhooks:
-- clientConfig:
+- admissionReviewVersions:
+  - v1beta1
+  clientConfig:
     caBundle: Cg==
     service:
       name: apigee-webhook-service
-      namespace: "apigee"
+      namespace: apigee
       path: /validate-apigee-cloud-google-com-v1alpha1-apigeedatastore
+      port: 443
   failurePolicy: Fail
+  matchPolicy: Exact
   name: vapigeedatastore.apigee.cloud.google.com
   rules:
   - apiGroups:
@@ -39,13 +42,20 @@ webhooks:
     - DELETE
     resources:
     - apigeedatastores
-- clientConfig:
+    scope: '*'
+  sideEffects: Unknown
+  timeoutSeconds: 30
+- admissionReviewVersions:
+  - v1beta1
+  clientConfig:
     caBundle: Cg==
     service:
       name: apigee-webhook-service
-      namespace: "apigee"
+      namespace: apigee
       path: /validate-apigee-cloud-google-com-v1alpha2-apigeeenvironment
+      port: 443
   failurePolicy: Fail
+  matchPolicy: Exact
   name: vapigeeenvironment.apigee.cloud.google.com
   rules:
   - apiGroups:
@@ -57,13 +67,20 @@ webhooks:
     - UPDATE
     resources:
     - apigeeenvironments
-- clientConfig:
+    scope: '*'
+  sideEffects: Unknown
+  timeoutSeconds: 30
+- admissionReviewVersions:
+  - v1beta1
+  clientConfig:
     caBundle: Cg==
     service:
       name: apigee-webhook-service
-      namespace: "apigee"
+      namespace: apigee
       path: /validate-apigee-cloud-google-com-v1alpha2-apigeeorganization
+      port: 443
   failurePolicy: Fail
+  matchPolicy: Exact
   name: vapigeeorganization.apigee.cloud.google.com
   rules:
   - apiGroups:
@@ -75,13 +92,20 @@ webhooks:
     - UPDATE
     resources:
     - apigeeorganizations
-- clientConfig:
+    scope: '*'
+  sideEffects: Unknown
+  timeoutSeconds: 30
+- admissionReviewVersions:
+  - v1beta1
+  clientConfig:
     caBundle: Cg==
     service:
       name: apigee-webhook-service
-      namespace: "apigee"
+      namespace: apigee
       path: /validate-apigee-cloud-google-com-v1alpha1-apigeeredis
+      port: 443
   failurePolicy: Fail
+  matchPolicy: Exact
   name: vapigeeredis.apigee.cloud.google.com
   rules:
   - apiGroups:
@@ -93,13 +117,20 @@ webhooks:
     - UPDATE
     resources:
     - apigeeredis
-- clientConfig:
+    scope: '*'
+  sideEffects: Unknown
+  timeoutSeconds: 30
+- admissionReviewVersions:
+  - v1beta1
+  clientConfig:
     caBundle: Cg==
     service:
       name: apigee-webhook-service
-      namespace: "apigee"
+      namespace: apigee
       path: /validate-apigee-cloud-google-com-v1alpha1-apigeeroute
+      port: 443
   failurePolicy: Fail
+  matchPolicy: Exact
   name: vapigeeroute.apigee.cloud.google.com
   rules:
   - apiGroups:
@@ -111,13 +142,20 @@ webhooks:
     - UPDATE
     resources:
     - apigeeroutes
-- clientConfig:
+    scope: '*'
+  sideEffects: Unknown
+  timeoutSeconds: 30
+- admissionReviewVersions:
+  - v1beta1
+  clientConfig:
     caBundle: Cg==
     service:
       name: apigee-webhook-service
-      namespace: "apigee"
+      namespace: apigee
       path: /validate-apigee-cloud-google-com-v1alpha2-apigeetelemetry
+      port: 443
   failurePolicy: Fail
+  matchPolicy: Exact
   name: vapigeetelemetry.apigee.cloud.google.com
   rules:
   - apiGroups:
@@ -129,13 +167,20 @@ webhooks:
     - UPDATE
     resources:
     - apigeetelemetrys
-- clientConfig:
+    scope: '*'
+  sideEffects: Unknown
+  timeoutSeconds: 30
+- admissionReviewVersions:
+  - v1beta1
+  clientConfig:
     caBundle: Cg==
     service:
       name: apigee-webhook-service
-      namespace: "apigee"
+      namespace: apigee
       path: /validate-apigee-cloud-google-com-v1alpha3-apigeedeployment
+      port: 443
   failurePolicy: Fail
+  matchPolicy: Exact
   name: vapigeedeployment.apigee.cloud.google.com
   rules:
   - apiGroups:
@@ -147,4 +192,6 @@ webhooks:
     - UPDATE
     resources:
     - apigeedeployments
-
+    scope: '*'
+  sideEffects: Unknown
+  timeoutSeconds: 30
