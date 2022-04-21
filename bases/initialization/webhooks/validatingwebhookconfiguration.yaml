@@ -43,7 +43,7 @@ webhooks:
     resources:
     - apigeedatastores
     scope: '*'
-  sideEffects: Unknown
+  sideEffects: None
   timeoutSeconds: 30
 - admissionReviewVersions:
   - v1beta1
@@ -68,7 +68,7 @@ webhooks:
     resources:
     - apigeeenvironments
     scope: '*'
-  sideEffects: Unknown
+  sideEffects: None
   timeoutSeconds: 30
 - admissionReviewVersions:
   - v1beta1
@@ -93,7 +93,7 @@ webhooks:
     resources:
     - apigeeorganizations
     scope: '*'
-  sideEffects: Unknown
+  sideEffects: None
   timeoutSeconds: 30
 - admissionReviewVersions:
   - v1beta1
@@ -118,7 +118,7 @@ webhooks:
     resources:
     - apigeeredis
     scope: '*'
-  sideEffects: Unknown
+  sideEffects: None
   timeoutSeconds: 30
 - admissionReviewVersions:
   - v1beta1
@@ -143,7 +143,7 @@ webhooks:
     resources:
     - apigeeroutes
     scope: '*'
-  sideEffects: Unknown
+  sideEffects: None
   timeoutSeconds: 30
 - admissionReviewVersions:
   - v1beta1
@@ -168,7 +168,7 @@ webhooks:
     resources:
     - apigeetelemetrys
     scope: '*'
-  sideEffects: Unknown
+  sideEffects: None
   timeoutSeconds: 30
 - admissionReviewVersions:
   - v1beta1
@@ -193,5 +193,5 @@ webhooks:
     resources:
     - apigeedeployments
     scope: '*'
-  sideEffects: Unknown
+  sideEffects: None
   timeoutSeconds: 30
