@@ -125,12 +125,8 @@ spec:
         - mountPath: /tmp/k8s-webhook-server/serving-certs
           name: cert
           readOnly: true
-        - name: tmpfs
-          mountPath: /tmp
       terminationGracePeriodSeconds: 10
       volumes:
-      - name: tmpfs
-        emptyDir: {}
       - name: cert
         secret:
           defaultMode: 420
