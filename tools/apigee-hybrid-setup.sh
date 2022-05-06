@@ -120,7 +120,7 @@ configure_defaults() {
     local APIGEE_API_ENDPOINT_OVERRIDES
     APIGEE_API_ENDPOINT_OVERRIDES="$(gcloud config get-value api_endpoint_overrides/apigee)"
     if [[ "${APIGEE_API_ENDPOINT_OVERRIDES}" != "(unset)" && "${APIGEE_API_ENDPOINT_OVERRIDES}" != "" ]]; then
-        APIGEE_API_ENDPOINT="${APIGEE_API_ENDPOINT_OVERRIDES:0:-1}"
+        APIGEE_API_ENDPOINT="${APIGEE_API_ENDPOINT_OVERRIDES}"
     fi
     readonly APIGEE_API_ENDPOINT
     info "APIGEE_API_ENDPOINT='${APIGEE_API_ENDPOINT}'"
@@ -146,7 +146,7 @@ configure_defaults() {
         ENVIRONMENT_NAME="$(echo "${ENVIRONMENTS_LIST}" | head --lines 1)"
     else
         local VALID_ENVIRONMENT="0"
-        for ENVIRONMENT in "${ENVIRONMENTS_LIST[@]}"; do
+        for ENVIRONMENT in ${ENVIRONMENTS_LIST[@]}; do
             if [[ "${ENVIRONMENT}" == "${ENVIRONMENT_NAME}" ]]; then
                 VALID_ENVIRONMENT="1"
             fi
@@ -184,7 +184,7 @@ configure_defaults() {
         ENVIRONMENT_GROUP_HOSTNAME="$(echo "${RESPONSE}" | jq -r '.environmentGroups[0].hostnames[0]')"
     else
         local VALID_ENVIRONMENT_GROUP="0"
-        for ENVIRONMENT_GROUP in "${ENVIRONMENT_GROUPS_LIST[@]}"; do
+        for ENVIRONMENT_GROUP in ${ENVIRONMENT_GROUPS_LIST[@]}; do
             if [[ "${ENVIRONMENT_GROUP}" == "${ENVIRONMENT_GROUP_NAME}" ]]; then
                 VALID_ENVIRONMENT_GROUP="1"
             fi
