@@ -15,10 +15,10 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: apigee-istiod
+  name: apigee-ingressgateway-manager
   annotations:
     apigeeNamespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
 spec:
-  commonName: apigee-istiod.apigee.svc # kpt-set: apigee-istiod.${APIGEE_NAMESPACE}.svc
+  commonName: apigee-ingressgateway-manager.apigee.svc # kpt-set: apigee-ingressgateway-manager.${APIGEE_NAMESPACE}.svc
   dnsNames:
-  - "apigee-istiod.apigee.svc" # kpt-set: apigee-istiod.${APIGEE_NAMESPACE}.svc
+  - "apigee-ingressgateway-manager.apigee.svc" # kpt-set: apigee-ingressgateway-manager.${APIGEE_NAMESPACE}.svc
