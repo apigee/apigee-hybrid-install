@@ -35,7 +35,7 @@ patches:
     kind: Certificate
     name: apigee-serving-cert
 
-- path: apigee-istiod-certificate-patch.yaml
+- path: apigee-ingressgateway-manager-certificate-patch.yaml
   target:
     group: cert-manager.io
     version: v1

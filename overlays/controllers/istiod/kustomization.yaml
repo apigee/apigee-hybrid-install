@@ -23,7 +23,7 @@ resources:
 # - ./components/nodeselector/
 
 patches:
-- path: apigee-istiod-deployment-patch.yaml
+- path: apigee-ingressgateway-manager-deployment-patch.yaml
   target:
     group: apps
     version: v1

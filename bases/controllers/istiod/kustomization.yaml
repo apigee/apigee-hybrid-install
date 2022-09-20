@@ -13,4 +13,4 @@
 # limitations under the License.
 
 resources:
-- apigee-istiod-deployment.yaml
+- apigee-ingressgateway-manager-deployment.yaml

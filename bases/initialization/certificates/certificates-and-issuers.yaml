@@ -91,19 +91,19 @@ spec:
 ---
 
 ################################################################################
-# `apigee-istiod` is used for communication b/w istiod and ingress
+# `apigee-ingressgateway-manager` is used for communication b/w istiod and ingress
 ################################################################################
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: apigee-istiod
+  name: apigee-ingressgateway-manager
   namespace: "apigee"
   labels:
     apigee.cloud.google.com/platform: apigee
 spec:
-  commonName: apigee-istiod.apigee.svc
+  commonName: apigee-ingressgateway-manager.apigee.svc
   dnsNames:
-  - "apigee-istiod.apigee.svc"
+  - "apigee-ingressgateway-manager.apigee.svc"
   duration: 48h0m0s
   issuerRef:
     group: cert-manager.io
