@@ -146,7 +146,11 @@ configure_defaults() {
         ENVIRONMENT_NAME="$(echo "${ENVIRONMENTS_LIST}" | head --lines 1)"
     else
         local VALID_ENVIRONMENT="0"
+<<<<<<< HEAD
         for ENVIRONMENT in ${ENVIRONMENTS_LIST[@]}; do
+=======
+        for ENVIRONMENT in "${ENVIRONMENTS_LIST[@]}"; do
+>>>>>>> master
             if [[ "${ENVIRONMENT}" == "${ENVIRONMENT_NAME}" ]]; then
                 VALID_ENVIRONMENT="1"
             fi
@@ -184,7 +188,11 @@ configure_defaults() {
         ENVIRONMENT_GROUP_HOSTNAME="$(echo "${RESPONSE}" | jq -r '.environmentGroups[0].hostnames[0]')"
     else
         local VALID_ENVIRONMENT_GROUP="0"
+<<<<<<< HEAD
         for ENVIRONMENT_GROUP in ${ENVIRONMENT_GROUPS_LIST[@]}; do
+=======
+        for ENVIRONMENT_GROUP in "${ENVIRONMENT_GROUPS_LIST[@]}"; do
+>>>>>>> master
             if [[ "${ENVIRONMENT_GROUP}" == "${ENVIRONMENT_GROUP_NAME}" ]]; then
                 VALID_ENVIRONMENT_GROUP="1"
             fi
