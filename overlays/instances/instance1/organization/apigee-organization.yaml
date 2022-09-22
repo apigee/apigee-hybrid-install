@@ -26,8 +26,8 @@ spec:
   dataEncryptionRef: "org-data-encryption" # kpt-set: ${ORGANIZATION_NAME}-data-encryption
   redisRef: "default"
   axHashingSaltRef: "org-ax-salt" # kpt-set: ${ORGANIZATION_NAME}-ax-salt
-  apigeeEndpoint: "https://staging-apigee.sandbox.googleapis.com"
-  apigeeConnectEndpoint: "staging-apigeeconnect.sandbox.googleapis.com:443"
+  apigeeEndpoint: "https://apigee.googleapis.com"
+  apigeeConnectEndpoint: "apigeeconnect.googleapis.com:443"
   instanceID: "${CLUSTER_NAME}-${CLUSTER_REGION}" # kpt-set: ${CLUSTER_NAME}-${CLUSTER_REGION}
   clusterName: "${CLUSTER_NAME}" # kpt-set: ${CLUSTER_NAME}
   clusterRegion: "${CLUSTER_REGION}" # kpt-set: ${CLUSTER_REGION}
