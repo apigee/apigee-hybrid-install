@@ -11,13 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 resources:
 - ../../../bases/initialization/certificates/
-
 # components:
 # - ./components/disable-apigee-root-certificate-generation
-
 patches:
 - path: apigee-serving-cert-patch.yaml
   target:
@@ -25,7 +22,7 @@ patches:
     version: v1
     kind: Certificate
     name: apigee-serving-cert
-- patch: |- 
+- patch: |-
     - op: copy
       from: "/metadata/annotations/apigeeNamespace"
       path: /metadata/namespace
@@ -34,14 +31,13 @@ patches:
     version: v1
     kind: Certificate
     name: apigee-serving-cert
-
 - path: apigee-ingressgateway-manager-certificate-patch.yaml
   target:
     group: cert-manager.io
     version: v1
     kind: Certificate
     name: apigee-istiod
-- patch: |- 
+- patch: |-
     - op: copy
       from: "/metadata/annotations/apigeeNamespace"
       path: /metadata/namespace

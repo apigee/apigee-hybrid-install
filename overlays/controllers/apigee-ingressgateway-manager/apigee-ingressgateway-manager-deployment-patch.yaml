@@ -11,8 +11,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
-
-resources:
-- ../../../../bases/initialization/rbac/apigee-embedded-ingress-controller/
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apigee-ingressgateway-manager
+spec:
+  template:
+    spec:
+      containers:
+      - name: discovery
+        env:
+        - name: ISTIOD_ADDR
+          value: apigee-ingressgateway-manager.apigee.svc:15012 # kpt-set: apigee-ingressgateway-manager.${APIGEE_NAMESPACE}.svc:15012

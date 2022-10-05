@@ -15,7 +15,7 @@
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: apigee-istiod
+  name: apigee-ingressgateway-manager
   labels:
     apigee.cloud.google.com/platform: apigee
 rules:
@@ -66,6 +66,7 @@ rules:
   - get
   - list
   - watch
+  - update
 - apiGroups:
   - extensions
   - apps

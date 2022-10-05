@@ -11,16 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: apigee-ingressgateway-manager
+  name: apigee-istiod
 spec:
   template:
     spec:
-      containers:
-      - name: discovery
-        env:
-        - name: ISTIOD_ADDR
-          value: apigee-ingressgateway-manager.apigee.svc:15012 # kpt-set: apigee-ingressgateway-manager.${APIGEE_NAMESPACE}.svc:15012
+      imagePullSecrets:
+      - name: <K8S_SECRET_NAME>
