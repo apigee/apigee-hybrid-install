@@ -1,16 +1,3 @@
-# Copyright 2022 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     https://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
 metadata:
@@ -20,18 +7,15 @@ metadata:
   name: apigee-mutating-webhook-configuration
 webhooks:
 - admissionReviewVersions:
+  - v1
   - v1beta1
   clientConfig:
-    caBundle: Cg==
     service:
       name: apigee-webhook-service
       namespace: apigee
       path: /mutate-apigee-cloud-google-com-v1alpha1-apigeedatastore
-      port: 443
   failurePolicy: Fail
-  matchPolicy: Exact
   name: mapigeedatastore.apigee.cloud.google.com
-  reinvocationPolicy: Never
   rules:
   - apiGroups:
     - apigee.cloud.google.com
@@ -42,152 +26,17 @@ webhooks:
     - UPDATE
     resources:
     - apigeedatastores
-    scope: '*'
   sideEffects: None
-  timeoutSeconds: 30
 - admissionReviewVersions:
+  - v1
   - v1beta1
   clientConfig:
-    caBundle: Cg==
-    service:
-      name: apigee-webhook-service
-      namespace: apigee
-      path: /mutate-apigee-cloud-google-com-v1alpha2-apigeeorganization
-      port: 443
-  failurePolicy: Fail
-  matchPolicy: Exact
-  name: mapigeeorganization.apigee.cloud.google.com
-  reinvocationPolicy: Never
-  rules:
-  - apiGroups:
-    - apigee.cloud.google.com
-    apiVersions:
-    - v1alpha2
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - apigeeorganizations
-    scope: '*'
-  sideEffects: None
-  timeoutSeconds: 30
-- admissionReviewVersions:
-  - v1beta1
-  clientConfig:
-    caBundle: Cg==
-    service:
-      name: apigee-webhook-service
-      namespace: apigee
-      path: /mutate-apigee-cloud-google-com-v1alpha1-apigeeredis
-      port: 443
-  failurePolicy: Fail
-  matchPolicy: Exact
-  name: mapigeeredis.apigee.cloud.google.com
-  reinvocationPolicy: Never
-  rules:
-  - apiGroups:
-    - apigee.cloud.google.com
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - apigeeredis
-    scope: '*'
-  sideEffects: None
-  timeoutSeconds: 30
-- admissionReviewVersions:
-  - v1beta1
-  clientConfig:
-    caBundle: Cg==
-    service:
-      name: apigee-webhook-service
-      namespace: apigee
-      path: /mutate-apigee-cloud-google-com-v1alpha1-apigeeroute
-      port: 443
-  failurePolicy: Fail
-  matchPolicy: Exact
-  name: mapigeeroute.apigee.cloud.google.com
-  reinvocationPolicy: Never
-  rules:
-  - apiGroups:
-    - apigee.cloud.google.com
-    apiVersions:
-    - v1alpha1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - apigeeroutes
-    scope: '*'
-  sideEffects: None
-  timeoutSeconds: 30
-- admissionReviewVersions:
-  - v1beta1
-  clientConfig:
-    caBundle: Cg==
-    service:
-      name: apigee-webhook-service
-      namespace: apigee
-      path: /mutate-apigee-cloud-google-com-v1alpha2-apigeetelemetry
-      port: 443
-  failurePolicy: Fail
-  matchPolicy: Exact
-  name: mapigeetelemetry.apigee.cloud.google.com
-  reinvocationPolicy: Never
-  rules:
-  - apiGroups:
-    - apigee.cloud.google.com
-    apiVersions:
-    - v1alpha2
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - apigeetelemetrys
-    scope: '*'
-  sideEffects: None
-  timeoutSeconds: 30
-- admissionReviewVersions:
-  - v1beta1
-  clientConfig:
-    caBundle: Cg==
-    service:
-      name: apigee-webhook-service
-      namespace: apigee
-      path: /mutate-apigee-cloud-google-com-v1alpha3-apigeedeployment
-      port: 443
-  failurePolicy: Fail
-  matchPolicy: Exact
-  name: mapigeedeployment.apigee.cloud.google.com
-  reinvocationPolicy: Never
-  rules:
-  - apiGroups:
-    - apigee.cloud.google.com
-    apiVersions:
-    - v1alpha3
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - apigeedeployments
-    scope: '*'
-  sideEffects: None
-  timeoutSeconds: 30
-- admissionReviewVersions:
-  - v1beta1
-  clientConfig:
-    caBundle: Cg==
     service:
       name: apigee-webhook-service
       namespace: apigee
       path: /mutate-apigee-cloud-google-com-v1alpha2-apigeeenvironment
-      port: 443
   failurePolicy: Fail
-  matchPolicy: Exact
   name: mapigeeenvironment.apigee.cloud.google.com
-  reinvocationPolicy: Never
   rules:
   - apiGroups:
     - apigee.cloud.google.com
@@ -198,6 +47,110 @@ webhooks:
     - UPDATE
     resources:
     - apigeeenvironments
-    scope: '*'
   sideEffects: None
-  timeoutSeconds: 30
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: apigee-webhook-service
+      namespace: apigee
+      path: /mutate-apigee-cloud-google-com-v1alpha2-apigeeorganization
+  failurePolicy: Fail
+  name: mapigeeorganization.apigee.cloud.google.com
+  rules:
+  - apiGroups:
+    - apigee.cloud.google.com
+    apiVersions:
+    - v1alpha2
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - apigeeorganizations
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: apigee-webhook-service
+      namespace: apigee
+      path: /mutate-apigee-cloud-google-com-v1alpha1-apigeeredis
+  failurePolicy: Fail
+  name: mapigeeredis.apigee.cloud.google.com
+  rules:
+  - apiGroups:
+    - apigee.cloud.google.com
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - apigeeredis
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: apigee-webhook-service
+      namespace: apigee
+      path: /mutate-apigee-cloud-google-com-v1alpha1-apigeeroute
+  failurePolicy: Fail
+  name: mapigeeroute.apigee.cloud.google.com
+  rules:
+  - apiGroups:
+    - apigee.cloud.google.com
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - apigeeroutes
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: apigee-webhook-service
+      namespace: apigee
+      path: /mutate-apigee-cloud-google-com-v1alpha2-apigeetelemetry
+  failurePolicy: Fail
+  name: mapigeetelemetry.apigee.cloud.google.com
+  rules:
+  - apiGroups:
+    - apigee.cloud.google.com
+    apiVersions:
+    - v1alpha2
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - apigeetelemetrys
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: apigee-webhook-service
+      namespace: apigee
+      path: /mutate-apigee-cloud-google-com-v1alpha3-apigeedeployment
+  failurePolicy: Fail
+  name: mapigeedeployment.apigee.cloud.google.com
+  rules:
+  - apiGroups:
+    - apigee.cloud.google.com
+    apiVersions:
+    - v1alpha3
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - apigeedeployments
+  sideEffects: None
+

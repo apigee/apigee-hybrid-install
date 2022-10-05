@@ -1,22 +1,8 @@
-# Copyright 2022 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     https://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.4.1
+    controller-gen.kubebuilder.io/version: v0.9.0
   creationTimestamp: null
   name: apigeedatastores.apigee.cloud.google.com
 spec:
@@ -48,6 +34,11 @@ spec:
           kind:
             type: string
           metadata:
+            type: object
+          release:
+            properties:
+              forceUpdateMultiRegionSeedHost:
+                type: boolean
             type: object
           spec:
             properties:
@@ -393,6 +384,16 @@ spec:
                                 failureThreshold:
                                   format: int32
                                   type: integer
+                                grpc:
+                                  properties:
+                                    port:
+                                      format: int32
+                                      type: integer
+                                    service:
+                                      type: string
+                                  required:
+                                  - port
+                                  type: object
                                 httpGet:
                                   properties:
                                     host:
@@ -463,6 +464,16 @@ spec:
                                 failureThreshold:
                                   format: int32
                                   type: integer
+                                grpc:
+                                  properties:
+                                    port:
+                                      format: int32
+                                      type: integer
+                                    service:
+                                      type: string
+                                  required:
+                                  - port
+                                  type: object
                                 httpGet:
                                   properties:
                                     host:
@@ -647,6 +658,16 @@ spec:
                                 failureThreshold:
                                   format: int32
                                   type: integer
+                                grpc:
+                                  properties:
+                                    port:
+                                      format: int32
+                                      type: integer
+                                    service:
+                                      type: string
+                                  required:
+                                  - port
+                                  type: object
                                 httpGet:
                                   properties:
                                     host:
@@ -717,6 +738,16 @@ spec:
                                 failureThreshold:
                                   format: int32
                                   type: integer
+                                grpc:
+                                  properties:
+                                    port:
+                                      format: int32
+                                      type: integer
+                                    service:
+                                      type: string
+                                  required:
+                                  - port
+                                  type: object
                                 httpGet:
                                   properties:
                                     host:
@@ -1038,9 +1069,11 @@ spec:
                             type: boolean
                           enableMaintenance:
                             type: boolean
+                          enableSidecarAdapter:
+                            type: boolean
                           enableSysctlInitContainer:
                             type: boolean
-                          envoyGatewayContractPollIntervalSeconds:
+                          envoyGatewayContractPollInterval:
                             type: integer
                           externalSeedHost:
                             type: string
@@ -1073,6 +1106,10 @@ spec:
                             type: string
                           runtimeConfigPollIntervalSeconds:
                             type: integer
+                          sidecarARCConfigURI:
+                            type: string
+                          sidecarAdapterLogLevel:
+                            type: string
                           watcherLogLevel:
                             type: string
                         type: object
@@ -2548,6 +2585,16 @@ spec:
                                 failureThreshold:
                                   format: int32
                                   type: integer
+                                grpc:
+                                  properties:
+                                    port:
+                                      format: int32
+                                      type: integer
+                                    service:
+                                      type: string
+                                  required:
+                                  - port
+                                  type: object
                                 httpGet:
                                   properties:
                                     host:
@@ -2618,6 +2665,16 @@ spec:
                                 failureThreshold:
                                   format: int32
                                   type: integer
+                                grpc:
+                                  properties:
+                                    port:
+                                      format: int32
+                                      type: integer
+                                    service:
+                                      type: string
+                                  required:
+                                  - port
+                                  type: object
                                 httpGet:
                                   properties:
                                     host:
@@ -2802,6 +2859,16 @@ spec:
                                 failureThreshold:
                                   format: int32
                                   type: integer
+                                grpc:
+                                  properties:
+                                    port:
+                                      format: int32
+                                      type: integer
+                                    service:
+                                      type: string
+                                  required:
+                                  - port
+                                  type: object
                                 httpGet:
                                   properties:
                                     host:
@@ -2872,6 +2939,16 @@ spec:
                                 failureThreshold:
                                   format: int32
                                   type: integer
+                                grpc:
+                                  properties:
+                                    port:
+                                      format: int32
+                                      type: integer
+                                    service:
+                                      type: string
+                                  required:
+                                  - port
+                                  type: object
                                 httpGet:
                                   properties:
                                     host:
@@ -3193,9 +3270,11 @@ spec:
                             type: boolean
                           enableMaintenance:
                             type: boolean
+                          enableSidecarAdapter:
+                            type: boolean
                           enableSysctlInitContainer:
                             type: boolean
-                          envoyGatewayContractPollIntervalSeconds:
+                          envoyGatewayContractPollInterval:
                             type: integer
                           externalSeedHost:
                             type: string
@@ -3228,6 +3307,10 @@ spec:
                             type: string
                           runtimeConfigPollIntervalSeconds:
                             type: integer
+                          sidecarARCConfigURI:
+                            type: string
+                          sidecarAdapterLogLevel:
+                            type: string
                           watcherLogLevel:
                             type: string
                         type: object
@@ -4675,10 +4758,4 @@ spec:
     storage: true
     subresources:
       status: {}
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []
 

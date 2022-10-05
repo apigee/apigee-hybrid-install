@@ -129,7 +129,7 @@ spec:
           value: kubernetes
         - name: XDS_AUTH
           value: "true"
-        image: gcr.io/apigee-release/hybrid/apigee-asm-istiod:1.11.2-asm.17
+        image: gcr.io/apigee-release/hybrid/apigee-asm-istiod:1.12.6-asm.2
         imagePullPolicy: IfNotPresent
         name: discovery
         ports:
@@ -189,8 +189,8 @@ spec:
       - args:
         - --metrics-addr=127.0.0.1:8080
         - --enable-leader-election=false
-        - --apigee-runtime-type=cloud
-        - --log-level=info
+        - --apigee-runtime-type=hybrid
+        - --log-level=debug
         - --enable-webhooks=false
         - --enable-controllers=true
         - --disable-apigee-environment-controller=true
@@ -207,6 +207,7 @@ spec:
         - --apigee-service-name=production
         - --enable-api-client=true
         - --disable-istio-config-in-apiserver=true
+        - --disable-remove-old-version-crd-status=true
         env:
         - name: POD_NAME
           valueFrom:
@@ -218,7 +219,7 @@ spec:
               fieldPath: metadata.namespace
         command:
         - /manager
-        image: gcr.io/apigee-release/hybrid/apigee-operators:1.8.0-preview.2
+        image: gcr.io/apigee-release/hybrid/apigee-operators:1.8.1
         imagePullPolicy: Always
         name: manager
         ports:
@@ -275,8 +276,8 @@ spec:
         runAsNonRoot: true
         runAsGroup: 998
         runAsUser: 999
-      serviceAccount: apigee-istiod
-      serviceAccountName: apigee-istiod
+      serviceAccount: apigee-ingressgateway-manager
+      serviceAccountName: apigee-ingressgateway-manager
       terminationGracePeriodSeconds: 30
       volumes:
       - emptyDir:

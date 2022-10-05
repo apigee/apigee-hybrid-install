@@ -15,15 +15,15 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: apigee-istiod
+  name: apigee-ingressgateway-manager
   labels:
     apigee.cloud.google.com/platform: apigee
 subjects:
 - kind: ServiceAccount
-  name: apigee-istiod
-  namespace: "apigee"
+  name: apigee-ingressgateway-manager
+  namespace: apigee
   apiGroup: ""
 roleRef:
   kind: ClusterRole
-  name: apigee-istiod
+  name: apigee-ingressgateway-manager
   apiGroup: rbac.authorization.k8s.io

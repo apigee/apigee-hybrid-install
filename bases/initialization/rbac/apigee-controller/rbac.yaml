@@ -1,22 +1,8 @@
-# Copyright 2022 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     https://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: apigee-leader-election-role
-  namespace: "apigee"
+  namespace: apigee
 rules:
 - apiGroups:
   - ""
@@ -51,6 +37,14 @@ metadata:
   creationTimestamp: null
   name: apigee-manager-role
 rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
 - apiGroups:
   - ""
   resources:
@@ -209,6 +203,12 @@ rules:
   - customresourcedefinitions
   verbs:
   - get
+- apiGroups:
+  - apiextensions.k8s.io
+  resources:
+  - customresourcedefinitions/status
+  verbs:
+  - update
 - apiGroups:
   - apigee.cloud.google.com
   resources:
@@ -618,7 +618,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: apigee-leader-election-rolebinding
-  namespace: "apigee"
+  namespace: apigee
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -626,7 +626,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: default
-  namespace: "apigee"
+  namespace: apigee
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -641,7 +641,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: default
-  namespace: "apigee"
+  namespace: apigee
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -656,5 +656,4 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: default
-  namespace: "apigee"
----
+  namespace: apigee
