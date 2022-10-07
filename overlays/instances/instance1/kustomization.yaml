@@ -28,7 +28,7 @@ patches:
   patch: |-
     - op: add
       path: /spec/version
-      value: 1-8-0-preview-2
+      value: 1-8-1
 - target:
     group: apigee.cloud.google.com
     version: v1alpha2
@@ -36,7 +36,7 @@ patches:
   patch: |-
     - op: add
       path: /spec/version
-      value: 1-8-0-preview-2
+      value: 1-8-1
 - target:
     group: apigee.cloud.google.com
     version: v1alpha2
@@ -44,7 +44,7 @@ patches:
   patch: |-
     - op: add
       path: /spec/version
-      value: 1-8-0-preview-2
+      value: 1-8-1
 - target:
     group: apigee.cloud.google.com
     version: v1alpha1
@@ -52,7 +52,7 @@ patches:
   patch: |-
     - op: add
       path: /spec/version
-      value: 1-8-0-preview-2
+      value: 1-8-1
 - target:
     group: apigee.cloud.google.com
     version: v1alpha2
@@ -60,4 +60,4 @@ patches:
   patch: |-
     - op: add
       path: /spec/version
-      value: 1-8-0-preview-2
+      value: 1-8-1
