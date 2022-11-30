@@ -19,4 +19,4 @@ data:
   forwardProxy: |
     scheme: HTTPS # HTTPS is required as other components only support HTTPS
     host: "<YOUR_HOST_ADDRESS>" # To be modified. REQUIRED
-    port: 3128 "<YOUR_PROXY_PORT>" # To be modified. REQUIRED
+    port: "<YOUR_PROXY_PORT>" # To be modified. REQUIRED
