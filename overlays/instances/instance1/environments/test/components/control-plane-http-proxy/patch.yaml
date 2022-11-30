@@ -18,7 +18,7 @@ metadata:
   name: "env"
 spec:
   components:
-    runtime:
+    synchronizer:
       configOverride:
         "conf_http_client_service_jetty.proxy.enabled": "true"
         "conf_http_client_service_jetty.proxy.host": "<YOUR_HOST_ADDRESS>" # To be modified. REQUIRED

@@ -19,4 +19,4 @@ components:
 
 # - ./components/imagepullsecret/
 # - ./components/nodeselector/
-# - ./components/control-plane-http-proxy
+# - ./components/control-plane-http-proxy/
