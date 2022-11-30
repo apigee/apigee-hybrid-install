@@ -12,11 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-resources:
-- apigee-organization.yaml
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
 
-# components:
-# - ./components/control-plane-http-proxy
-# - ./components/nodeselector/
-# - ./components/imagepullsecret
-# - ./components/workload-identity
+patches:
+- path: patch.yaml
+  target:
+    group: apigee.cloud.google.com
+    version: v1alpha2
+    kind: ApigeeEnvironment
