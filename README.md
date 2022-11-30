@@ -9,9 +9,11 @@ Follow this [Installation Guide](https://cloud.google.com/apigee/docs/hybrid/pre
 
 
 # Customizations and Updates that have been submitted through PRs to Google
+[Forward Proxy updates](#forward-proxy-updates)
+[Add gitignore](#gitignore)
 
-
-## Forward Proxy updates
+---
+## Forward Proxy updates {#forward-proxy-updates}
 A forward proxy server may be configured for connecting to the Control Plane and/or for sounthbound calls from the runtime to a target API.
 
 [Related Pull Request](https://github.com/apigee/apigee-hybrid-install/pull/16)
@@ -60,3 +62,9 @@ Example patch file:
 kubectl apply -k overlays/controllers/apigee-controller
 kubectl apply -k overlays/instances/{INSTANCE_NAME}
 ```
+
+---
+## Add gitignore {#gitignore}
+Added .gitignore ignoring:
+ - /service-accounts **Note:** This may need to be changed if using a Pipeline where the service account keys need to be committed (**not recommended**)
+
