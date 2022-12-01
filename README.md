@@ -70,7 +70,7 @@ Added .gitignore ignoring:
  - /service-accounts **Note:** This may need to be changed if using a Pipeline where the service account keys need to be committed (**not recommended**)
 
 ---
-## Removed kpt dependency {#kpt}
+## Removed kpt dependency
 A forward proxy server may be configured for connecting to the Control Plane and/or for sounthbound calls from the runtime to a target API.
 
 [Related Pull Request](https://github.com/apigee/apigee-hybrid-install/pull/21)
