@@ -265,36 +265,40 @@ rename_directories() {
 fill_values_in_yamls() {
     banner_info "Filling values in YAMLs..."
 
-    run kpt fn eval "${ROOT_DIR}/overlays/" \
-        --image gcr.io/kpt-fn/apply-setters:v0.2.0 -- \
-        APIGEE_NAMESPACE="${APIGEE_NAMESPACE}" \
-        CASSANDRA_DC_NAME="${CLUSTER_NAME}-${CLUSTER_REGION}" \
-        CLUSTER_NAME="${CLUSTER_NAME}" \
-        CLUSTER_REGION="${CLUSTER_REGION}" \
-        ENVIRONMENT_NAME="${ENVIRONMENT_NAME}" \
-        ENVIRONMENT_GROUP_NAME="${ENVIRONMENT_GROUP_NAME}" \
-        GCP_PROJECT_ID="${GCP_PROJECT_ID}" \
-        GCP_SERVICE_ACCOUNT_NAME="${GCP_SERVICE_ACCOUNT_NAME}" \
-        ORGANIZATION_NAME_UPPER="$(echo "${ORGANIZATION_NAME}" | tr 'a-z' 'A-Z')" \
-        ORGANIZATION_NAME="${ORGANIZATION_NAME}"
+    # export values into execution space
+    export CASSANDRA_DC_NAME="${CLUSTER_NAME}-${CLUSTER_REGION}"
+    export ORGANIZATION_NAME_UPPER="$(echo "${ORGANIZATION_NAME}" | tr 'a-z' 'A-Z')"
+    export APIGEE_NAMESPACE ENVIRONMENT_NAME ENVIRONMENT_GROUP_NAME CLUSTER_NAME CLUSTER_REGION GCP_SERVICE_ACCOUNT_NAME GCP_PROJECT_ID ORGANIZATION_NAME
 
-    # Replace correct namespace in istio discoveryAddress and envoyfilter which
-    # cannot be done with kpt.
-    sed -i".bak" -E -e "s/(discoveryAddress: apigee-ingressgateway-manager\.).*(\.svc:15012)/\1${APIGEE_NAMESPACE}\2/" "${ROOT_DIR}/overlays/controllers/apigee-ingressgateway-manager/apigee-istio-mesh-config.yaml" && rm "$_.bak"
-    sed -i".bak" -E -e "s/namespace: 'apigee'/namespace: '${APIGEE_NAMESPACE}'/" "${ROOT_DIR}/overlays/initialization/ingress/envoyfilter-1.11.yaml" && rm "$_.bak"
+    # search each file for variables to be replaced
+    for f in $(find ${ROOT_DIR}/bases/ -type f)
+    do
+        sed -i -E -e "s/[:].*kpt-set//" $f
+        sed -i -E -e "s/- .*kpt-set: /- /" $f
+        envsubst < "$f" > ${f}.tmp
+        mv ${f}.tmp ${f}
+    done
+    for f in $(find ${ROOT_DIR}/overlays/ -type f)
+    do
+        sed -i -E -e "s/[:].*kpt-set//" $f
+        sed -i -E -e "s/- .*kpt-set: /- /" $f
+        envsubst < "$f" > ${f}.tmp
+        mv ${f}.tmp ${f}
+    done
+
 
     # If the current cluster uses openshift, uncomment the openshift patches by
     # the '# ' prefix from those lines.
     if is_open_shift; then
         info "Enabling SecurityContextConstraints for OpenShift..."
 
-        sed -i".bak" -E -e '/initialization\/openshift/s/^# *//g' "${ROOT_DIR}/overlays/initialization/openshift/kustomization.yaml" && rm "$_.bak"
+        sed -i -E -e '/initialization\/openshift/s/^# *//g' "${ROOT_DIR}/overlays/initialization/openshift/kustomization.yaml"
 
-        sed -i".bak" -E -e '/components:/s/^# *//g' "${INSTANCE_DIR}/datastore/kustomization.yaml" && rm "$_.bak"
-        sed -i".bak" -E -e '/components\/openshift-scc/s/^# *//g' "${INSTANCE_DIR}/datastore/kustomization.yaml" && rm "$_.bak"
+        sed -i -E -e '/components:/s/^# *//g' "${INSTANCE_DIR}/datastore/kustomization.yaml"
+        sed -i -E -e '/components\/openshift-scc/s/^# *//g' "${INSTANCE_DIR}/datastore/kustomization.yaml"
 
-        sed -i".bak" -E -e '/components:/s/^# *//g' "${INSTANCE_DIR}/telemetry/kustomization.yaml" && rm "$_.bak"
-        sed -i".bak" -E -e '/components\/openshift-scc/s/^# *//g' "${INSTANCE_DIR}/telemetry/kustomization.yaml" && rm "$_.bak"
+        sed -i -E -e '/components:/s/^# *//g' "${INSTANCE_DIR}/telemetry/kustomization.yaml"
+        sed -i -E -e '/components\/openshift-scc/s/^# *//g' "${INSTANCE_DIR}/telemetry/kustomization.yaml"
     fi
 }
 

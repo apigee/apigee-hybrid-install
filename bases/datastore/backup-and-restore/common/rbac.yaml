@@ -35,11 +35,11 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: apigee-cassandra-backup-and-restore
-  namespace: "apigee"
+  namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
   apiGroup: ""
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: apigee-cassandra-backup-and-restore
-  namespace: "apigee"
+  namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
