@@ -19,7 +19,7 @@ metadata:
     app: apigee-istiod
     apigee.cloud.google.com/platform: apigee
   name: apigee-ingressgateway-manager
-  namespace: "apigee"
+  namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
 spec:
   ports:
   - name: grpc-xds
@@ -57,7 +57,7 @@ metadata:
     app: apigee-istiod
     apigee.cloud.google.com/platform: apigee
   name: apigee-ingressgateway-manager
-  namespace: "apigee"
+  namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
 spec:
   replicas: 2
   selector:
