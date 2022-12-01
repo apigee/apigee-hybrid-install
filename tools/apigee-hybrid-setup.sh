@@ -474,7 +474,6 @@ check_prerequisites() {
     done <<EOF
 curl
 jq
-kpt
 envsubst
 $AGCLOUD
 $AKUBECTL
