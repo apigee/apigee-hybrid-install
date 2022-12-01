@@ -65,6 +65,7 @@ spec:
         control-plane: controller-manager
         revision: APIGEE_VERSION
     spec:
+      automountServiceAccountToken: true
       containers:
       - args:
         - --secure-listen-address=0.0.0.0:8443
