@@ -12,6 +12,7 @@ Follow this [Installation Guide](https://cloud.google.com/apigee/docs/hybrid/pre
  - [Forward Proxy updates](#forward-proxy-updates)
  - [Add gitignore](#add-gitignore)
  - [Removed kpt dependency](#removed-kpt-dependency)
+ - [Configured automount SA on controller](#configured-automount-sa-on-controller)
 
 ---
 ## Forward Proxy updates
@@ -79,3 +80,13 @@ A forward proxy server may be configured for connecting to the Control Plane and
 kpt is no longer needed for the install script.
 
 **Note:** "# kpt-set:" is still used as a placeholder in the yaml manifests. 
+
+---
+## Configured automount SA on controller
+When automount default service account is disabled in k8s, the controller would throw an error. Updated configuration to force the automounting of the default SA.
+
+[Related Pull Request](https://github.com/apigee/apigee-hybrid-install/pull/22)
+
+
+
+
