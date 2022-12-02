@@ -11,11 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-apiVersion: apigee.cloud.google.com/v1alpha2
-kind: ApigeeOrganization
-metadata:
-  name: "${ORGANIZATION_NAME}" # kpt-set: ${ORGANIZATION_NAME}
-spec:
-  imagePullSecrets:
-    - name: <K8S_SECRET_NAME> # To be modified. REQUIRED
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+patches:
+- path: patch.yaml
+  target:
+    version: v1
+    kind: ConfigMap

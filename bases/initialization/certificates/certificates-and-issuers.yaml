@@ -76,7 +76,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: apigee-serving-cert
-  namespace: "apigee"
+  namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
   labels:
     apigee.cloud.google.com/platform: apigee
 spec:
@@ -97,7 +97,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: apigee-ingressgateway-manager
-  namespace: "apigee"
+  namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
   labels:
     apigee.cloud.google.com/platform: apigee
 spec:

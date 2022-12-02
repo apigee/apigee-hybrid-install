@@ -15,7 +15,7 @@
 apiVersion: apigee.cloud.google.com/v1alpha2
 kind: ApigeeOrganization
 metadata:
-  name: org
+  name: "${ORGANIZATION_NAME}" # kpt-set: ${ORGANIZATION_NAME}
 spec:
   components:
     cassandraUserSetup:

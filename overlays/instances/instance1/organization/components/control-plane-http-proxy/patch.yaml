@@ -17,5 +17,9 @@ kind: ApigeeOrganization
 metadata:
   name: "${ORGANIZATION_NAME}" # kpt-set: ${ORGANIZATION_NAME}
 spec:
-  imagePullSecrets:
-    - name: <K8S_SECRET_NAME> # To be modified. REQUIRED
+  httpForwardProxy:
+    scheme: <HTTP|HTTPS> # To be modified. REQUIRED
+    host: <HOST> # To be modified. REQUIRED
+    port: <PORT> # To be modified. REQUIRED
+    username: <USERNAME> # Can be modified. OPTIONAL
+    password: <PASSWORD> # Can be modified. OPTIONAL

@@ -13,13 +13,16 @@
 # limitations under the License.
 
 apiVersion: apigee.cloud.google.com/v1alpha2
-kind: ApigeeOrganization
+kind: ApigeeEnvironment
 metadata:
-  name: "org"
+  name: "env"
 spec:
-  httpForwardProxy:
-    scheme: <HTTP|HTTPS> # To be modified. REQUIRED
-    host: <HOST> # To be modified. REQUIRED
-    port: <PORT> # To be modified. REQUIRED
-    username: <USERNAME> # Can be modified. OPTIONAL
-    password: <PASSWORD> # Can be modified. OPTIONAL
+  components:
+    synchronizer:
+      configOverride:
+        "conf_http_client_service_jetty.proxy.enabled": "true"
+        "conf_http_client_service_jetty.proxy.host": "<YOUR_HOST_ADDRESS>" # To be modified. REQUIRED
+        "conf_http_client_service_jetty.proxy.port": "<YOUR_PROXY_PORT>" # To be modified. REQUIRED
+        "conf_http_client_service_jetty.proxy.user": "<USERNAME>" # Can be modified. OPTIONAL
+        "conf_http_client_service_jetty.proxy.password": "base64EncodeString.Password" # Can be modified. OPTIONAL
+        # only type HTTPS is supported
