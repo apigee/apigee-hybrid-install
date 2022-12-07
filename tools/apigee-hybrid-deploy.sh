@@ -46,7 +46,6 @@ CMD_DELETE="0" # [command:delete]
 CMD_GET="0" # [command:get]
 INVOKE_ALL="0" # --all
 DEPLOY_SERVICE_ACCOUNT_AND_SECRETS="0" # --gcp-sa-and-secrets
-DEPLOY_INGRESS_TLS_CERTS="0"           # --ingress-tls-certs
 DEPLOY_RUNTIME_COMPONENTS="0"          # --runtime-components
 
 VERBOSE="0" # --verbose
@@ -70,8 +69,8 @@ source "${SCRIPT_DIR}/common.sh" || exit 1
 ################################################################################
 main() {
     init
-    check_prerequisites
     parse_args "${@}"
+    check_prerequisites
     resolve_flags
     validate_args
     configure_vars
@@ -79,10 +78,6 @@ main() {
     # if [[ "${CMD_APPLY}" == "1" ]]; then
     #     if [[ "${DEPLOY_SERVICE_ACCOUNT_AND_SECRETS}" == "1" ]]; then
     #         deploy_service_accounts
-    #     fi
-
-    #     if [[ "${DEPLOY_INGRESS_TLS_CERTS}" == "1" ]]; then
-    #         deploy_ingress_tls_certs
     #     fi
 
     #     if [[ "${DEPLOY_RUNTIME_COMPONENTS}" == "1" ]]; then
@@ -128,19 +123,6 @@ apigee-logger-gcp-sa-key
 EOF
 }
 
-################################################################################
-# Create kubernetes Certificate which will generate a self signed cert/key pair
-# to be used to ingress TLS communication
-################################################################################
-deploy_ingress_tls_certs() {
-    # TO DO: !!! Ingress Certs are not part of the main structure
-    # TO DO: !!! Ingress manager appears to have yamls in both /base and /overlay
-    banner_info "Creating ingress Certificate..."
-
-    kubectl apply -f "${ROOT_DIR}/overlays/initialization/namespace.yaml"
-
-    kubectl apply -f "${ROOT_DIR}/templates/certificate-org-envgroup.yaml"
-}
 
 ################################################################################
 # Applies all the yamls in the correct order to the cluster.
@@ -171,6 +153,10 @@ deploy_components() {
     info "Creating apigee kubernetes secrets..."
     # Create the datastore and redis secrets first and the rest of the secrets.
     find "${INSTANCE_DIR}" -name *secrets.yaml | xargs -n 1 kubectl apply -f
+
+    info "Creating apigee ingress certificates..."
+    # Create the datastore and redis secrets first and the rest of the secrets.
+    find "${INSTANCE_DIR}" -name *ingress-certificate.yaml | xargs -n 1 kubectl apply -f
 
     info "Creating all remaining Apigee resources..."
     # Create the remainder of the resources.
@@ -327,13 +313,6 @@ validate_args() {
             fi
         fi
 
-        # if [[ "${DEPLOY_INGRESS_TLS_CERTS}" == "1" ]]; then
-        #     if [[ -z "${ORGANIZATION_NAME}" ]]; then
-        #         VALIDATION_FAILED="1"
-        #         warn "--org REQUIRED to deploy Ingress"
-        #     fi
-        # fi
-
         if [[ "${DEPLOY_RUNTIME_COMPONENTS}" == "1" ]]; then
             if [[ -z "${CLUSTER_NAME}" ]]; then
                 VALIDATION_FAILED="1"
@@ -372,10 +351,8 @@ resolve_flags() {
 
     if [[ "${INVOKE_ALL}" == "1" ]]; then
         DEPLOY_SERVICE_ACCOUNT_AND_SECRETS="1"
-        DEPLOY_INGRESS_TLS_CERTS="1"
         DEPLOY_RUNTIME_COMPONENTS="1"
         readonly DEPLOY_SERVICE_ACCOUNT_AND_SECRETS
-        readonly DEPLOY_INGRESS_TLS_CERTS
         readonly DEPLOY_RUNTIME_COMPONENTS
     fi
 
@@ -456,11 +433,6 @@ parse_args() {
             readonly DEPLOY_SERVICE_ACCOUNT_AND_SECRETS
             shift 1
             ;;
-        --ingress-tls-certs)
-            DEPLOY_INGRESS_TLS_CERTS="1"
-            readonly DEPLOY_INGRESS_TLS_CERTS
-            shift 1
-            ;;
         --runtime-components)
             DEPLOY_RUNTIME_COMPONENTS="1"
             readonly DEPLOY_RUNTIME_COMPONENTS
@@ -537,8 +509,6 @@ EOF
     --gcp-sa-and-secrets   (apply)              Deploy GCP service account(s) into 
                                                 corresponding secret(s) containing 
                                                 the keys in the kubernetes cluster.
-    --ingress-tls-certs    (apply)              Deploy Certificate resource for 
-                                                the ENVIRONMENT_GROUP_NAME.
     --runtime-components   (apply)              Deploy all Apigee components and 
                                                 resources in the correct order.
     --all                  (apply|delete|get)   Used to execute all the tasks that 
@@ -569,8 +539,8 @@ ${SCRIPT_NAME} [command] [attributes] [types] [flags]
 
 Provides a prescriptive approach to installing Apigee. Use this script
 in combination with apigee-hybrid-setup.sh. The setup script is used
-to pre-configure the runtimes for the Organization. This script will
-deploy a configured runtime into kubernetes.
+to pre-configure the runtimes for the Organization. This deployment script
+will deploy a configured runtime into kubernetes.
 
 Available commands:
 
@@ -592,7 +562,7 @@ EXAMPLES:
 
 Apply everything:
     
-./apigee-hybrid-setup.sh apply \\
+./apigee-hybrid-deploy.sh apply \\
     --org business-org \\
     --env development \\
     --envgroup external-consumers \\
@@ -603,7 +573,7 @@ Apply everything:
     
 Only Apply service accounts and enable verbose logging:
 
-./apigee-hybrid-setup.sh apply \\
+./apigee-hybrid-deploy.sh apply \\
     --org business-org \\
     --env development \\
     --envgroup external-consumers \\

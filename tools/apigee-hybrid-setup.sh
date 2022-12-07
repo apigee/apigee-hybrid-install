@@ -228,11 +228,11 @@ add_ingress_tls_cert() {
 
     if [[ -d "${INSTANCE_DIR}/route-config/${ENVIRONMENT_GROUP_NAME}" ]]; then
         run cp <(envsubst <"${ROOT_DIR}/templates/certificate-org-envgroup.yaml") \
-         "${INSTANCE_DIR}/route-config/${ENVIRONMENT_GROUP_NAME}/certificate.yaml"
+         "${INSTANCE_DIR}/route-config/${ENVIRONMENT_GROUP_NAME}/ingress-certificate.yaml"
 
     elif [[ -d "${ROOT_DIR}/overlays/instances/${DEFAULT_INSTANCE_DIR_NAME}/route-config/${DEFAULT_ENVGROUP_DIR_NAME}" ]]; then
         run cp <(envsubst <"${ROOT_DIR}/templates/certificate-org-envgroup.yaml") \
-         "${ROOT_DIR}/overlays/instances/${DEFAULT_INSTANCE_DIR_NAME}/route-config/${DEFAULT_ENVGROUP_DIR_NAME}/certificate.yaml"
+         "${ROOT_DIR}/overlays/instances/${DEFAULT_INSTANCE_DIR_NAME}/route-config/${DEFAULT_ENVGROUP_DIR_NAME}/ingress-certificate.yaml"
 
     else
         info ""
