@@ -32,31 +32,31 @@ fi
 #                           User modifiable variables
 ################################################################################
 
-APIGEE_NAMESPACE="apigee"                           # The kubernetes namespace name where Apigee components will be created
 APIGEE_API_ENDPOINT="https://apigee.googleapis.com" # API endpoint to be used to Apigee API calls
-GCP_SERVICE_ACCOUNT_NAME="apigee-all-sa"            # Name of the service account that will be created
 
 ORGANIZATION_NAME="${ORGANIZATION_NAME:-""}"                   # --org
 ENVIRONMENT_NAME="${ENVIRONMENT_NAME:-""}"                     # --env
 ENVIRONMENT_GROUP_NAME="${ENVIRONMENT_GROUP_NAME:-""}"         # --envgroup
 ENVIRONMENT_GROUP_HOSTNAME="${ENVIRONMENT_GROUP_HOSTNAME:-""}" # --ingress-domain
+APIGEE_NAMESPACE="${APIGEE_NAMESPACE:-""}"                     # --namespace, The kubernetes namespace name where Apigee components will be created
 CLUSTER_NAME="${CLUSTER_NAME:-""}"                             # --cluster-name
 CLUSTER_REGION="${CLUSTER_REGION:-""}"                         # --cluster-region
 GCP_PROJECT_ID="${GCP_PROJECT_ID:-""}"                         # --gcp-project-id
 # X~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~X END X~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~X
 
 # The following variables control individual actions performed by the script.
+ENABLE_OPENSHIFT_SCC="0"                      # --enable-openshift-scc
 SHOULD_RENAME_DIRECTORIES="0"                 # --configure-directory-names
 SHOULD_FILL_VALUES="0"                        # --fill-values
-SHOULD_CREATE_SERVICE_ACCOUNT_AND_SECRETS="0" # --create-gcp-sa-and-secrets
-SHOULD_CREATE_INGRESS_TLS_CERTS="0"           # --create-ingress-tls-certs
-SHOULD_APPLY_CONFIGURATION="0"                # --apply-configuration
+SHOULD_ADD_INGRESS_TLS_CERT="0"               # --add-ingress-tls-cert
+CONFIGURE_ALL="0"                             # --configure-all
+DEMO_CONFIGURATION="0"                        # --demo-autoconfiguration
+SHOULD_CREATE_DEMO_SERVICE_ACCOUNT="0"        # Only used an Demo setup
 
 VERBOSE="0" # --verbose
 
 HAS_TS="0"
 AGCLOUD=""
-AKUBECTL=""
 ASED=""
 
 SCRIPT_NAME="${0##*/}"
@@ -73,6 +73,7 @@ SERVICE_ACCOUNT_OUTPUT_DIR="${ROOT_DIR}/service-accounts"
 DEFAULT_ENV_DIR_NAME="test"               # Default name of the environment directory.
 DEFAULT_ENVGROUP_DIR_NAME="test-envgroup" # Default name of the environment group directory.
 DEFAULT_INSTANCE_DIR_NAME="instance1"
+DEFAULT_INSTANCE_DIR_NAME="instance1"
 
 ################################################################################
 # `main` is the ENTRYPOINT for the shell script.
@@ -80,12 +81,18 @@ DEFAULT_INSTANCE_DIR_NAME="instance1"
 main() {
     init
     parse_args "${@}"
-
     check_prerequisites
+    resolve_flags
+    validate_args
+    configure_vars
 
-    configure_defaults
+    if [[ "${SHOULD_ADD_INGRESS_TLS_CERT}" == "1" ]]; then
+        add_ingress_tls_cert
+    fi
 
-    validate_vars
+    if [[ "${SHOULD_CREATE_DEMO_SERVICE_ACCOUNT}" == "1" ]]; then
+        create_demo_service_account
+    fi
 
     if [[ "${SHOULD_RENAME_DIRECTORIES}" == "1" ]]; then
         rename_directories
@@ -95,150 +102,16 @@ main() {
         fill_values_in_yamls
     fi
 
-    if [[ "${SHOULD_CREATE_SERVICE_ACCOUNT_AND_SECRETS}" == "1" ]]; then
-        create_service_accounts
-    fi
-
-    if [[ "${SHOULD_CREATE_INGRESS_TLS_CERTS}" == "1" ]]; then
-        create_ingress_tls_certs
-    fi
-
-    if [[ "${SHOULD_APPLY_CONFIGURATION}" == "1" ]]; then
-        create_kubernetes_resources
-    fi
-
     banner_info "SUCCESS"
-}
-
-################################################################################
-# Tries to configure the default values of unset variables.
-################################################################################
-configure_defaults() {
-    banner_info "Configuring default values..."
-
-    # Configure the Apigee API endpoint to be used for making API calls.
-    local APIGEE_API_ENDPOINT_OVERRIDES
-    APIGEE_API_ENDPOINT_OVERRIDES="$(gcloud config get-value api_endpoint_overrides/apigee)"
-    if [[ "${APIGEE_API_ENDPOINT_OVERRIDES}" != "(unset)" && "${APIGEE_API_ENDPOINT_OVERRIDES}" != "" ]]; then
-        APIGEE_API_ENDPOINT="${APIGEE_API_ENDPOINT_OVERRIDES}"
-    fi
-    readonly APIGEE_API_ENDPOINT
-    info "APIGEE_API_ENDPOINT='${APIGEE_API_ENDPOINT}'"
-
-    # Configure organization name
-    if [[ -z "${ORGANIZATION_NAME}" ]]; then
-        ORGANIZATION_NAME="$(gcloud config get-value project)"
-    fi
-    readonly ORGANIZATION_NAME
-    info "ORGANIZATION_NAME='${ORGANIZATION_NAME}'"
-
-    # Configure environment name
-    local ENVIRONMENTS_LIST NUMBER_OF_ENVIRONMENTS
-    ENVIRONMENTS_LIST="$(gcloud beta apigee environments list --organization="${ORGANIZATION_NAME}" --format='value(.)')"
-    NUMBER_OF_ENVIRONMENTS=$(echo "${ENVIRONMENTS_LIST}" | wc -l)
-    if [[ -z "${ENVIRONMENT_NAME}" ]]; then
-        if ((NUMBER_OF_ENVIRONMENTS < 1)); then
-            fatal "No environment exists in organization '${ORGANIZATION_NAME}'. Please create an environment and try again."
-        elif ((NUMBER_OF_ENVIRONMENTS > 1)); then
-            printf "Environments found:\n%s\n" "${ENVIRONMENTS_LIST}"
-            fatal "Multiple environments found. Select one explicitly using --env and try again."
-        fi
-        ENVIRONMENT_NAME="$(echo "${ENVIRONMENTS_LIST}" | head --lines 1)"
-    else
-        local VALID_ENVIRONMENT="0"
-        for ENVIRONMENT in ${ENVIRONMENTS_LIST[@]}; do
-            if [[ "${ENVIRONMENT}" == "${ENVIRONMENT_NAME}" ]]; then
-                VALID_ENVIRONMENT="1"
-            fi
-        done
-        if [[ "${VALID_ENVIRONMENT}" == "0" ]]; then
-            printf "Environments found:\n%s\n" "${ENVIRONMENTS_LIST}"
-            fatal "Invalid environment ${ENVIRONMENT_NAME} provided. Exiting."
-        fi
-    fi
-    readonly ENVIRONMENT_NAME
-    info "ENVIRONMENT_NAME='${ENVIRONMENT_NAME}'"
-
-    # Configure environment group name and hostname.
-    #
-    # Will only be executed when both envgroup and hostname are not set. Thus
-    # the user is expected to either input both, or none of them.
-    local RESPONSE ENVIRONMENT_GROUPS_LIST NUMBER_OF_ENVIRONMENT_GROUPS
-    RESPONSE="$(
-        run curl --fail --show-error --silent "${APIGEE_API_ENDPOINT}/v1/organizations/${ORGANIZATION_NAME}/envgroups/" \
-            -K <(auth_header)
-    )"
-    NUMBER_OF_ENVIRONMENT_GROUPS=0
-    if [[ "${RESPONSE}" != "{}" ]]; then
-        ENVIRONMENT_GROUPS_LIST="$(echo "${RESPONSE}" | jq -r '.environmentGroups[].name')"
-        NUMBER_OF_ENVIRONMENT_GROUPS=$(echo "${ENVIRONMENT_GROUPS_LIST}" | wc -l)
-    fi
-    if [[ -z "${ENVIRONMENT_GROUP_NAME}" && -z "${ENVIRONMENT_GROUP_HOSTNAME}" ]]; then
-        if ((NUMBER_OF_ENVIRONMENT_GROUPS < 1)); then
-            fatal "No environment group exists in organization '${ORGANIZATION_NAME}'. Please create an environment group and try again."
-        elif ((NUMBER_OF_ENVIRONMENT_GROUPS > 1)); then
-            printf "Environments groups found:\n%s\n" "${ENVIRONMENT_GROUPS_LIST}"
-            fatal "Multiple environment groups found. Select one explicitly using --envgroup and try again."
-        fi
-        ENVIRONMENT_GROUP_NAME="$(echo "${RESPONSE}" | jq -r '.environmentGroups[0].name')"
-        ENVIRONMENT_GROUP_HOSTNAME="$(echo "${RESPONSE}" | jq -r '.environmentGroups[0].hostnames[0]')"
-    else
-        local VALID_ENVIRONMENT_GROUP="0"
-        for ENVIRONMENT_GROUP in ${ENVIRONMENT_GROUPS_LIST[@]}; do
-            if [[ "${ENVIRONMENT_GROUP}" == "${ENVIRONMENT_GROUP_NAME}" ]]; then
-                VALID_ENVIRONMENT_GROUP="1"
-            fi
-        done
-        if [[ "${VALID_ENVIRONMENT_GROUP}" == "0" ]]; then
-            printf "Environments groups found:\n%s\n" "${ENVIRONMENT_GROUPS_LIST}"
-            fatal "Invalid environment group ${ENVIRONMENT_GROUP_NAME} provided. Exiting."
-        fi
-    fi
-    readonly ENVIRONMENT_GROUP_NAME ENVIRONMENT_GROUP_HOSTNAME
-    info "ENVIRONMENT_GROUP_NAME='${ENVIRONMENT_GROUP_NAME}'"
-    info "ENVIRONMENT_GROUP_HOSTNAME='${ENVIRONMENT_GROUP_HOSTNAME}'"
-
-    # Configure GCP Project ID name
-    if [[ -z "${GCP_PROJECT_ID}" ]]; then
-        GCP_PROJECT_ID="${ORGANIZATION_NAME}"
-    fi
-    readonly GCP_PROJECT_ID
-    info "GCP_PROJECT_ID='${GCP_PROJECT_ID}'"
-
-    INSTANCE_DIR="${ROOT_DIR}/overlays/instances/${CLUSTER_NAME}-${CLUSTER_REGION}"
-    readonly INSTANCE_DIR
-}
-
-################################################################################
-# Checks whether the required variables have been populated depending on the
-# flags.
-################################################################################
-validate_vars() {
-    local VALIDATION_FAILED="0"
-
-    if [[ "${SHOULD_FILL_VALUES}" == "1" ]]; then
-        if [[ -z "${CLUSTER_NAME}" ]]; then
-            VALIDATION_FAILED="1"
-            warn "CLUSTER_NAME should be specified"
-        fi
-        if [[ -z "${CLUSTER_REGION}" ]]; then
-            VALIDATION_FAILED="1"
-            warn "CLUSTER_REGION should be specified"
-        fi
-    fi
-
-    if [[ "${VALIDATION_FAILED}" == "1" ]]; then
-        fatal "One or more validations failed. Exiting."
-    fi
-
-    info "CLUSTER_NAME='${CLUSTER_NAME}'"
-    info "CLUSTER_REGION='${CLUSTER_REGION}'"
 }
 
 ################################################################################
 # Rename directories according to their actual names.
 ################################################################################
 rename_directories() {
+
+    # ROADMAP: Change logic to Add new from /templates and/or Clone from existing
+
     banner_info "Configuring proper names for instance, environment and environment group directories..."
 
     if [[ ! -d "${INSTANCE_DIR}" ]]; then
@@ -289,7 +162,7 @@ fill_values_in_yamls() {
 
     # If the current cluster uses openshift, uncomment the openshift patches by
     # the '# ' prefix from those lines.
-    if is_open_shift; then
+    if [[ "${ENABLE_OPENSHIFT_SCC}" == "1" ]]; then
         info "Enabling SecurityContextConstraints for OpenShift..."
 
         sed -i -E -e '/initialization\/openshift/s/^# *//g' "${ROOT_DIR}/overlays/initialization/openshift/kustomization.yaml"
@@ -303,32 +176,30 @@ fill_values_in_yamls() {
 }
 
 ################################################################################
-# Create GCP service accounts and corresponding kubernetes secrets.
-#
-# Utilizes the tools/create-service-account shell script for creating GCP SAs.
+# For the demo configuration, generate an all-in-one, non-prod, service account
 ################################################################################
-create_service_accounts() {
+create_demo_service_account() {
     # Unset the PROJECT_ID variable because the `create-service-account` script
     # errors out if both the flag `--project-id` and environment variable are
     # set.
     unset PROJECT_ID
 
-    banner_info "Configuring GCP service account..."
+    banner_info "Configuring GCP non-prod service account..."
 
-    if [ ! -f "${SERVICE_ACCOUNT_OUTPUT_DIR}/${ORGANIZATION_NAME}-${GCP_SERVICE_ACCOUNT_NAME}.json" ]; then
+    if [ ! -f "${SERVICE_ACCOUNT_OUTPUT_DIR}/${ORGANIZATION_NAME}-${GCP_NON_PROD_SERVICE_ACCOUNT_NAME}.json" ]; then
         info "Service account keys NOT FOUND. Attempting to create a new service account and downloading its keys."
         run "${REL_PATH_CREATE_SERVICE_ACCOUNT}" \
             --project-id "${ORGANIZATION_NAME}" \
             --env "non-prod" \
-            --name "${GCP_SERVICE_ACCOUNT_NAME}" \
+            --name "${GCP_NON_PROD_SERVICE_ACCOUNT_NAME}" \
             --dir "${SERVICE_ACCOUNT_OUTPUT_DIR}" <<<"y"
     else
-        info "Service account keys FOUND at '${SERVICE_ACCOUNT_OUTPUT_DIR}/${ORGANIZATION_NAME}-${GCP_SERVICE_ACCOUNT_NAME}.json'."
+        info "Service account keys FOUND at '${SERVICE_ACCOUNT_OUTPUT_DIR}/${ORGANIZATION_NAME}-${GCP_NON_PROD_SERVICE_ACCOUNT_NAME}.json'."
         info "Skipping recreation of service account and keys."
     fi
 
     info "Checking if the key is valid..."
-    GOOGLE_APPLICATION_CREDENTIALS="${SERVICE_ACCOUNT_OUTPUT_DIR}/${ORGANIZATION_NAME}-${GCP_SERVICE_ACCOUNT_NAME}.json" \
+    GOOGLE_APPLICATION_CREDENTIALS="${SERVICE_ACCOUNT_OUTPUT_DIR}/${ORGANIZATION_NAME}-${GCP_NON_PROD_SERVICE_ACCOUNT_NAME}.json" \
         gcloud auth application-default print-access-token >/dev/null
 
     info "Calling setSyncAuthoriation API..."
@@ -336,107 +207,46 @@ create_service_accounts() {
     JSON_DATA="$(
         curl --fail --show-error --silent "${APIGEE_API_ENDPOINT}/v1/organizations/${ORGANIZATION_NAME}:getSyncAuthorization" \
             -K <(auth_header) |
-            jq '.identities += ["serviceAccount:'"${GCP_SERVICE_ACCOUNT_NAME}"'@'"${ORGANIZATION_NAME}"'.iam.gserviceaccount.com"] | .identities'
+            jq '.identities += ["serviceAccount:'"${GCP_NON_PROD_SERVICE_ACCOUNT_NAME}"'@'"${ORGANIZATION_NAME}"'.iam.gserviceaccount.com"] | .identities'
     )"
     run curl --fail --show-error --silent "${APIGEE_API_ENDPOINT}/v1/organizations/${ORGANIZATION_NAME}:setSyncAuthorization" \
         -X POST -H "Content-Type:application/json" \
         -d '{"identities":'"${JSON_DATA}"'}' \
         -K <(auth_header)
 
-    banner_info "Creating kubernetes secrets containing the service account keys..."
-    kubectl apply -f "${ROOT_DIR}/overlays/initialization/namespace.yaml"
-
-    while read -r k8s_sa_name; do
-        kubectl create secret generic "${k8s_sa_name}" \
-            --from-file="client_secret.json=${SERVICE_ACCOUNT_OUTPUT_DIR}/${ORGANIZATION_NAME}-${GCP_SERVICE_ACCOUNT_NAME}.json" \
-            -n "${APIGEE_NAMESPACE}" \
-            --dry-run=client -o yaml | kubectl apply -f -
-    done <<EOF
-apigee-synchronizer-gcp-sa-key-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
-apigee-udca-gcp-sa-key-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
-apigee-runtime-gcp-sa-key-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
-apigee-watcher-gcp-sa-key-${ORGANIZATION_NAME}
-apigee-connect-agent-gcp-sa-key-${ORGANIZATION_NAME}
-apigee-mart-gcp-sa-key-${ORGANIZATION_NAME}
-apigee-udca-gcp-sa-key-${ORGANIZATION_NAME}
-apigee-metrics-gcp-sa-key
-apigee-logger-gcp-sa-key
-EOF
 }
 
 ################################################################################
 # Create kubernetes Certificate which will generate a self signed cert/key pair
 # to be used to ingress TLS communication
 ################################################################################
-create_ingress_tls_certs() {
-    banner_info "Creating ingress Certificate..."
+add_ingress_tls_cert() {
 
-    kubectl apply -f "${ROOT_DIR}/overlays/initialization/namespace.yaml"
+    banner_info "Adding ingress Certificate..."
 
-    export APIGEE_NAMESPACE ORGANIZATION_NAME ENVIRONMENT_GROUP_NAME ENVIRONMENT_GROUP_HOSTNAME HOSTNAME
-    kubectl apply -f <(envsubst <"${ROOT_DIR}/templates/certificate-org-envgroup.yaml")
-}
+    export APIGEE_NAMESPACE ORGANIZATION_NAME ENVIRONMENT_GROUP_NAME ENVIRONMENT_GROUP_HOSTNAME
 
-################################################################################
-# Applies all the yamls in the correct order to the cluster.
-################################################################################
-create_kubernetes_resources() {
-    banner_info "Creating kubernetes resources..."
+    if [[ -d "${INSTANCE_DIR}/route-config/${ENVIRONMENT_GROUP_NAME}" ]]; then
+        run cp <(envsubst <"${ROOT_DIR}/templates/certificate-org-envgroup.yaml") \
+         "${INSTANCE_DIR}/route-config/${ENVIRONMENT_GROUP_NAME}/certificate.yaml"
 
-    check_if_cert_manager_exists
+    elif [[ -d "${ROOT_DIR}/overlays/instances/${DEFAULT_INSTANCE_DIR_NAME}/route-config/${DEFAULT_ENVGROUP_DIR_NAME}" ]]; then
+        run cp <(envsubst <"${ROOT_DIR}/templates/certificate-org-envgroup.yaml") \
+         "${ROOT_DIR}/overlays/instances/${DEFAULT_INSTANCE_DIR_NAME}/route-config/${DEFAULT_ENVGROUP_DIR_NAME}/certificate.yaml"
 
-    if is_open_shift; then
-        kubectl apply -k "${ROOT_DIR}/overlays/initialization/openshift"
+    else
+        info ""
+        info "Unable to local instance->route-config-environmentgroup folder to place cert manifest"
+        info "tried:"
+        info "  ${INSTANCE_DIR}/route-config/${ENVIRONMENT_GROUP_NAME}"
+        info "  ${ROOT_DIR}/overlays/instances/${DEFAULT_INSTANCE_DIR_NAME}/route-config/${DEFAULT_ENVGROUP_DIR_NAME}"
+        info ""
+        fatal "Unable place certificate manifest"
     fi
 
-    info "Creating apigee initialization kubernetes resources..."
-    kubectl apply -f "${ROOT_DIR}/overlays/initialization/namespace.yaml"
-    kubectl apply -k "${ROOT_DIR}/overlays/initialization/certificates"
-    kubectl apply --server-side --force-conflicts -k "${ROOT_DIR}/overlays/initialization/crds"
-    kubectl apply -k "${ROOT_DIR}/overlays/initialization/webhooks"
-    kubectl apply -k "${ROOT_DIR}/overlays/initialization/rbac"
-    kubectl apply -k "${ROOT_DIR}/overlays/initialization/ingress"
-
-    info "Creating controllers..."
-    kubectl apply -k "${ROOT_DIR}/overlays/controllers"
-
-    info "Waiting for controllers to be available..."
-    kubectl wait deployment/apigee-controller-manager deployment/apigee-ingressgateway-manager -n "${APIGEE_NAMESPACE}" --for=condition=available --timeout=2m
-
-    info "Creating apigee kubernetes resources..."
-    # Create the datastore and redis secrets first and the rest of the secrets.
-    kubectl apply -f "${INSTANCE_DIR}/datastore/secrets.yaml"
-    kubectl apply -f "${INSTANCE_DIR}/redis/secrets.yaml"
-    kubectl apply -f "${INSTANCE_DIR}/environments/${ENVIRONMENT_NAME}/secrets.yaml"
-    kubectl apply -f "${INSTANCE_DIR}/organization/secrets.yaml"
-    # Create the remainder of the resources.
-    kubectl kustomize "${INSTANCE_DIR}" --reorder none | kubectl apply -f -
-
-    # Resources having been successfully created. Now wait for them to start.
-    banner_info "Resources have been created. Waiting for them to be ready..."
-    kubectl wait "apigeedatastore/default" \
-        "apigeeredis/default" \
-        "apigeeenvironment/${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}" \
-        "apigeeorganization/${ORGANIZATION_NAME}" \
-        "apigeetelemetry/apigee-telemetry" \
-        -n "${APIGEE_NAMESPACE}" --for="jsonpath=.status.state=running" --timeout=15m
 }
 
-check_if_cert_manager_exists() {
-    local EXITCODE
 
-    EXITCODE="0"
-    kubectl get namespaces cert-manager &>/dev/null || EXITCODE="$?"
-    if [[ "${EXITCODE}" != "0" ]]; then
-        fatal "cert-manager namespace does not exist"
-    fi
-
-    EXITCODE="0"
-    kubectl get crd clusterissuers.cert-manager.io &>/dev/null || EXITCODE="$?"
-    if [[ "${EXITCODE}" != "0" ]]; then
-        fatal "clusterissuers CRD does not exist"
-    fi
-}
 
 ################################################################################
 #   _   _      _                   _____                 _   _
@@ -454,7 +264,6 @@ init() {
     readonly HAS_TS
 
     AGCLOUD="$(which gcloud)"
-    AKUBECTL="$(which kubectl)"
     ASED="$(which sed)"
 }
 
@@ -465,24 +274,298 @@ check_prerequisites() {
     local NOTFOUND
     NOTFOUND="0"
 
-    info "Checking prerequisite commands..."
-    while read -r dependency; do
-        if ! command -v "${dependency}" &>/dev/null; then
-            NOTFOUND="1"
-            warn "Command '${dependency}' not found."
-        fi
-    done <<EOF
+    if [[ "${DEMO_CONFIGURATION}" == "1" ]]; then
+        info "Checking prerequisites for the Demo Configuration commands..."
+        while read -r dependency; do
+            if ! command -v "${dependency}" &>/dev/null; then
+                NOTFOUND="1"
+                warn "Command '${dependency}' not found."
+            fi
+        done <<EOF
 curl
 jq
 envsubst
 $AGCLOUD
-$AKUBECTL
 $ASED
 EOF
+
+    else # curl and gcloud are not required for standard configuration operations
+        info "Checking prerequisite commands..."
+        while read -r dependency; do
+            if ! command -v "${dependency}" &>/dev/null; then
+                NOTFOUND="1"
+                warn "Command '${dependency}' not found."
+            fi
+        done <<EOF
+jq
+envsubst
+$ASED
+EOF
+    fi
 
     if [[ "${NOTFOUND}" == "1" ]]; then
         fatal "One or more prerequisites are not installed."
     fi
+}
+
+
+################################################################################
+# Checks whether the required variables have been populated depending on the
+# flags.
+################################################################################
+validate_args() {
+    local VALIDATION_FAILED="0"
+
+
+    if [[ "${DEMO_CONFIGURATION}" == "1" ]]; then
+        if [[ -z "${ORGANIZATION_NAME}" ]]; then
+            VALIDATION_FAILED="1"
+            warn "--org is REQUIRED to auto-configure the demo"
+        fi
+    fi
+
+
+    if [[ "${DEMO_CONFIGURATION}" != "1" ]]; then
+
+        if [[ "${SHOULD_RENAME_DIRECTORIES}" == "1" ]]; then
+            if [[ -z "${ENVIRONMENT_NAME}" ]]; then
+                VALIDATION_FAILED="1"
+                warn "--env is REQUIRED"
+            fi
+            if [[ -z "${ENVIRONMENT_GROUP_NAME}" ]]; then
+                VALIDATION_FAILED="1"
+                warn "--envgroup is REQUIRED"
+            fi
+            if [[ -z "${CLUSTER_NAME}" ]]; then
+                VALIDATION_FAILED="1"
+                warn "--cluster-name is REQUIRED"
+            fi
+            if [[ -z "${CLUSTER_REGION}" ]]; then
+                VALIDATION_FAILED="1"
+                warn "--cluster-region is REQUIRED"
+            fi
+        fi
+
+        if [[ "${SHOULD_FILL_VALUES}" == "1" ]]; then
+            if [[ -z "${ORGANIZATION_NAME}" ]]; then
+                VALIDATION_FAILED="1"
+                warn "--org is REQUIRED"
+            fi
+            if [[ -z "${ENVIRONMENT_NAME}" ]]; then
+                VALIDATION_FAILED="1"
+                warn "--env is REQUIRED"
+            fi
+            if [[ -z "${ENVIRONMENT_GROUP_NAME}" ]]; then
+                VALIDATION_FAILED="1"
+                warn "--envgroup is REQUIRED"
+            fi
+            if [[ -z "${ENVIRONMENT_GROUP_HOSTNAME}" ]]; then
+                VALIDATION_FAILED="1"
+                warn "--ingress-domain is REQUIRED"
+            fi
+            if [[ -z "${APIGEE_NAMESPACE}" ]]; then
+                VALIDATION_FAILED="1"
+                warn "--namespace is REQUIRED"
+            fi
+            if [[ -z "${CLUSTER_NAME}" ]]; then
+                VALIDATION_FAILED="1"
+                warn "--cluster-name is REQUIRED"
+            fi
+            if [[ -z "${CLUSTER_REGION}" ]]; then
+                VALIDATION_FAILED="1"
+                warn "--cluster-region is REQUIRED"
+            fi
+        fi
+
+        if [[ "${SHOULD_ADD_INGRESS_TLS_CERT}" == "1" ]]; then
+            if [[ -z "${ORGANIZATION_NAME}" ]]; then
+                VALIDATION_FAILED="1"
+                warn "--org is REQUIRED"
+            fi
+            if [[ -z "${ENVIRONMENT_GROUP_NAME}" ]]; then
+                VALIDATION_FAILED="1"
+                warn "--envgroup is REQUIRED"
+            fi
+            if [[ -z "${ENVIRONMENT_GROUP_HOSTNAME}" ]]; then
+                VALIDATION_FAILED="1"
+                warn "--ingress-domain is REQUIRED"
+            fi
+            if [[ -z "${APIGEE_NAMESPACE}" ]]; then
+                VALIDATION_FAILED="1"
+                warn "--namespace is REQUIRED"
+            fi
+            if [[ -z "${CLUSTER_NAME}" ]]; then
+                VALIDATION_FAILED="1"
+                warn "--cluster-name is REQUIRED"
+            fi
+            if [[ -z "${CLUSTER_REGION}" ]]; then
+                VALIDATION_FAILED="1"
+                warn "--cluster-region is REQUIRED"
+            fi
+        fi
+    fi
+
+
+
+    if [[ "${VALIDATION_FAILED}" == "1" ]]; then
+        info ""
+        info "Attributes:"
+        info "ORGANIZATION_NAME='${ORGANIZATION_NAME}'"
+        info "ENVIRONMENT_GROUP_NAME='${ENVIRONMENT_GROUP_NAME}'"
+        info "ENVIRONMENT_NAME='${ENVIRONMENT_NAME}'"
+        info "CLUSTER_NAME='${CLUSTER_NAME}'"
+        info "CLUSTER_REGION='${CLUSTER_REGION}'"
+        info "APIGEE_NAMESPACE='${APIGEE_NAMESPACE}'"
+        fatal "One or more validations failed. Exiting."
+    fi
+}
+
+
+################################################################################
+# Resolves flags such as --all
+################################################################################
+resolve_flags() {
+    banner_info "Resolving Flags..."
+
+    if [[ "${DEMO_CONFIGURATION}" == "1" ]]; then
+        SHOULD_RENAME_DIRECTORIES="1"
+        SHOULD_FILL_VALUES="1"
+        SHOULD_ADD_INGRESS_TLS_CERT="1"
+        SHOULD_CREATE_DEMO_SERVICE_ACCOUNT="1"
+
+        readonly SHOULD_RENAME_DIRECTORIES
+        readonly SHOULD_FILL_VALUES
+        readonly SHOULD_ADD_INGRESS_TLS_CERT
+        readonly SHOULD_CREATE_DEMO_SERVICE_ACCOUNT
+    fi
+
+    if [[ "${CONFIGURE_ALL}" == "1" ]]; then
+        SHOULD_RENAME_DIRECTORIES="1"
+        SHOULD_FILL_VALUES="1"
+        SHOULD_ADD_INGRESS_TLS_CERT="1"
+
+        readonly SHOULD_RENAME_DIRECTORIES
+        readonly SHOULD_FILL_VALUES
+        readonly SHOULD_ADD_INGRESS_TLS_CERT
+    fi
+
+
+}
+
+################################################################################
+# Tries to configure the default values of unset variables.
+################################################################################
+configure_vars() {
+    banner_info "Configuring attributes..."
+
+    readonly ORGANIZATION_NAME
+    info "ORGANIZATION_NAME='${ORGANIZATION_NAME}'"
+
+    if [[ "${DEMO_CONFIGURATION}" == "1" ]]; then
+
+        APIGEE_NAMESPACE="${APIGEE_NAMESPACE:-"apigee"}"
+        CLUSTER_NAME="${CLUSTER_NAME:-"demo-instance"}"
+        CLUSTER_REGION="${CLUSTER_REGION:-"any-region"}"
+
+        # Configure the Apigee API endpoint to be used for making API calls.
+        local APIGEE_API_ENDPOINT_OVERRIDES
+        APIGEE_API_ENDPOINT_OVERRIDES="$(gcloud config get-value api_endpoint_overrides/apigee)"
+        if [[ "${APIGEE_API_ENDPOINT_OVERRIDES}" != "(unset)" && "${APIGEE_API_ENDPOINT_OVERRIDES}" != "" ]]; then
+            APIGEE_API_ENDPOINT="${APIGEE_API_ENDPOINT_OVERRIDES}"
+        fi
+        readonly APIGEE_API_ENDPOINT
+        info "APIGEE_API_ENDPOINT='${APIGEE_API_ENDPOINT}'"
+
+
+        # Configure environment name
+        local ENVIRONMENTS_LIST NUMBER_OF_ENVIRONMENTS
+        ENVIRONMENTS_LIST="$(gcloud beta apigee environments list --organization="${ORGANIZATION_NAME}" --format='value(.)')"
+        NUMBER_OF_ENVIRONMENTS=$(echo "${ENVIRONMENTS_LIST}" | wc -l)
+        if [[ -z "${ENVIRONMENT_NAME}" ]]; then
+            if ((NUMBER_OF_ENVIRONMENTS < 1)); then
+                fatal "No environment exists in organization '${ORGANIZATION_NAME}'. Please create an environment and try again."
+            elif ((NUMBER_OF_ENVIRONMENTS > 1)); then
+                printf "Environments found:\n%s\n" "${ENVIRONMENTS_LIST}"
+                fatal "Multiple environments found. Select one explicitly using --env and try again."
+            fi
+            ENVIRONMENT_NAME="$(echo "${ENVIRONMENTS_LIST}" | head --lines 1)"
+        else
+            local VALID_ENVIRONMENT="0"
+            for ENVIRONMENT in ${ENVIRONMENTS_LIST[@]}; do
+                if [[ "${ENVIRONMENT}" == "${ENVIRONMENT_NAME}" ]]; then
+                    VALID_ENVIRONMENT="1"
+                fi
+            done
+            if [[ "${VALID_ENVIRONMENT}" == "0" ]]; then
+                printf "Environments found:\n%s\n" "${ENVIRONMENTS_LIST}"
+                fatal "Invalid environment ${ENVIRONMENT_NAME} provided. Exiting."
+            fi
+        fi
+
+
+        # Configure environment group name and hostname.
+        #
+        # Will only be executed when both envgroup and hostname are not set. Thus
+        # the user is expected to either input both, or none of them.
+        local RESPONSE ENVIRONMENT_GROUPS_LIST NUMBER_OF_ENVIRONMENT_GROUPS
+        RESPONSE="$(
+            run curl --fail --show-error --silent "${APIGEE_API_ENDPOINT}/v1/organizations/${ORGANIZATION_NAME}/envgroups/" \
+                -K <(auth_header)
+        )"
+        NUMBER_OF_ENVIRONMENT_GROUPS=0
+        if [[ "${RESPONSE}" != "{}" ]]; then
+            ENVIRONMENT_GROUPS_LIST="$(echo "${RESPONSE}" | jq -r '.environmentGroups[].name')"
+            NUMBER_OF_ENVIRONMENT_GROUPS=$(echo "${ENVIRONMENT_GROUPS_LIST}" | wc -l)
+        fi
+        if [[ -z "${ENVIRONMENT_GROUP_NAME}" && -z "${ENVIRONMENT_GROUP_HOSTNAME}" ]]; then
+            if ((NUMBER_OF_ENVIRONMENT_GROUPS < 1)); then
+                fatal "No environment group exists in organization '${ORGANIZATION_NAME}'. Please create an environment group and try again."
+            elif ((NUMBER_OF_ENVIRONMENT_GROUPS > 1)); then
+                printf "Environments groups found:\n%s\n" "${ENVIRONMENT_GROUPS_LIST}"
+                fatal "Multiple environment groups found. Select one explicitly using --envgroup and try again."
+            fi
+            ENVIRONMENT_GROUP_NAME="$(echo "${RESPONSE}" | jq -r '.environmentGroups[0].name')"
+            ENVIRONMENT_GROUP_HOSTNAME="$(echo "${RESPONSE}" | jq -r '.environmentGroups[0].hostnames[0]')"
+        else
+            local VALID_ENVIRONMENT_GROUP="0"
+            for ENVIRONMENT_GROUP in ${ENVIRONMENT_GROUPS_LIST[@]}; do
+                if [[ "${ENVIRONMENT_GROUP}" == "${ENVIRONMENT_GROUP_NAME}" ]]; then
+                    VALID_ENVIRONMENT_GROUP="1"
+                fi
+            done
+            if [[ "${VALID_ENVIRONMENT_GROUP}" == "0" ]]; then
+                printf "Environments groups found:\n%s\n" "${ENVIRONMENT_GROUPS_LIST}"
+                fatal "Invalid environment group ${ENVIRONMENT_GROUP_NAME} provided. Exiting."
+            fi
+        fi
+
+    fi
+
+    readonly ENVIRONMENT_NAME
+    info "ENVIRONMENT_NAME='${ENVIRONMENT_NAME}'"
+
+    readonly ENVIRONMENT_GROUP_NAME ENVIRONMENT_GROUP_HOSTNAME
+    info "ENVIRONMENT_GROUP_NAME='${ENVIRONMENT_GROUP_NAME}'"
+    info "ENVIRONMENT_GROUP_HOSTNAME='${ENVIRONMENT_GROUP_HOSTNAME}'"
+
+    readonly APIGEE_NAMESPACE
+    info "APIGEE_NAMESPACE='${APIGEE_NAMESPACE}'"
+
+    readonly CLUSTER_NAME
+    info "CLUSTER_NAME='${CLUSTER_NAME}'"
+
+    readonly CLUSTER_REGION
+    info "CLUSTER_REGION='${CLUSTER_REGION}'"
+
+    # Configure GCP Project ID name
+    if [[ -z "${GCP_PROJECT_ID}" ]]; then
+        GCP_PROJECT_ID="${ORGANIZATION_NAME}"
+    fi
+    readonly GCP_PROJECT_ID
+    info "GCP_PROJECT_ID='${GCP_PROJECT_ID}'"
+
+    INSTANCE_DIR="${ROOT_DIR}/overlays/instances/${CLUSTER_NAME}-${CLUSTER_REGION}"
+    readonly INSTANCE_DIR
 }
 
 ################################################################################
@@ -531,6 +614,11 @@ parse_args() {
             GCP_PROJECT_ID="${2}"
             shift 2
             ;;
+        --enable-openshift-scc)
+            ENABLE_OPENSHIFT_SCC="1"
+            readonly ENABLE_OPENSHIFT_SCC
+            shift 1
+            ;;
         --configure-directory-names)
             SHOULD_RENAME_DIRECTORIES="1"
             shift 1
@@ -539,24 +627,18 @@ parse_args() {
             SHOULD_FILL_VALUES="1"
             shift 1
             ;;
-        --create-gcp-sa-and-secrets)
-            SHOULD_CREATE_SERVICE_ACCOUNT_AND_SECRETS="1"
+        --add-ingress-tls-cert)
+            SHOULD_ADD_INGRESS_TLS_CERT="1"
             shift 1
             ;;
-        --create-ingress-tls-certs)
-            SHOULD_CREATE_INGRESS_TLS_CERTS="1"
+        --configure-all)
+            CONFIGURE_ALL="1"
+            readonly CONFIGURE_ALL
             shift 1
             ;;
-        --apply-configuration)
-            SHOULD_APPLY_CONFIGURATION="1"
-            shift 1
-            ;;
-        --setup-all)
-            SHOULD_RENAME_DIRECTORIES="1"
-            SHOULD_FILL_VALUES="1"
-            SHOULD_CREATE_SERVICE_ACCOUNT_AND_SECRETS="1"
-            SHOULD_CREATE_INGRESS_TLS_CERTS="1"
-            SHOULD_APPLY_CONFIGURATION="1"
+        --demo-autoconfiguration)
+            DEMO_CONFIGURATION="1"
+            readonly DEMO_CONFIGURATION
             shift 1
             ;;
         --verbose)
@@ -577,15 +659,6 @@ parse_args() {
             ;;
         esac
     done
-
-    if [[ "${SHOULD_CREATE_SERVICE_ACCOUNT_AND_SECRETS}" != "1" &&
-        "${SHOULD_RENAME_DIRECTORIES}" != "1" &&
-        "${SHOULD_CREATE_INGRESS_TLS_CERTS}" != "1" &&
-        "${SHOULD_FILL_VALUES}" != "1" &&
-        "${SHOULD_APPLY_CONFIGURATION}" != "1" ]]; then
-        usage
-        exit
-    fi
 
 }
 
@@ -632,13 +705,20 @@ EOF
                                  directories to their correct names.
     --fill-values                Replace the values for organization, environment, etc.
                                  in the kubernetes yaml files.
-    --create-gcp-sa-and-secrets  Create GCP service account and corresponding 
-                                 secret containing the keys in the kubernetes cluster.
-    --create-ingress-tls-certs   Create Certificate resource which will generate
-                                 a self signed TLS cert for the ENVIRONMENT_GROUP_HOSTNAME
-    --apply-configuration        Create the kubernetes resources in their correct order.
-    --setup-all                  Used to execute all the tasks that can be performed
+    --add-ingress-tls-cert       Add Certificate resource which will generate
+                                 a self signed TLS cert for the provided --ingress-domain
+    --configure-all              Used to execute all the tasks that can be performed
                                  by the script.
+                                 NOTE: does not include --enable-openshift-scc
+    --enable-openshift-scc       Indicates that the cluster is on
+                                 OpenShift and will enable scc configurations.
+    --demo-autoconfiguration     Auto configures with a Single EnvironmentGroup & Environment
+                                 reading information from the Apigee Organization (Mgmt Plane)
+                                 and creating and configuring a non-prod Service Account
+                                 NOTEs:
+                                   1) curl is required
+                                   2) the user executing --demo-autoconfiguration must have a
+                                 valid GCP account and gcloud installed and configured
     --verbose                    Show detailed output for debugging.
     --version                    Display version of apigee hybrid setup.
     --help                       Display usage information.
@@ -646,29 +726,43 @@ EOF
     )"
 
     cat <<EOF
+
 ${SCRIPT_NAME}
-USAGE: ${SCRIPT_NAME} --cluster-name <CLUSTER_NAME> --cluster-region <CLUSTER_REGION> [FLAGS]...
 
-Helps with the installation of Apigee Hybrid. Can be used to either automate the
-complete installation, or execute individual tasks
+USAGE: ${SCRIPT_NAME} [attributes] [types] [flags]
 
-FLAGS that expect an argument:
+Helps create the Kubernetes manifests needed to deploy and manage Apigee Hybrid.
+This setup script is focused on the management of the manifest files. For deploying
+Apigee Hybrid to a k8s cluster, please use the companion apigee-hyrid-deploy.sh script.
+
+REQUIRED attributes (varies by Command):
 
 $FLAGS_1
 
-FLAGS without argument:
+Specifies the resource types to be acted upon (at least one is REQUIRED):
 
 $FLAGS_2
 
 EXAMPLES:
 
-    Setup everything:
-        
-        $ ./apigee-hybrid-setup.sh --cluster-name apigee-hybrid-cluster --cluster-region us-west1 --setup-all
-        
-    Only apply configuration and enable verbose logging:
+Setup everything:
 
-        $ ./apigee-hybrid-setup.sh --cluster-name apigee-hybrid-cluster --cluster-region us-west1 --verbose --apply-configuration
+./apigee-hybrid-setup.sh \\
+    --org my-organization-name \\
+    --env dev01 \\
+    --envgroup dev-environments \\
+    --add-ingress-tls-cert dev.mycompany.com \\
+    --namespace apigee \\
+    --cluster-name apigee-hybrid-cluster \\
+    --cluster-region us-west1 \\
+    --configure-all
+
+Configure a basic demo configuration for Hybrid
+pulling information from the control plane:
+
+./apigee-hybrid-setup.sh \\
+    --org my-organization-name \\
+    --demo-autoconfiguration
 
 EOF
 }
@@ -702,10 +796,6 @@ gcloud() {
     run "${AGCLOUD}" "${@}"
 }
 
-kubectl() {
-    run "${AKUBECTL}" "${@}"
-}
-
 sed() {
     run "${ASED}" "${@}"
 }
@@ -719,15 +809,6 @@ auth_header() {
     local TOKEN
     TOKEN="$(gcloud --project="${ORGANIZATION_NAME}" auth print-access-token)"
     echo "--header \"Authorization: Bearer ${TOKEN}\""
-}
-
-# Checks if the current cluster uses openshift
-is_open_shift() {
-    if [[ "$(kubectl api-resources --api-group security.openshift.io -o name || true)" == *"securitycontextconstraints.security.openshift.io"* ]]; then
-        return 0
-    else
-        return 1
-    fi
 }
 
 warn() {
