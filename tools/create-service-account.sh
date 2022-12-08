@@ -48,6 +48,7 @@ SUPPORTED_ENVS=("prod" "non-prod")
 # @brief    Displays usage details.
 #
 usage() {
+    # TO DO: !!! Add function to set Synchronizer account
     printf "%b" "\nUsage: $(basename "$0")\n" \
         "Flags:          -e / --env          \t Environment. prod/non-prod. \n" \
         "                -p / --profile      \t Profile name. Should be accompanied by --env prod.\n" \
