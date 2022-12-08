@@ -75,23 +75,23 @@ main() {
     validate_args
     configure_vars
 
-    # if [[ "${CMD_APPLY}" == "1" ]]; then
-    #     if [[ "${DEPLOY_SERVICE_ACCOUNT_AND_SECRETS}" == "1" ]]; then
-    #         deploy_service_accounts
-    #     fi
+    if [[ "${CMD_APPLY}" == "1" ]]; then
+        if [[ "${DEPLOY_SERVICE_ACCOUNT_AND_SECRETS}" == "1" ]]; then
+            deploy_service_accounts
+        fi
 
-    #     if [[ "${DEPLOY_RUNTIME_COMPONENTS}" == "1" ]]; then
-    #         deploy_components
-    #     fi
-    # fi
+        if [[ "${DEPLOY_RUNTIME_COMPONENTS}" == "1" ]]; then
+            deploy_components
+        fi
+    fi
 
-    # if [[ "${CMD_DELETE}" == "1" ]]; then
-    #     delete_all_apigee_components
-    # fi
+    if [[ "${CMD_DELETE}" == "1" ]]; then
+        delete_all_apigee_components
+    fi
 
-    # if [[ "${CMD_GET}" == "1" ]]; then
-    #     list_all_apigee_components
-    # fi
+    if [[ "${CMD_GET}" == "1" ]]; then
+        list_all_apigee_components
+    fi
 
     banner_info "SUCCESS"
 }
@@ -153,20 +153,6 @@ EOF
         info ""
         fatal "Unable deploy service account secrets"
     fi
-
-# TO DO: !!! UPDATE service account name references throughout the project
-# apigee-synchronizer-gcp-sa-key-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
-# apigee-runtime-gcp-sa-key-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
-# apigee-watcher-gcp-sa-key-${ORGANIZATION_NAME}
-
-# apigee-connect-agent-gcp-sa-key-${ORGANIZATION_NAME}
-# apigee-mart-gcp-sa-key-${ORGANIZATION_NAME}
-
-# apigee-udca-gcp-sa-key-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
-# apigee-udca-gcp-sa-key-${ORGANIZATION_NAME}
-
-# apigee-metrics-gcp-sa-key
-# apigee-logger-gcp-sa-key
 
 
 }
