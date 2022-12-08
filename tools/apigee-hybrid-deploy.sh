@@ -102,25 +102,73 @@ main() {
 ################################################################################
 deploy_service_accounts() {
 
-    banner_info "Creating kubernetes secrets containing the service account keys..."
+    banner_info "Creating kubernetes secrets containing the GCP service account keys..."
     kubectl apply -f "${ROOT_DIR}/overlays/initialization/namespace.yaml"
 
-    while read -r k8s_sa_name; do
-        kubectl create secret generic "${k8s_sa_name}" \
-            --from-file="client_secret.json=${SERVICE_ACCOUNT_OUTPUT_DIR}/${k8s_sa_name}.json" \
-            -n "${APIGEE_NAMESPACE}" \
-            --dry-run=client -o yaml | kubectl apply -f -
-    done <<EOF
-apigee-synchronizer-gcp-sa-key-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
-apigee-udca-gcp-sa-key-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
-apigee-runtime-gcp-sa-key-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
-apigee-watcher-gcp-sa-key-${ORGANIZATION_NAME}
-apigee-connect-agent-gcp-sa-key-${ORGANIZATION_NAME}
-apigee-mart-gcp-sa-key-${ORGANIZATION_NAME}
-apigee-udca-gcp-sa-key-${ORGANIZATION_NAME}
-apigee-metrics-gcp-sa-key
-apigee-logger-gcp-sa-key
+
+    if [[ -f "${SERVICE_ACCOUNT_OUTPUT_DIR}/${ORGANIZATION_NAME}-apigee-mart.json" ]]; then
+        while read -r k8s_sa_name; do
+            kubectl create secret generic "${k8s_sa_name}-gcp-sa-key" \
+                --from-file="client_secret.json=${SERVICE_ACCOUNT_OUTPUT_DIR}/${ORGANIZATION_NAME}-${k8s_sa_name}.json" \
+                -n "${APIGEE_NAMESPACE}" \
+                --dry-run=client -o yaml | kubectl apply -f -
+        done <<EOF
+apigee-logger
+apigee-metrics
+apigee-cassandra
+apigee-udca
+apigee-synchronizer
+apigee-mart
+apigee-watcher
+apigee-runtime
 EOF
+
+
+    elif [[ -f "${SERVICE_ACCOUNT_OUTPUT_DIR}/${ORGANIZATION_NAME}-apigee-non-prod.json" ]]; then
+        while read -r k8s_sa_name; do
+            kubectl create secret generic "${k8s_sa_name}-gcp-sa-key" \
+                --from-file="client_secret.json=${SERVICE_ACCOUNT_OUTPUT_DIR}/${ORGANIZATION_NAME}-apigee-non-prod.json" \
+                -n "${APIGEE_NAMESPACE}" \
+                --dry-run=client -o yaml | kubectl apply -f -
+        done <<EOF
+apigee-logger
+apigee-metrics
+apigee-cassandra
+apigee-udca
+apigee-synchronizer
+apigee-mart
+apigee-watcher
+apigee-runtime
+EOF
+
+
+    else
+        info ""
+        info "Unable to locate service accounts in ${ROOT_DIR}/service-accounts/"
+        info "If these have not been created yet. Please use /tools/create-service-account.sh"
+        info ""
+        info "If the service accounts have been created and keys downloaded, please confirm the name(s)"
+        info "follow the format: {organization-name}-{account-purpose}.json"
+        info "Example: {ORGANIZATION_NAME}-apigee-mart.json"
+        info ""
+        fatal "Unable deploy service account secrets"
+    fi
+
+# TO DO: !!! UPDATE service account name references throughout the project
+# apigee-synchronizer-gcp-sa-key-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
+# apigee-runtime-gcp-sa-key-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
+# apigee-watcher-gcp-sa-key-${ORGANIZATION_NAME}
+
+# apigee-connect-agent-gcp-sa-key-${ORGANIZATION_NAME}
+# apigee-mart-gcp-sa-key-${ORGANIZATION_NAME}
+
+# apigee-udca-gcp-sa-key-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
+# apigee-udca-gcp-sa-key-${ORGANIZATION_NAME}
+
+# apigee-metrics-gcp-sa-key
+# apigee-logger-gcp-sa-key
+
+
 }
 
 

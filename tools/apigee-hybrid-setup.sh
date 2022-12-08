@@ -236,7 +236,7 @@ add_ingress_tls_cert() {
 
     else
         info ""
-        info "Unable to local instance->route-config-environmentgroup folder to place cert manifest"
+        info "Unable to locate instance->route-config-environmentgroup folder to place cert manifest"
         info "tried:"
         info "  ${INSTANCE_DIR}/route-config/${ENVIRONMENT_GROUP_NAME}"
         info "  ${ROOT_DIR}/overlays/instances/${DEFAULT_INSTANCE_DIR_NAME}/route-config/${DEFAULT_ENVGROUP_DIR_NAME}"
