@@ -48,6 +48,7 @@ SUPPORTED_ENVS=("prod" "non-prod")
 # @brief    Displays usage details.
 #
 usage() {
+    # TO DO: !!! Add function to set Synchronizer account
     printf "%b" "\nUsage: $(basename "$0")\n" \
         "Flags:          -e / --env          \t Environment. prod/non-prod. \n" \
         "                -p / --profile      \t Profile name. Should be accompanied by --env prod.\n" \
@@ -317,8 +318,8 @@ elif [[ "${ENV}" == "prod" ]]; then
         create_sa_and_bind_roles "${PROF}" "${OUTPUT_DIR}" "${PROJECT_ID}" "${ROLES[@]}"
     done
 else
-    # SA_NAME defaults to apigee-non-prod if --env is set to non-prod.
-    SA_NAME=${SA_NAME:-"apigee-non-prod"}
+    # SA_NAME defaults to common.sh:${GCP_NON_PROD_SERVICE_ACCOUNT_NAME} if --env is set to non-prod.
+    SA_NAME=${SA_NAME:-"${GCP_NON_PROD_SERVICE_ACCOUNT_NAME}"}
     for PROF in "${SUPPORTED_PROFILES[@]}"; do
         r=$(get_roles "${PROF}")
         ROLES+=("${r}")

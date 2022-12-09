@@ -24,11 +24,11 @@ spec:
   organizationRef: "${ORGANIZATION_NAME}" # kpt-set: ${ORGANIZATION_NAME}
   components:
     synchronizer:
-      appServiceAccountSecretName: "apigee-synchronizer-gcp-sa-key-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}" # kpt-set: apigee-synchronizer-gcp-sa-key-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
+      appServiceAccountSecretName: "apigee-synchronizer-gcp-sa-key" # kpt-set: apigee-synchronizer-gcp-sa-key
     udca:
-      appServiceAccountSecretName: "apigee-udca-gcp-sa-key-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}" # kpt-set: apigee-udca-gcp-sa-key-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
+      appServiceAccountSecretName: "apigee-udca-gcp-sa-key" # kpt-set: apigee-udca-gcp-sa-key
     runtime:
-      appServiceAccountSecretName: "apigee-runtime-gcp-sa-key-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}" # kpt-set: apigee-runtime-gcp-sa-key-${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}
+      appServiceAccountSecretName: "apigee-runtime-gcp-sa-key" # kpt-set: apigee-runtime-gcp-sa-key
       containers:
       - name: apigee-runtime
         env:

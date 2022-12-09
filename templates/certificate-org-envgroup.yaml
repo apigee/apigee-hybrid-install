@@ -36,7 +36,7 @@ spec:
   subject:
     organizations:
       - "${ORGANIZATION_NAME}"
-  commonName: "${HOSTNAME}"
+  commonName: "${ENVIRONMENT_GROUP_HOSTNAME}"
   isCA: false
   privateKey:
     algorithm: RSA
@@ -45,7 +45,7 @@ spec:
   usages:
     - server auth
   dnsNames:
-    - "${HOSTNAME}"
+    - "${ENVIRONMENT_GROUP_HOSTNAME}"
   issuerRef:
     name: apigee-ca-issuer
     kind: ClusterIssuer
