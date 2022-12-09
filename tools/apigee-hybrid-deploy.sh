@@ -167,43 +167,47 @@ deploy_components() {
     check_if_cert_manager_exists
 
     if is_open_shift; then
-        kubectl apply -k "${ROOT_DIR}/overlays/initialization/openshift"
+        run kubectl apply -k "${ROOT_DIR}/overlays/initialization/openshift"
     fi
 
     info "Creating apigee initialization kubernetes resources..."
-    kubectl apply -f "${ROOT_DIR}/overlays/initialization/namespace.yaml"
-    kubectl apply -k "${ROOT_DIR}/overlays/initialization/certificates"
-    kubectl apply --server-side --force-conflicts -k "${ROOT_DIR}/overlays/initialization/crds"
-    kubectl apply -k "${ROOT_DIR}/overlays/initialization/webhooks"
-    kubectl apply -k "${ROOT_DIR}/overlays/initialization/rbac"
-    kubectl apply -k "${ROOT_DIR}/overlays/initialization/ingress"
+    run kubectl apply -f "${ROOT_DIR}/overlays/initialization/namespace.yaml"
+    run kubectl apply -k "${ROOT_DIR}/overlays/initialization/certificates"
+    run kubectl apply --server-side --force-conflicts -k "${ROOT_DIR}/overlays/initialization/crds"
+    run kubectl apply -k "${ROOT_DIR}/overlays/initialization/webhooks"
+    run kubectl apply -k "${ROOT_DIR}/overlays/initialization/rbac"
+    run kubectl apply -k "${ROOT_DIR}/overlays/initialization/ingress"
 
     info "Creating controllers..."
-    kubectl apply -k "${ROOT_DIR}/overlays/controllers"
+    run kubectl apply -k "${ROOT_DIR}/overlays/controllers"
 
     info "Waiting for controllers to be available..."
-    kubectl wait deployment/apigee-controller-manager deployment/apigee-ingressgateway-manager -n "${APIGEE_NAMESPACE}" --for=condition=available --timeout=2m
+    run kubectl wait deployment/apigee-controller-manager deployment/apigee-ingressgateway-manager -n "${APIGEE_NAMESPACE}" --for=condition=available --timeout=2m
 
     info "Creating apigee kubernetes secrets..."
     # Create the datastore and redis secrets first and the rest of the secrets.
-    find "${INSTANCE_DIR}" -name *secrets.yaml | xargs -n 1 kubectl apply -f
+    run find "${INSTANCE_DIR}" -name *secrets.yaml | xargs -n 1 kubectl apply -f
 
     info "Creating apigee ingress certificates..."
     # Create the datastore and redis secrets first and the rest of the secrets.
-    find "${INSTANCE_DIR}" -name *ingress-certificate.yaml | xargs -n 1 kubectl apply -f
+    run find "${INSTANCE_DIR}" -name *ingress-certificate.yaml | xargs -n 1 kubectl apply -f
 
     info "Creating all remaining Apigee resources..."
     # Create the remainder of the resources.
-    kubectl kustomize "${INSTANCE_DIR}" --reorder none | kubectl apply -f -
+    run kubectl kustomize "${INSTANCE_DIR}" --reorder none | kubectl apply -f -
 
     # Resources having been successfully created. Now wait for them to start.
     banner_info "Resources have been created. Waiting for them to be ready..."
-    kubectl wait "apigeedatastore/default" \
+    run kubectl wait "apigeedatastore/default" \
         "apigeeredis/default" \
-        "apigeeenvironment/${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}" \
         "apigeeorganization/${ORGANIZATION_NAME}" \
         "apigeetelemetry/apigee-telemetry" \
         -n "${APIGEE_NAMESPACE}" --for="jsonpath=.status.state=running" --timeout=15m
+
+    run kubectl wait "apigeeenvironment" --all \
+        -n "${APIGEE_NAMESPACE}" --for="jsonpath=.status.state=running" --timeout=15m
+
+
 }
 
 check_if_cert_manager_exists() {
@@ -225,26 +229,25 @@ check_if_cert_manager_exists() {
 
 delete_all_apigee_components() {
 
-    kubectl -n ${APIGEE_NAMESPACE} delete jobs $(kubectl -n ${APIGEE_NAMESPACE} get jobs -o custom-columns=':.metadata.name')
+    run ls -1 -d ${ROOT_DIR}/overlays/instances/* | xargs -n 1 kubectl delete -k || true
+    run kubectl delete -k ${ROOT_DIR}/overlays/initialization/ingress || true
+    run kubectl delete -k ${ROOT_DIR}/overlays/initialization/rbac || true
+    run kubectl delete -k ${ROOT_DIR}/overlays/initialization/webhooks || true
+    run kubectl delete -k ${ROOT_DIR}/overlays/initialization/crds || true
+    run kubectl delete -k ${ROOT_DIR}/overlays/initialization/certificates || true
 
-    kubectl delete -k ${ROOT_DIR}/overlays/instances/
-    kubectl delete -k ${ROOT_DIR}/overlays/initialization/ingress
-    kubectl delete -k ${ROOT_DIR}/overlays/initialization/rbac
-    kubectl delete -k ${ROOT_DIR}/overlays/initialization/webhooks
-    kubectl delete -k ${ROOT_DIR}/overlays/initialization/crds
-    kubectl delete -k ${ROOT_DIR}/overlays/initialization/certificates
+    run kubectl delete all --all -n ${APIGEE_NAMESPACE} || true
+    run kubectl delete jobs --all -n ${APIGEE_NAMESPACE} || true
+    run kubectl delete serviceaccounts --all -n ${APIGEE_NAMESPACE} || true
+    run kubectl delete configmaps --all -n ${APIGEE_NAMESPACE} || true
 
-    kubectl delete all --all -n ${APIGEE_NAMESPACE}
-    kubectl delete serviceaccounts --all -n ${APIGEE_NAMESPACE}
-    kubectl delete configmaps --all -n ${APIGEE_NAMESPACE}
+    run kubectl delete certificaterequests.cert-manager.io --all -n ${APIGEE_NAMESPACE} || true
+    run kubectl delete certificates.cert-manager.io --all -n ${APIGEE_NAMESPACE} || true
+    run kubectl delete leases.coordination.k8s.io --all -n ${APIGEE_NAMESPACE} || true
 
-    kubectl delete certificaterequests.cert-manager.io --all -n ${APIGEE_NAMESPACE}
-    kubectl delete certificates.cert-manager.io --all -n ${APIGEE_NAMESPACE}
-    kubectl delete leases.coordination.k8s.io --all -n ${APIGEE_NAMESPACE}
+    run kubectl delete secrets --all -n ${APIGEE_NAMESPACE} || true
 
-    kubectl delete secrets --all -n ${APIGEE_NAMESPACE}
-
-    kubectl delete namespace ${APIGEE_NAMESPACE}
+    run kubectl delete namespace ${APIGEE_NAMESPACE} || true
 
 }
 
