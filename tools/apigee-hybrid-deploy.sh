@@ -52,7 +52,6 @@ VERBOSE="0" # --verbose
 
 HAS_TS="0"
 AKUBECTL=""
-ASED=""
 
 SCRIPT_NAME="${0##*/}"
 SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
@@ -279,7 +278,6 @@ init() {
     readonly HAS_TS
 
     AKUBECTL="$(which kubectl)"
-    ASED="$(which sed)"
 }
 
 ################################################################################
@@ -297,7 +295,6 @@ check_prerequisites() {
         fi
     done <<EOF
 $AKUBECTL
-$ASED
 EOF
 
     if [[ "${NOTFOUND}" == "1" ]]; then
@@ -652,11 +649,6 @@ run() {
 kubectl() {
     run "${AKUBECTL}" "${@}"
 }
-
-sed() {
-    run "${ASED}" "${@}"
-}
-
 
 # Checks if the current cluster uses openshift
 is_open_shift() {
