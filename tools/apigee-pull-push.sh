@@ -27,7 +27,7 @@ REPOSITORY=""
 TAG="${APIGEE_HYBRID_VERSION}"
 
 APIGEE_COMPONENTS=("apigee-mart-server" "apigee-synchronizer" "apigee-runtime" "apigee-hybrid-cassandra-client" "apigee-hybrid-cassandra" "apigee-cassandra-backup-utility" "apigee-udca" "apigee-connect-agent" "apigee-watcher" "apigee-operators" "apigee-installer" "apigee-redis" "apigee-diagnostics-collector" "apigee-diagnostics-runner")
-THIRD_PARTY_COMPONENTS=("apigee-asm-istiod:1.11.2-asm.17" "apigee-asm-ingress:1.11.2-asm.17" "apigee-stackdriver-logging-agent:1.8.9" "apigee-prom-prometheus:v2.25.0" "apigee-stackdriver-prometheus-sidecar:0.9.0" "apigee-kube-rbac-proxy:v0.8.0" "apigee-envoy:v1.21.0" "apigee-prometheus-adapter:v0.9.1")
+THIRD_PARTY_COMPONENTS=("apigee-asm-istiod:1.12.9-asm.3" "apigee-asm-ingress:1.12.9-asm.3-distroless" "apigee-stackdriver-logging-agent:1.8.9" "apigee-prom-prometheus:v2.39.1" "apigee-stackdriver-prometheus-sidecar:0.9.0" "apigee-kube-rbac-proxy:v0.13.0" "apigee-envoy:v1.22.2" "apigee-prometheus-adapter:v0.10.0" "apigee-fluent-bit:1.9.9")
 
 main() {
     # Validate prerequisite.

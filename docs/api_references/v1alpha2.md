@@ -2146,7 +2146,7 @@ _Appears in:_
 <td>
 <pre>
       - name: "apigee-logger"
-        image: "gcr.io/apigee-release/hybrid/apigee-fluent-bit:1.8.10"
+        image: "gcr.io/apigee-release/hybrid/apigee-fluent-bit:1.9.9"
         imagePullPolicy: IfNotPresent
         resources:
           limits:
