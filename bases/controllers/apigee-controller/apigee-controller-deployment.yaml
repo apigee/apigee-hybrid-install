@@ -19,7 +19,7 @@ metadata:
     apigee.cloud.google.com/platform: apigee
     control-plane: controller-manager
   name: apigee-controller-manager-metrics-service
-  namespace: apigee
+  namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
 spec:
   ports:
   - name: https
@@ -35,7 +35,7 @@ metadata:
   labels:
     apigee.cloud.google.com/platform: apigee
   name: apigee-webhook-service
-  namespace: apigee
+  namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
 spec:
   ports:
   - port: 443
@@ -51,7 +51,7 @@ metadata:
     apigee.cloud.google.com/platform: apigee
     control-plane: controller-manager
   name: apigee-controller-manager
-  namespace: apigee
+  namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
 spec:
   replicas: 1
   selector:

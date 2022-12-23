@@ -122,7 +122,7 @@ spec:
         - name: INJECTION_WEBHOOK_CONFIG_NAME
           value: istio-sidecar-injector
         - name: ISTIOD_ADDR
-          value: apigee-ingressgateway-manager.apigee.svc:15012
+          value: apigee-ingressgateway-manager.${APIGEE_NAMESPACE}.svc:15012
         - name: PILOT_ENABLE_ANALYSIS
           value: "false"
         - name: CLUSTER_ID
