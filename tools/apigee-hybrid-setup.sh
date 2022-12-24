@@ -141,6 +141,7 @@ fill_values_in_yamls() {
     # export values into execution space
     export CASSANDRA_DC_NAME="${CLUSTER_NAME}-${CLUSTER_REGION}"
     export ORGANIZATION_NAME_UPPER="$(echo "${ORGANIZATION_NAME}" | tr 'a-z' 'A-Z')"
+    export ENVIRONMENT_NAME_UPPER="$(echo "${ENVIRONMENT_NAME}" | tr 'a-z' 'A-Z')"
     export APIGEE_NAMESPACE ENVIRONMENT_NAME ENVIRONMENT_GROUP_NAME CLUSTER_NAME CLUSTER_REGION GCP_SERVICE_ACCOUNT_NAME GCP_PROJECT_ID ORGANIZATION_NAME
 
     # search each file for variables to be replaced

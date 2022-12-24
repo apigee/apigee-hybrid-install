@@ -35,20 +35,20 @@ spec:
         - name: "${ORGANIZATION_NAME_UPPER}_KMS_ENCRYPTION_KEY" # kpt-set: ${ORGANIZATION_NAME_UPPER}_KMS_ENCRYPTION_KEY
           valueFrom:
             secretKeyRef:
-              name: "env-encryption-keys" # kpt-set: ${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}-encryption-keys
+              name: "org-encryption-keys" # kpt-set: ${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}-encryption-keys
               key: kmsEncryptionKey
-        - name: "${ORGANIZATION_NAME_UPPER}_TEST_CACHE_ENCRYPTION_KEY" # kpt-set: ${ORGANIZATION_NAME_UPPER}_TEST_CACHE_ENCRYPTION_KEY
+        - name: "${ORGANIZATION_NAME_UPPER}_KVM_ENCRYPTION_KEY" # kpt-set: ${ORGANIZATION_NAME_UPPER}_KVM_ENCRYPTION_KEY
+          valueFrom:
+            secretKeyRef:
+              name: "org-encryption-keys" # kpt-set: ${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}-encryption-keys
+              key: kvmEncryptionKey
+        - name: "${ORGANIZATION_NAME_UPPER}_${ENVIRONMENT_NAME_UPPER}_CACHE_ENCRYPTION_KEY" # kpt-set: ${ORGANIZATION_NAME_UPPER}_${ENVIRONMENT_NAME_UPPER}_CACHE_ENCRYPTION_KEY
           valueFrom:
             secretKeyRef:
               name: "env-encryption-keys" # kpt-set: ${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}-encryption-keys
               key: cacheEncryptionKey
-        - name: "${ORGANIZATION_NAME_UPPER}_TEST_KVM_ENCRYPTION_KEY" # kpt-set: ${ORGANIZATION_NAME_UPPER}_TEST_KVM_ENCRYPTION_KEY
+        - name: "${ORGANIZATION_NAME_UPPER}_${ENVIRONMENT_NAME_UPPER}_KVM_ENCRYPTION_KEY" # kpt-set: ${ORGANIZATION_NAME_UPPER}_${ENVIRONMENT_NAME_UPPER}_KVM_ENCRYPTION_KEY
           valueFrom:
             secretKeyRef:
               name: "env-encryption-keys" # kpt-set: ${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}-encryption-keys
               key: envKvmEncryptionKey
-        - name: "${ORGANIZATION_NAME_UPPER}_KVM_ENCRYPTION_KEY" # kpt-set: ${ORGANIZATION_NAME_UPPER}_KVM_ENCRYPTION_KEY
-          valueFrom:
-            secretKeyRef:
-              name: "env-encryption-keys" # kpt-set: ${ORGANIZATION_NAME}-${ENVIRONMENT_NAME}-encryption-keys
-              key: kvmEncryptionKey
