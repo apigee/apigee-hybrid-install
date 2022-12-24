@@ -51,9 +51,20 @@ SHOULD_FILL_VALUES="0"                        # --fill-values
 SHOULD_ADD_INGRESS_TLS_CERT="0"               # --add-ingress-tls-cert
 CONFIGURE_ALL="0"                             # --configure-all
 DEMO_CONFIGURATION="0"                        # --demo-autoconfiguration
-SHOULD_CREATE_DEMO_SERVICE_ACCOUNT="0"        # Only used an Demo setup
+SHOULD_CREATE_DEMO_SERVICE_ACCOUNT="0"        # Only used in Demo setup
+
+# Commands
+ADD_CLUSTER="0"
+ADD_ENVIRONGROUP="0"
+ADD_ENVIRONMENT="0"
+CHECK_ALL="0"
+PRINT_YAML_ALL="0"
+CREATE_DEMO="0"
+
+
 
 VERBOSE="0" # --verbose
+DIAGNOSTIC="0" # --diagnostic
 
 HAS_TS="0"
 AGCLOUD=""
@@ -86,24 +97,150 @@ main() {
     validate_args
     configure_vars
 
-    if [[ "${SHOULD_ADD_INGRESS_TLS_CERT}" == "1" ]]; then
-        add_ingress_tls_cert
+
+    if [[ "${DIAGNOSTIC}" == "1" ]]; then
+        print_diagnostics
     fi
 
-    if [[ "${SHOULD_CREATE_DEMO_SERVICE_ACCOUNT}" == "1" ]]; then
-        create_demo_service_account
-    fi
 
-    if [[ "${SHOULD_RENAME_DIRECTORIES}" == "1" ]]; then
-        rename_directories
-    fi
+    # if [[ "${ADD_CLUSTER}" == "1" ]]; then
+    #     add_cluster
+    # fi
 
-    if [[ "${SHOULD_FILL_VALUES}" == "1" ]]; then
-        fill_values_in_yamls
-    fi
+    # if [[ "${ADD_ENVIRONGROUP}" == "1" ]]; then
+    #     add_environ_group
+    # fi
+
+    # if [[ "${ADD_ENVIRONMENT}" == "1" ]]; then
+    #     add_environment
+    # fi
+
+    # if [[ "${CHECK_ALL}" == "1" ]]; then
+    #     check_all
+    # fi
+
+    # if [[ "${PRINT_YAML_ALL}" == "1" ]]; then
+    #     print_yaml_all
+    # fi
+
+    # if [[ "${CREATE_DEMO}" == "1" ]]; then
+    #     create_demo
+    # fi
+
+    # if [[ "${SHOULD_ADD_INGRESS_TLS_CERT}" == "1" ]]; then
+    #     add_ingress_tls_cert
+    # fi
+
+    # if [[ "${SHOULD_CREATE_DEMO_SERVICE_ACCOUNT}" == "1" ]]; then
+    #     create_demo_service_account
+    # fi
+
+    # if [[ "${SHOULD_RENAME_DIRECTORIES}" == "1" ]]; then
+    #     rename_directories
+    # fi
+
+    # if [[ "${SHOULD_FILL_VALUES}" == "1" ]]; then
+    #     fill_values_in_yamls
+    # fi
 
     banner_info "SUCCESS"
 }
+
+
+################################################################################
+# prints internal variable information
+################################################################################
+print_diagnostics() {
+
+    info ""
+    info "Internal Values set:"
+    info "ORGANIZATION_NAME='${ORGANIZATION_NAME}'"
+    info "ENVIRONMENT_GROUP_NAME='${ENVIRONMENT_GROUP_NAME}'"
+    info "ENVIRONMENT_GROUP_HOSTNAME='${ENVIRONMENT_GROUP_HOSTNAME}'"
+    info "ENVIRONMENT_NAME='${ENVIRONMENT_NAME}'"
+    info "APIGEE_NAMESPACE='${APIGEE_NAMESPACE}'"
+    info "CLUSTER_NAME='${CLUSTER_NAME}'"
+    info "CLUSTER_REGION='${CLUSTER_REGION}'"
+    info "GCP_PROJECT_ID='${GCP_PROJECT_ID}'"
+    info ""
+    info "ENABLE_OPENSHIFT_SCC='${ENABLE_OPENSHIFT_SCC}'"
+    info "SHOULD_RENAME_DIRECTORIES='${SHOULD_RENAME_DIRECTORIES}'"
+    info "SHOULD_FILL_VALUES='${SHOULD_FILL_VALUES}'"
+    info "SHOULD_ADD_INGRESS_TLS_CERT='${SHOULD_ADD_INGRESS_TLS_CERT}'"
+    info "CONFIGURE_ALL='${CONFIGURE_ALL}'"
+    info "DEMO_CONFIGURATION='${DEMO_CONFIGURATION}'"
+    info "SHOULD_CREATE_DEMO_SERVICE_ACCOUNT='${SHOULD_CREATE_DEMO_SERVICE_ACCOUNT}'"
+    info "ADD_CLUSTER='${ADD_CLUSTER}'"
+    info "ADD_ENVIRONGROUP='${ADD_ENVIRONGROUP}'"
+    info "ADD_ENVIRONMENT='${ADD_ENVIRONMENT}'"
+    info "CHECK_ALL='${CHECK_ALL}'"
+    info "PRINT_YAML_ALL='${PRINT_YAML_ALL}'"
+    info "CREATE_DEMO='${CREATE_DEMO}'"
+    info ""
+    info "VERBOSE='${VERBOSE}'"
+    info ""
+    info "SCRIPT_NAME='${SCRIPT_NAME}'"
+    info "SCRIPT_DIR='${SCRIPT_DIR}'"
+    info "ROOT_DIR='${ROOT_DIR}'"
+    info "INSTANCE_DIR='${INSTANCE_DIR}'"
+
+}
+
+
+
+################################################################################
+# add_cluster
+################################################################################
+add_cluster() {
+
+}
+
+
+
+################################################################################
+# add_environ_group
+################################################################################
+add_environ_group() {
+
+}
+
+
+
+################################################################################
+# aadd_environmentoeu
+################################################################################
+add_environment() {
+
+}
+
+
+
+################################################################################
+# check_all
+################################################################################
+check_all() {
+
+}
+
+
+
+################################################################################
+# print_yaml_all
+################################################################################
+print_yaml_all() {
+
+}
+
+
+
+################################################################################
+# create_demo
+################################################################################
+create_demo() {
+
+}
+
+
 
 ################################################################################
 # Rename directories according to their actual names.
@@ -575,6 +712,46 @@ configure_vars() {
 parse_args() {
     while [[ $# != 0 ]]; do
         case "${1}" in
+        add)
+            arg_required "${@}"
+#            ORGANIZATION_NAME="${2}"
+            case "${2}" in
+                cluster)
+                    ADD_CLUSTER="1"
+                    readonly ADD_CLUSTER
+                    ;;
+                environment-group)
+                    ADD_ENVIRONGROUP="1"
+                    readonly ADD_ENVIRONGROUP
+                    ;;
+                environment)
+                    ADD_ENVIRONMENT="1"
+                    readonly ADD_ENVIRONMENT
+                    ;;
+                *)
+                    fatal "Unknown Command Entity '${2}'. Only {cluster | environment-group | environment} are supported."
+                    ;;
+            esac
+            shift 2
+            ;;
+        check)
+            arg_required "${@}"
+            CHECK_ALL="1"
+            readonly CHECK_ALL
+            shift 2
+            ;;
+        print-yaml)
+            arg_required "${@}"
+            PRINT_YAML_ALL="1"
+            readonly PRINT_YAML_ALL
+            shift 2
+            ;;
+        create)
+            arg_required "${@}"
+            CREATE_DEMO="1"
+            readonly CREATE_DEMO
+            shift 2
+            ;;
         --org)
             arg_required "${@}"
             ORGANIZATION_NAME="${2}"
@@ -647,6 +824,11 @@ parse_args() {
             readonly VERBOSE
             shift 1
             ;;
+        --diagnostic)
+            DIAGNOSTIC="1"
+            readonly DIAGNOSTIC
+            shift 1
+            ;;
         --help)
             usage
             exit
@@ -667,11 +849,41 @@ parse_args() {
 # Print help text.
 ################################################################################
 usage() {
-    local FLAGS_1 FLAGS_2
+    local COMMANDS_0 ATTRIB_1 FLAGS_2
+
+    # Available commands
+    COMMANDS_0="$(
+        cat <<EOF
+    COMMAND         ENTITY              NOTES
+    ---------       -----------         ---------
+    add                                 Adds specified entity to the /overrides folder.
+                    cluster             -- Add cluster (without environment/group)
+                    environment         -- Add environment (prerequisite: cluster)
+                    environment-group   -- Add environment group (prerequisite: cluster)
+                                        
+    check           all                 Confirms that at least 1 cluster, 1 environment,
+                                        and 1 environment group has been added. Also check
+                                        for placeholder variables that have not be set.
+                                        
+    print-yaml      all                 Prints all yaml manifests as configured
+                                        
+    create          demo                Creates a pre-configured Demo setup that Auto
+                                configures with a Single EnvironmentGroup & Environment
+                                reading information from the Apigee Organization (Mgmt Plane)
+                                and creating and configuring a non-prod Service Account
+                                NOTEs:
+                                   1) curl is required
+                                   2) the user executing --demo-autoconfiguration must have a
+                                valid GCP account and gcloud installed and configured
+                                        
+EOF
+    )"
 
     # Flags that require an argument
-    FLAGS_1="$(
+    ATTRIB_1="$(
         cat <<EOF
+    ATTRIBUTE         VALUE                         NOTES
+    -----------       -----------                   ---------
     --org             <ORGANIZATION_NAME>           Set the Apigee Organization.
                                                     If not set, the project configured
                                                     in gcloud will be used.
@@ -702,24 +914,24 @@ EOF
     # Flags that DON'T require an argument
     FLAGS_2="$(
         cat <<EOF
-    --configure-directory-names  Rename the instance, environment and environment group
-                                 directories to their correct names.
-    --fill-values                Replace the values for organization, environment, etc.
-                                 in the kubernetes yaml files.
+#    --configure-directory-names  Rename the instance, environment and environment group
+#                                 directories to their correct names.
+#    --fill-values                Replace the values for organization, environment, etc.
+#                                 in the kubernetes yaml files.
     --add-ingress-tls-cert       Add Certificate resource which will generate
                                  a self signed TLS cert for the provided --ingress-domain
-    --configure-all              Used to execute all the tasks that can be performed
-                                 by the script.
-                                 NOTE: does not include --enable-openshift-scc
+#    --configure-all              Used to execute all the tasks that can be performed
+#                                 by the script.
+#                                 NOTE: does not include --enable-openshift-scc
     --enable-openshift-scc       Indicates that the cluster is on
                                  OpenShift and will enable scc configurations.
-    --demo-autoconfiguration     Auto configures with a Single EnvironmentGroup & Environment
-                                 reading information from the Apigee Organization (Mgmt Plane)
-                                 and creating and configuring a non-prod Service Account
-                                 NOTEs:
-                                   1) curl is required
-                                   2) the user executing --demo-autoconfiguration must have a
-                                 valid GCP account and gcloud installed and configured
+#    --demo-autoconfiguration     Auto configures with a Single EnvironmentGroup & Environment
+#                                 reading information from the Apigee Organization (Mgmt Plane)
+#                                 and creating and configuring a non-prod Service Account
+#                                 NOTEs:
+#                                   1) curl is required
+#                                   2) the user executing --demo-autoconfiguration must have a
+#                                 valid GCP account and gcloud installed and configured
     --verbose                    Show detailed output for debugging.
     --version                    Display version of apigee hybrid setup.
     --help                       Display usage information.
@@ -730,40 +942,74 @@ EOF
 
 ${SCRIPT_NAME}
 
-USAGE: ${SCRIPT_NAME} [attributes] [types] [flags]
+USAGE: ${SCRIPT_NAME} [command entity] [attributes] [flags]
 
-Helps create the Kubernetes manifests needed to deploy and manage Apigee Hybrid.
-This setup script is focused on the management of the manifest files. For deploying
-Apigee Hybrid to a k8s cluster, please use the companion apigee-hyrid-deploy.sh script.
+The setup script helps build the manifest structure needed to deploy Apigee. The structure
+requires a minimum of 1 cluster, 1 environment group, and 1 environment. Setup supports adding
+additional clusters, environment groups, and environments as needed to fully represent the 
+Apigee Organization.
+
+Once an Entity is added, it can be customized using standard Kubernetes Kustomize practices.
+
+The setup script can also enable a variety of standard customizations. These are added in
+the form of patches to the /overrides structure.
+    CRITICAL NOTE: Setup up is not "smart". If a customization is added. Then later an additional
+    environment or other entity is added. The customization(s) will not have been applied to
+    the newly added Entity structure.
+
+General use will require a minimum of three steps:
+1) Add a cluster
+2) Add an environment group
+3) Add an environment
+A minumum of the above three steps must be performed for Apigee to install properly. The check
+function can be used to confirm these have been applied.
+
+
+REQUIRED command list:
+
+$COMMANDS_0
 
 REQUIRED attributes (varies by Command):
 
-$FLAGS_1
+$ATTRIB_1
 
-Specifies the resource types to be acted upon (at least one is REQUIRED):
+Additional flags:
 
 $FLAGS_2
 
 EXAMPLES:
 
-Setup everything:
+Basic setup (requires all 3 runs):
 
-./apigee-hybrid-setup.sh \\
+./apigee-hybrid-setup.sh add cluster \\
+    --namespace apigee \\
     --org my-organization-name \\
-    --env dev01 \\
+    --cluster-name apigee-hybrid-cluster \\
+    --cluster-region us-west1
+
+./apigee-hybrid-setup.sh add environment-group \\
+    --namespace apigee \\
+    --org my-organization-name \\
+    --cluster-name apigee-hybrid-cluster \\
+    --cluster-region us-west1
     --envgroup dev-environments \\
     --add-ingress-tls-cert dev.mycompany.com \\
+
+./apigee-hybrid-setup.sh add environment \\
     --namespace apigee \\
+    --org my-organization-name \\
     --cluster-name apigee-hybrid-cluster \\
     --cluster-region us-west1 \\
-    --configure-all
+    --env dev01
+
 
 Configure a basic demo configuration for Hybrid
 pulling information from the control plane:
 
-./apigee-hybrid-setup.sh \\
+./apigee-hybrid-setup.sh create demo\\
     --org my-organization-name \\
-    --demo-autoconfiguration
+    --cluster-name apigee-hybrid-cluster \\
+    --cluster-region us-west1
 
 EOF
 }
