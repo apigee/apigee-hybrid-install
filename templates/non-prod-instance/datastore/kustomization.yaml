@@ -12,18 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apiVersion: apigee.cloud.google.com/v1alpha1
-kind: ApigeeDatastore
-metadata:
-  name: default
-  namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
-  labels:
-    apigee.cloud.google.com/platform: apigee
-spec:
-  credentialRef: "apigee-datastore-default-creds"
-  components:
-    cassandra:
-      storage:
-        storageSize: 10Gi
-      properties:
-        datacenter: "dc-1" # kpt-set: ${CASSANDRA_DC_NAME}
+namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+
+resources:
+- ../../../bases/instance/datastore/
+
+components:
+# - ./components/control-plane-http-proxy/
+# - ./components/nodeselector/
+# - ./components/imagepullsecret
+# - ./components/workload-identity
+# - ./components/openshift-scc
+# - ./components/gcs-backup
+# - ./components/gcs-restore
+# - ./components/non-gcs-backup
+# - ./components/non-gcs-restore
+# - ./components/multi-region
+
+patches:
+- path: ./datastore-patch.yaml

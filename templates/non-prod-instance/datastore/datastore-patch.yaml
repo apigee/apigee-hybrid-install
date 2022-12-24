@@ -12,10 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-resources:
-- apigee-redis.yaml
-
-# components:
-# - ./components/nodeselector/
-# - ./components/imagepullsecret
-# - ./components/workload-identity
+apiVersion: apigee.cloud.google.com/v1alpha1
+kind: ApigeeDatastore
+metadata:
+  name: default
+  namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+  labels:
+    apigee.cloud.google.com/platform: apigee
+spec:
+  components:
+    cassandra:
+      properties:
+        datacenter: "dc-1" # kpt-set: ${CASSANDRA_DC_NAME}
+      # storage:
+      #   storageClass: platform-specific-storage-class

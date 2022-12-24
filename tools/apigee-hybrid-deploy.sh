@@ -186,6 +186,7 @@ deploy_components() {
 
     info "Creating apigee kubernetes secrets..."
     # Create the datastore and redis secrets first and the rest of the secrets.
+# TODO: !!! may need to add bases. Check: datastore
     run find "${INSTANCE_DIR}" -name *secrets.yaml | xargs -n 1 kubectl apply -f
 
     info "Creating apigee ingress certificates..."
