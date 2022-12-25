@@ -13,6 +13,8 @@
 # limitations under the License.
 
 resources:
+- cert-manager-ingress-certificate.yaml
+# - customer-provided-ingress-certificate.yaml
 - apigee-route-config.yaml
 
 # components:

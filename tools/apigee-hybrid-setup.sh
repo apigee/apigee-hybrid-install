@@ -71,8 +71,9 @@ AGCLOUD=""
 ASED=""
 
 SCRIPT_NAME="${0##*/}"
-SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
-ROOT_DIR="${SCRIPT_DIR}/.."
+SCRIPT_PATH=$(realpath -s "${BASH_SOURCE[0]}")
+SCRIPT_DIR="$(dirname "${SCRIPT_PATH}")"
+ROOT_DIR="$(dirname "${SCRIPT_DIR}")"
 INSTANCE_DIR=""
 
 # shellcheck disable=SC1090
@@ -105,13 +106,13 @@ main() {
     fi
 
 
-    # if [[ "${ADD_CLUSTER}" == "1" ]]; then
-    #     add_cluster
-    # fi
+    if [[ "${ADD_CLUSTER}" == "1" ]]; then
+        add_cluster
+    fi
 
-    # if [[ "${ADD_ENVIRONGROUP}" == "1" ]]; then
-    #     add_environ_group
-    # fi
+    if [[ "${ADD_ENVIRONGROUP}" == "1" ]]; then
+        add_environ_group
+    fi
 
     # if [[ "${ADD_ENVIRONMENT}" == "1" ]]; then
     #     add_environment
@@ -155,7 +156,7 @@ main() {
 print_diagnostics() {
 
     info ""
-    info "Internal Values set:"
+    info "Provided and calculated values..."
     info "ORGANIZATION_NAME='${ORGANIZATION_NAME}'"
     info "ENVIRONMENT_GROUP_NAME='${ENVIRONMENT_GROUP_NAME}'"
     info "ENVIRONMENT_GROUP_HOSTNAME='${ENVIRONMENT_GROUP_HOSTNAME}'"
@@ -164,7 +165,9 @@ print_diagnostics() {
     info "CLUSTER_NAME='${CLUSTER_NAME}'"
     info "CLUSTER_REGION='${CLUSTER_REGION}'"
     info "GCP_PROJECT_ID='${GCP_PROJECT_ID}'"
+    info "INSTANCE_DIR='${INSTANCE_DIR}'"
     info ""
+    info "Commands..."
     info "ENABLE_OPENSHIFT_SCC='${ENABLE_OPENSHIFT_SCC}'"
     info "SHOULD_RENAME_DIRECTORIES='${SHOULD_RENAME_DIRECTORIES}'"
     info "SHOULD_FILL_VALUES='${SHOULD_FILL_VALUES}'"
@@ -179,16 +182,18 @@ print_diagnostics() {
     info "PRINT_YAML_ALL='${PRINT_YAML_ALL}'"
     info "CREATE_DEMO='${CREATE_DEMO}'"
     info ""
+    info "Flags..."
     info "VERBOSE='${VERBOSE}'"
+    info "DIAGNOSTIC='${DIAGNOSTIC}'"
     info ""
+    info "Script locations..."
     info "SCRIPT_NAME='${SCRIPT_NAME}'"
+    info "SCRIPT_PATH='${SCRIPT_PATH}'"
     info "SCRIPT_DIR='${SCRIPT_DIR}'"
     info "ROOT_DIR='${ROOT_DIR}'"
-    info "INSTANCE_DIR='${INSTANCE_DIR}'"
     info "NONPROD_INSTANCE_TEMP='${NONPROD_INSTANCE_TEMP}'"
     info "NONPROD_ENVGROUP_TEMP='${NONPROD_ENVGROUP_TEMP}'"
     info "NONPROD_ENVIRONMENT_TEMP='${NONPROD_ENVIRONMENT_TEMP}'"
-
 }
 
 
@@ -200,6 +205,10 @@ add_cluster() {
 
     banner_info "Adding Cluster: ${CLUSTER_NAME}-${CLUSTER_REGION}"
 
+    info "Copying cluster template into /overlays..."
+    run cp -R "${NONPROD_INSTANCE_TEMP}" "${INSTANCE_DIR}"
+
+    fill_values_in_yamls
 
 }
 
@@ -211,6 +220,28 @@ add_cluster() {
 add_environ_group() {
 
     banner_info "Adding Environment Group: ${ENVIRONMENT_GROUP_NAME} to ${CLUSTER_NAME}-${CLUSTER_REGION}"
+
+    if [[ -d "${INSTANCE_DIR}/route-config/" ]]; then
+        info "Adding ${ENVIRONMENT_GROUP_NAME} to kustomization.yaml"
+        echo "- ${ENVIRONMENT_GROUP_NAME}" >> "${INSTANCE_DIR}/route-config/kustomization.yaml"
+
+        info "Copying Environment Group patch folder"
+        run cp -R "${NONPROD_ENVGROUP_TEMP}" "${INSTANCE_DIR}/route-config/${ENVIRONMENT_GROUP_NAME}"
+
+        fill_values_in_yamls
+
+        info ""
+        info "NOTE: default configuration uses a cert-manager provided certificate for ingress."
+        info "Update kustomization.yaml and customer-provided-ingress-certificate.yaml to use"
+        info "a provided certificate"
+
+    else
+        info "Searching for Instance folder:"
+        info "  ${INSTANCE_DIR}/route-config/"
+        info ""
+        fatal "Error: Instance Folder not found. Ensure command: [add cluster] has already been executed for specified cluster."
+    fi
+
 
 }
 
@@ -297,7 +328,7 @@ fill_values_in_yamls() {
     export CASSANDRA_DC_NAME="${CLUSTER_NAME}-${CLUSTER_REGION}"
     export ORGANIZATION_NAME_UPPER="$(echo "${ORGANIZATION_NAME}" | tr 'a-z' 'A-Z')"
     export ENVIRONMENT_NAME_UPPER="$(echo "${ENVIRONMENT_NAME}" | tr 'a-z' 'A-Z')"
-    export APIGEE_NAMESPACE ENVIRONMENT_NAME ENVIRONMENT_GROUP_NAME CLUSTER_NAME CLUSTER_REGION GCP_SERVICE_ACCOUNT_NAME GCP_PROJECT_ID ORGANIZATION_NAME
+    export APIGEE_NAMESPACE ENVIRONMENT_NAME ENVIRONMENT_GROUP_NAME ENVIRONMENT_GROUP_HOSTNAME CLUSTER_NAME CLUSTER_REGION GCP_SERVICE_ACCOUNT_NAME GCP_PROJECT_ID ORGANIZATION_NAME
 
     # search each file for variables to be replaced
     for f in $(find ${ROOT_DIR}/bases/ -type f)
