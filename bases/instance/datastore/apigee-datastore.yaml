@@ -24,6 +24,6 @@ spec:
   components:
     cassandra:
       properties:
-        datacenter: "dc-1" # kpt-set: ${CASSANDRA_DC_NAME}
+        datacenter: "dc-1" # will be set by the patch file, otherwise default to dc-1
       storage:
         storageSize: 10Gi

@@ -84,7 +84,9 @@ SERVICE_ACCOUNT_OUTPUT_DIR="${ROOT_DIR}/service-accounts"
 DEFAULT_ENV_DIR_NAME="test"               # Default name of the environment directory.
 DEFAULT_ENVGROUP_DIR_NAME="test-envgroup" # Default name of the environment group directory.
 DEFAULT_INSTANCE_DIR_NAME="instance1"
-DEFAULT_INSTANCE_DIR_NAME="instance1"
+NONPROD_INSTANCE_TEMP="${ROOT_DIR}/templates/non-prod-instance"
+NONPROD_ENVGROUP_TEMP="${ROOT_DIR}/templates/non-prod-envgroup"
+NONPROD_ENVIRONMENT_TEMP="${ROOT_DIR}/templates/non-prod-environment"
 
 ################################################################################
 # `main` is the ENTRYPOINT for the shell script.
@@ -183,6 +185,9 @@ print_diagnostics() {
     info "SCRIPT_DIR='${SCRIPT_DIR}'"
     info "ROOT_DIR='${ROOT_DIR}'"
     info "INSTANCE_DIR='${INSTANCE_DIR}'"
+    info "NONPROD_INSTANCE_TEMP='${NONPROD_INSTANCE_TEMP}'"
+    info "NONPROD_ENVGROUP_TEMP='${NONPROD_ENVGROUP_TEMP}'"
+    info "NONPROD_ENVIRONMENT_TEMP='${NONPROD_ENVIRONMENT_TEMP}'"
 
 }
 
@@ -193,6 +198,9 @@ print_diagnostics() {
 ################################################################################
 add_cluster() {
 
+    banner_info "Adding Cluster: ${CLUSTER_NAME}-${CLUSTER_REGION}"
+
+
 }
 
 
@@ -201,6 +209,8 @@ add_cluster() {
 # add_environ_group
 ################################################################################
 add_environ_group() {
+
+    banner_info "Adding Environment Group: ${ENVIRONMENT_GROUP_NAME} to ${CLUSTER_NAME}-${CLUSTER_REGION}"
 
 }
 
@@ -211,6 +221,8 @@ add_environ_group() {
 ################################################################################
 add_environment() {
 
+    banner_info "Adding Environment: ${ENVIRONMENT_NAME} to ${CLUSTER_NAME}-${CLUSTER_REGION}"
+
 }
 
 
@@ -219,6 +231,8 @@ add_environment() {
 # check_all
 ################################################################################
 check_all() {
+
+    banner_info "Validating a base configuration has been completed."
 
 }
 
@@ -229,6 +243,8 @@ check_all() {
 ################################################################################
 print_yaml_all() {
 
+    banner_info "Printing all Organization manifests."
+
 }
 
 
@@ -237,6 +253,8 @@ print_yaml_all() {
 # create_demo
 ################################################################################
 create_demo() {
+
+    banner_info "Creating Demo manifests."
 
 }
 
@@ -465,14 +483,14 @@ validate_args() {
 
     if [[ "${DEMO_CONFIGURATION}" != "1" ]]; then
 
-        if [[ "${SHOULD_RENAME_DIRECTORIES}" == "1" ]]; then
-            if [[ -z "${ENVIRONMENT_NAME}" ]]; then
+        if [[ "${ADD_CLUSTER}" == "1" ]]; then
+            if [[ -z "${APIGEE_NAMESPACE}" ]]; then
                 VALIDATION_FAILED="1"
-                warn "--env is REQUIRED"
+                warn "--namespace is REQUIRED"
             fi
-            if [[ -z "${ENVIRONMENT_GROUP_NAME}" ]]; then
+            if [[ -z "${ORGANIZATION_NAME}" ]]; then
                 VALIDATION_FAILED="1"
-                warn "--envgroup is REQUIRED"
+                warn "--org is REQUIRED"
             fi
             if [[ -z "${CLUSTER_NAME}" ]]; then
                 VALIDATION_FAILED="1"
@@ -484,7 +502,7 @@ validate_args() {
             fi
         fi
 
-        if [[ "${SHOULD_FILL_VALUES}" == "1" ]]; then
+        if [[ "${ADD_ENVIRONMENT}" == "1" ]]; then
             if [[ -z "${ORGANIZATION_NAME}" ]]; then
                 VALIDATION_FAILED="1"
                 warn "--org is REQUIRED"
@@ -492,14 +510,6 @@ validate_args() {
             if [[ -z "${ENVIRONMENT_NAME}" ]]; then
                 VALIDATION_FAILED="1"
                 warn "--env is REQUIRED"
-            fi
-            if [[ -z "${ENVIRONMENT_GROUP_NAME}" ]]; then
-                VALIDATION_FAILED="1"
-                warn "--envgroup is REQUIRED"
-            fi
-            if [[ -z "${ENVIRONMENT_GROUP_HOSTNAME}" ]]; then
-                VALIDATION_FAILED="1"
-                warn "--ingress-domain is REQUIRED"
             fi
             if [[ -z "${APIGEE_NAMESPACE}" ]]; then
                 VALIDATION_FAILED="1"
@@ -515,7 +525,7 @@ validate_args() {
             fi
         fi
 
-        if [[ "${SHOULD_ADD_INGRESS_TLS_CERT}" == "1" ]]; then
+        if [[ "${ADD_ENVIRONGROUP}" == "1" ]]; then
             if [[ -z "${ORGANIZATION_NAME}" ]]; then
                 VALIDATION_FAILED="1"
                 warn "--org is REQUIRED"
