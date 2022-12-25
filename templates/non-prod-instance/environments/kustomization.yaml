@@ -13,4 +13,3 @@
 # limitations under the License.
 
 resources:
-- environment_name # kpt-set: ${ENVIRONMENT_NAME}

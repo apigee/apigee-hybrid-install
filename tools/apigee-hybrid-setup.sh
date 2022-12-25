@@ -114,21 +114,21 @@ main() {
         add_environ_group
     fi
 
-    # if [[ "${ADD_ENVIRONMENT}" == "1" ]]; then
-    #     add_environment
-    # fi
+    if [[ "${ADD_ENVIRONMENT}" == "1" ]]; then
+        add_environment
+    fi
 
-    # if [[ "${CHECK_ALL}" == "1" ]]; then
-    #     check_all
-    # fi
+    if [[ "${CHECK_ALL}" == "1" ]]; then
+        check_all
+    fi
 
-    # if [[ "${PRINT_YAML_ALL}" == "1" ]]; then
-    #     print_yaml_all
-    # fi
+    if [[ "${PRINT_YAML_ALL}" == "1" ]]; then
+        print_yaml_all
+    fi
 
-    # if [[ "${CREATE_DEMO}" == "1" ]]; then
-    #     create_demo
-    # fi
+    if [[ "${CREATE_DEMO}" == "1" ]]; then
+        create_demo
+    fi
 
     # if [[ "${SHOULD_ADD_INGRESS_TLS_CERT}" == "1" ]]; then
     #     add_ingress_tls_cert
@@ -236,9 +236,9 @@ add_environ_group() {
         info "a provided certificate"
 
     else
-        info "Searching for Instance folder:"
-        info "  ${INSTANCE_DIR}/route-config/"
-        info ""
+        error "Searching for Instance folder:"
+        error "  ${INSTANCE_DIR}/route-config/"
+        error ""
         fatal "Error: Instance Folder not found. Ensure command: [add cluster] has already been executed for specified cluster."
     fi
 
@@ -254,6 +254,22 @@ add_environment() {
 
     banner_info "Adding Environment: ${ENVIRONMENT_NAME} to ${CLUSTER_NAME}-${CLUSTER_REGION}"
 
+    if [[ -d "${INSTANCE_DIR}/environments/" ]]; then
+        info "Adding ${ENVIRONMENT_NAME} to kustomization.yaml"
+        echo "- ${ENVIRONMENT_NAME}" >> "${INSTANCE_DIR}/environments/kustomization.yaml"
+
+        info "Copying Environment patch folder"
+        run cp -R "${NONPROD_ENVIRONMENT_TEMP}" "${INSTANCE_DIR}/environments/${ENVIRONMENT_NAME}"
+
+        fill_values_in_yamls
+
+    else
+        error "Searching for Instance folder:"
+        error "  ${INSTANCE_DIR}/environments/"
+        error ""
+        fatal "Error: Instance Folder not found. Ensure command: [add cluster] has already been executed for specified cluster."
+    fi
+
 }
 
 
@@ -265,6 +281,46 @@ check_all() {
 
     banner_info "Validating a base configuration has been completed."
 
+    local VALIDATION_FAILED=0
+
+    if [[ $(ls -1 "${ROOT_DIR}/overlays/instances" | wc -l) == 0 ]]; then
+        VALIDATION_FAILED=1
+        error "No Clusters found. Run [add cluster] to add a cluster. Then add an Environment and Environment Group."
+    else
+
+        for f in $(find ${ROOT_DIR}/overlays/instances/ -maxdepth 1 -type d -not -path ${ROOT_DIR}/overlays/instances/ )
+        do
+            if [[ $(ls -1 "${f}/route-config" | wc -l) == 1 ]]; then
+                VALIDATION_FAILED=1
+                error "No Environment Groups found in cluster ${f}. Run [add environment-group] to add an Environment Group to the cluster."
+            fi
+
+            if [[ $(ls -1 "${f}/environments" | wc -l) == 1 ]]; then
+                VALIDATION_FAILED=1
+                error "No Environments found in cluster ${f}. Run [add environment] to add an Environment to the cluster."
+            fi
+        done
+
+    fi
+
+    if [[ $(grep -rnl ${ROOT_DIR}/bases/ -e '${' | wc -l) > 0 ]]; then
+        VALIDATION_FAILED=1
+        error "The following files appear to have manifest variables that have been unresolved:"
+        run grep -rnl ${ROOT_DIR}/bases/ -e '${'
+    fi
+
+    if [[ $(grep -rnl ${ROOT_DIR}/overlays/ -e '${' | wc -l) > 0 ]]; then
+        VALIDATION_FAILED=1
+        error "The following files appear to have manifest variables that have been unresolved:"
+        run grep -rnl ${ROOT_DIR}/overlays/ -e '${'
+    fi
+
+
+    if [[ "${VALIDATION_FAILED}" == 1 ]]; then
+        error ""
+        fatal "One or more validations failed. Exiting."
+    fi
+
 }
 
 
@@ -275,6 +331,8 @@ check_all() {
 print_yaml_all() {
 
     banner_info "Printing all Organization manifests."
+    
+    fatal "this function has not yet been built"
 
 }
 
@@ -286,6 +344,8 @@ print_yaml_all() {
 create_demo() {
 
     banner_info "Creating Demo manifests."
+    
+    fatal "this function has not yet been built"
 
 }
 
@@ -422,12 +482,12 @@ add_ingress_tls_cert() {
          "${ROOT_DIR}/overlays/instances/${DEFAULT_INSTANCE_DIR_NAME}/route-config/${DEFAULT_ENVGROUP_DIR_NAME}/ingress-certificate.yaml"
 
     else
-        info ""
-        info "Unable to locate instance->route-config-environmentgroup folder to place cert manifest"
-        info "tried:"
-        info "  ${INSTANCE_DIR}/route-config/${ENVIRONMENT_GROUP_NAME}"
-        info "  ${ROOT_DIR}/overlays/instances/${DEFAULT_INSTANCE_DIR_NAME}/route-config/${DEFAULT_ENVGROUP_DIR_NAME}"
-        info ""
+        error ""
+        error "Unable to locate instance->route-config-environmentgroup folder to place cert manifest"
+        error "tried:"
+        error "  ${INSTANCE_DIR}/route-config/${ENVIRONMENT_GROUP_NAME}"
+        error "  ${ROOT_DIR}/overlays/instances/${DEFAULT_INSTANCE_DIR_NAME}/route-config/${DEFAULT_ENVGROUP_DIR_NAME}"
+        error ""
         fatal "Unable place certificate manifest"
     fi
 
@@ -587,14 +647,14 @@ validate_args() {
 
 
     if [[ "${VALIDATION_FAILED}" == "1" ]]; then
-        info ""
-        info "Attributes:"
-        info "ORGANIZATION_NAME='${ORGANIZATION_NAME}'"
-        info "ENVIRONMENT_GROUP_NAME='${ENVIRONMENT_GROUP_NAME}'"
-        info "ENVIRONMENT_NAME='${ENVIRONMENT_NAME}'"
-        info "CLUSTER_NAME='${CLUSTER_NAME}'"
-        info "CLUSTER_REGION='${CLUSTER_REGION}'"
-        info "APIGEE_NAMESPACE='${APIGEE_NAMESPACE}'"
+        error ""
+        error "Attributes:"
+        error "ORGANIZATION_NAME='${ORGANIZATION_NAME}'"
+        error "ENVIRONMENT_GROUP_NAME='${ENVIRONMENT_GROUP_NAME}'"
+        error "ENVIRONMENT_NAME='${ENVIRONMENT_NAME}'"
+        error "CLUSTER_NAME='${CLUSTER_NAME}'"
+        error "CLUSTER_REGION='${CLUSTER_REGION}'"
+        error "APIGEE_NAMESPACE='${APIGEE_NAMESPACE}'"
         fatal "One or more validations failed. Exiting."
     fi
 }
