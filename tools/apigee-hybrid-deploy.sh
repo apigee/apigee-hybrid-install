@@ -33,8 +33,6 @@ fi
 ################################################################################
 
 ORGANIZATION_NAME="${ORGANIZATION_NAME:-""}"                   # --org
-ENVIRONMENT_NAME="${ENVIRONMENT_NAME:-""}"                     # --env
-ENVIRONMENT_GROUP_NAME="${ENVIRONMENT_GROUP_NAME:-""}"         # --envgroup
 APIGEE_NAMESPACE="${APIGEE_NAMESPACE:-"apigee"}"               # --namespace, The kubernetes namespace name where Apigee components will be created
 CLUSTER_NAME="${CLUSTER_NAME:-""}"                             # --cluster-name
 CLUSTER_REGION="${CLUSTER_REGION:-""}"                         # --cluster-region
@@ -49,13 +47,15 @@ DEPLOY_SERVICE_ACCOUNT_AND_SECRETS="0" # --gcp-sa-and-secrets
 DEPLOY_RUNTIME_COMPONENTS="0"          # --runtime-components
 
 VERBOSE="0" # --verbose
+DIAGNOSTIC="0" # --diagnostic
 
 HAS_TS="0"
 AKUBECTL=""
 
 SCRIPT_NAME="${0##*/}"
-SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
-ROOT_DIR="${SCRIPT_DIR}/.."
+SCRIPT_PATH=$(realpath -s "${BASH_SOURCE[0]}")
+SCRIPT_DIR="$(dirname "${SCRIPT_PATH}")"
+ROOT_DIR="$(dirname "${SCRIPT_DIR}")"
 INSTANCE_DIR=""
 SERVICE_ACCOUNT_OUTPUT_DIR="${ROOT_DIR}/service-accounts"
 
@@ -73,6 +73,12 @@ main() {
     resolve_flags
     validate_args
     configure_vars
+
+    if [[ "${DIAGNOSTIC}" == "1" ]]; then
+        print_diagnostics
+    fi
+
+
 
     if [[ "${CMD_APPLY}" == "1" ]]; then
         if [[ "${DEPLOY_SERVICE_ACCOUNT_AND_SECRETS}" == "1" ]]; then
@@ -94,6 +100,45 @@ main() {
 
     banner_info "SUCCESS"
 }
+
+
+
+################################################################################
+# prints internal variable information
+################################################################################
+print_diagnostics() {
+
+    info ""
+    info "Provided and calculated values..."
+    info "ORGANIZATION_NAME='${ORGANIZATION_NAME}'"
+    info "APIGEE_NAMESPACE='${APIGEE_NAMESPACE}'"
+    info "CLUSTER_NAME='${CLUSTER_NAME}'"
+    info "CLUSTER_REGION='${CLUSTER_REGION}'"
+    info "GCP_PROJECT_ID='${GCP_PROJECT_ID}'"
+    info "INSTANCE_DIR='${INSTANCE_DIR}'"
+    info ""
+    info "Commands..."
+    info "CMD_APPLY='${CMD_APPLY}'"
+    info "CMD_DELETE='${CMD_DELETE}'"
+    info "CMD_GET='${CMD_GET}'"
+    info "INVOKE_ALL='${INVOKE_ALL}'"
+    info "DEPLOY_SERVICE_ACCOUNT_AND_SECRETS='${DEPLOY_SERVICE_ACCOUNT_AND_SECRETS}'"
+    info "DEPLOY_RUNTIME_COMPONENTS='${DEPLOY_RUNTIME_COMPONENTS}'"
+    info ""
+    info "Flags..."
+    info "VERBOSE='${VERBOSE}'"
+    info "DIAGNOSTIC='${DIAGNOSTIC}'"
+    info ""
+    info "Script locations..."
+    info "SCRIPT_NAME='${SCRIPT_NAME}'"
+    info "SCRIPT_PATH='${SCRIPT_PATH}'"
+    info "SCRIPT_DIR='${SCRIPT_DIR}'"
+    info "ROOT_DIR='${ROOT_DIR}'"
+}
+
+
+
+
 
 ################################################################################
 # Deploy GCP service accounts into corresponding kubernetes secrets.
@@ -367,8 +412,6 @@ validate_args() {
         info ""
         info "Attributes:"
         info "ORGANIZATION_NAME='${ORGANIZATION_NAME}'"
-        info "ENVIRONMENT_GROUP_NAME='${ENVIRONMENT_GROUP_NAME}'"
-        info "ENVIRONMENT_NAME='${ENVIRONMENT_NAME}'"
         info "CLUSTER_NAME='${CLUSTER_NAME}'"
         info "CLUSTER_REGION='${CLUSTER_REGION}'"
         info "APIGEE_NAMESPACE='${APIGEE_NAMESPACE}'"
@@ -434,18 +477,6 @@ parse_args() {
             readonly ORGANIZATION_NAME
             shift 2
             ;;
-        --env)
-            arg_required "${@}"
-            ENVIRONMENT_NAME="${2}"
-            readonly ENVIRONMENT_NAME
-            shift 2
-            ;;
-        --envgroup)
-            arg_required "${@}"
-            ENVIRONMENT_GROUP_NAME="${2}"
-            readonly ENVIRONMENT_GROUP_NAME
-            shift 2
-            ;;
         --namespace)
             arg_required "${@}"
             APIGEE_NAMESPACE="${2}"
@@ -477,6 +508,11 @@ parse_args() {
         --all)
             INVOKE_ALL="1"
             readonly INVOKE_ALL
+            shift 1
+            ;;
+        --diagnostic)
+            DIAGNOSTIC="1"
+            readonly DIAGNOSTIC
             shift 1
             ;;
         --verbose)
@@ -524,12 +560,6 @@ EOF
     ATTRIB_1="$(
         cat <<EOF
     --org             <ORGANIZATION_NAME>           Set the Apigee Organization.
-    --env             <ENVIRONMENT_NAME>            Set the Apigee Environment.
-                                                    If not set, all configured
-                                                    environments will be deployed.
-    --envgroup        <ENVIRONMENT_GROUP_NAME>      Set the Apigee Environment Group.
-                                                    If not set, all configured
-                                                    ingresses will be deployed.
     --namespace       <APIGEE_NAMESPACE>            The name of the namespace where
                                                     apigee components will be installed.
                                                     Defaults to "apigee".

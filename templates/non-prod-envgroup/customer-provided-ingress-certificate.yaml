@@ -24,14 +24,16 @@
 # environment group.
 #
 # Refer the comment in `ingress-certificate.yaml` for some additional insight.
-apiVersion: v1
-kind: Secret
-metadata:
-  name: "${ORGANIZATION_NAME}-${ENVIRONMENT_GROUP_NAME}"
-  namespace: "${APIGEE_NAMESPACE}"
-type: Opaque
-data:
-  cert: |
-    YOUR_CERT_CHAIN_HERE_BASE64_ENCODED
-  key: |
-    YOUR_PRIVATE_KEY_HERE_BASE64_ENCODED
+
+# uncomment the yaml below and provide your cert information
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: "${ORGANIZATION_NAME}-${ENVIRONMENT_GROUP_NAME}"
+#   namespace: "${APIGEE_NAMESPACE}"
+# type: Opaque
+# data:
+#   cert: |
+#     YOUR_CERT_CHAIN_HERE_BASE64_ENCODED
+#   key: |
+#     YOUR_PRIVATE_KEY_HERE_BASE64_ENCODED

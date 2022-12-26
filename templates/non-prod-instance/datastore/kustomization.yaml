@@ -15,7 +15,7 @@
 namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
 
 resources:
-- ../../../bases/instance/datastore/
+- ../../../../bases/instance/datastore/
 
 components:
 # - ./components/control-plane-http-proxy/
