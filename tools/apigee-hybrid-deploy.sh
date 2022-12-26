@@ -114,7 +114,6 @@ print_diagnostics() {
     info "APIGEE_NAMESPACE='${APIGEE_NAMESPACE}'"
     info "CLUSTER_NAME='${CLUSTER_NAME}'"
     info "CLUSTER_REGION='${CLUSTER_REGION}'"
-    info "GCP_PROJECT_ID='${GCP_PROJECT_ID}'"
     info "INSTANCE_DIR='${INSTANCE_DIR}'"
     info ""
     info "Commands..."
