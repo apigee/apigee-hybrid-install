@@ -24,6 +24,27 @@
 # The secret thus generated is used within a `route-config` resource. Each
 # environment group has it's own `route-config` and thus each environment group
 # will usually have it's own Certificate.
+
+
+
+# If you would like to provide your own certificate information, comment out the
+# cert manager provide certificate below and uncomment the Secret definition below
+
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: "${ORGANIZATION_NAME}-${ENVIRONMENT_GROUP_NAME}"
+#   namespace: "${APIGEE_NAMESPACE}"
+# type: Opaque
+# data:
+#   cert: |
+#     YOUR_CERT_CHAIN_HERE_BASE64_ENCODED
+#   key: |
+#     YOUR_PRIVATE_KEY_HERE_BASE64_ENCODED
+
+
+
+
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
