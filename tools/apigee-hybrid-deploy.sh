@@ -19,8 +19,8 @@ set -eo pipefail
 if [[ "${BASH_VERSINFO:-0}" -lt 4 ]]; then
     cat <<EOF >&2
 WARNING: bash ${BASH_VERSION} does not support several modern safety features.
-This script was written with the latest POSIX standard in mind, and was only
-tested with modern shell standards. This script may not perform correctly in
+This script was written with bash v4+ in mind, and was only
+tested with bash v5+. This script may not perform correctly in
 this environment.
 EOF
     sleep 1

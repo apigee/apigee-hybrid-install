@@ -19,8 +19,8 @@ set -eo pipefail
 if [[ "${BASH_VERSINFO:-0}" -lt 4 ]]; then
     cat <<EOF >&2
 WARNING: bash ${BASH_VERSION} does not support several modern safety features.
-This script was written with the latest POSIX standard in mind, and was only
-tested with modern shell standards. This script may not perform correctly in
+This script was written with bash v4+ in mind, and was only
+tested with bash v5+. This script may not perform correctly in
 this environment.
 EOF
     sleep 1
@@ -46,12 +46,6 @@ GCP_PROJECT_ID="${GCP_PROJECT_ID:-""}"                         # --gcp-project-i
 
 # The following variables control individual actions performed by the script.
 ENABLE_OPENSHIFT_SCC="0"                      # --enable-openshift-scc
-SHOULD_RENAME_DIRECTORIES="0"                 # --configure-directory-names
-SHOULD_FILL_VALUES="0"                        # --fill-values
-SHOULD_ADD_INGRESS_TLS_CERT="0"               # --add-ingress-tls-cert
-CONFIGURE_ALL="0"                             # --configure-all
-DEMO_CONFIGURATION="0"                        # --demo-autoconfiguration
-SHOULD_CREATE_DEMO_SERVICE_ACCOUNT="0"        # Only used in Demo setup
 
 # Commands
 ADD_CLUSTER="0"
@@ -79,12 +73,6 @@ INSTANCE_DIR=""
 # shellcheck disable=SC1090
 source "${SCRIPT_DIR}/common.sh" || exit 1
 
-REL_PATH_CREATE_SERVICE_ACCOUNT="${SCRIPT_DIR}/create-service-account.sh"
-SERVICE_ACCOUNT_OUTPUT_DIR="${ROOT_DIR}/service-accounts"
-
-DEFAULT_ENV_DIR_NAME="test"               # Default name of the environment directory.
-DEFAULT_ENVGROUP_DIR_NAME="test-envgroup" # Default name of the environment group directory.
-DEFAULT_INSTANCE_DIR_NAME="instance1"
 NONPROD_INSTANCE_TEMP="${ROOT_DIR}/templates/non-prod-instance"
 NONPROD_ENVGROUP_TEMP="${ROOT_DIR}/templates/non-prod-envgroup"
 NONPROD_ENVIRONMENT_TEMP="${ROOT_DIR}/templates/non-prod-environment"
@@ -108,43 +96,22 @@ main() {
 
     if [[ "${ADD_CLUSTER}" == "1" ]]; then
         add_cluster
-    fi
 
-    if [[ "${ADD_ENVIRONGROUP}" == "1" ]]; then
+    elif [[ "${ADD_ENVIRONGROUP}" == "1" ]]; then
         add_environ_group
-    fi
 
-    if [[ "${ADD_ENVIRONMENT}" == "1" ]]; then
+    elif [[ "${ADD_ENVIRONMENT}" == "1" ]]; then
         add_environment
-    fi
 
-    if [[ "${CHECK_ALL}" == "1" ]]; then
+    elif [[ "${CHECK_ALL}" == "1" ]]; then
         check_all
-    fi
 
-    if [[ "${PRINT_YAML_ALL}" == "1" ]]; then
+    elif [[ "${PRINT_YAML_ALL}" == "1" ]]; then
         print_yaml_all
-    fi
 
-    if [[ "${CREATE_DEMO}" == "1" ]]; then
+    elif [[ "${CREATE_DEMO}" == "1" ]]; then
         create_demo
     fi
-
-    # if [[ "${SHOULD_ADD_INGRESS_TLS_CERT}" == "1" ]]; then
-    #     add_ingress_tls_cert
-    # fi
-
-    # if [[ "${SHOULD_CREATE_DEMO_SERVICE_ACCOUNT}" == "1" ]]; then
-    #     create_demo_service_account
-    # fi
-
-    # if [[ "${SHOULD_RENAME_DIRECTORIES}" == "1" ]]; then
-    #     rename_directories
-    # fi
-
-    # if [[ "${SHOULD_FILL_VALUES}" == "1" ]]; then
-    #     fill_values_in_yamls
-    # fi
 
     banner_info "SUCCESS"
 }
@@ -169,12 +136,6 @@ print_diagnostics() {
     info ""
     info "Commands..."
     info "ENABLE_OPENSHIFT_SCC='${ENABLE_OPENSHIFT_SCC}'"
-    info "SHOULD_RENAME_DIRECTORIES='${SHOULD_RENAME_DIRECTORIES}'"
-    info "SHOULD_FILL_VALUES='${SHOULD_FILL_VALUES}'"
-    info "SHOULD_ADD_INGRESS_TLS_CERT='${SHOULD_ADD_INGRESS_TLS_CERT}'"
-    info "CONFIGURE_ALL='${CONFIGURE_ALL}'"
-    info "DEMO_CONFIGURATION='${DEMO_CONFIGURATION}'"
-    info "SHOULD_CREATE_DEMO_SERVICE_ACCOUNT='${SHOULD_CREATE_DEMO_SERVICE_ACCOUNT}'"
     info "ADD_CLUSTER='${ADD_CLUSTER}'"
     info "ADD_ENVIRONGROUP='${ADD_ENVIRONGROUP}'"
     info "ADD_ENVIRONMENT='${ADD_ENVIRONMENT}'"
@@ -344,39 +305,25 @@ print_yaml_all() {
 create_demo() {
 
     banner_info "Creating Demo manifests."
+
+    # All Demo Attributes are pulled from defaults or from the Apigee Organization provided
+
+    info "Adding Demo Cluster: ${cluster-name}- ${cluster-region}"
+    add_cluster
+
+    info "Adding Environment Group: ${ENVIRONMENT_GROUP_NAME} @ ${ENVIRONMENT_GROUP_HOSTNAME}"
+    add_environ_group
+
+    info "Adding Environment: ${ENVIRONMENT_NAME}"
+    add_environment
     
-    fatal "this function has not yet been built"
+    info "Creating and Adding an all-in-one Service Account"
+    create_demo_service_account
 
 }
 
 
 
-################################################################################
-# Rename directories according to their actual names.
-################################################################################
-rename_directories() {
-
-    # ROADMAP: Change logic to Add new from /templates and/or Clone from existing
-
-    banner_info "Configuring proper names for instance, environment and environment group directories..."
-
-    if [[ ! -d "${INSTANCE_DIR}" ]]; then
-        info "Renaming default instance '${DEFAULT_INSTANCE_DIR_NAME}' to '${CLUSTER_NAME}-${CLUSTER_REGION}'..."
-        run mv "${ROOT_DIR}/overlays/instances/${DEFAULT_INSTANCE_DIR_NAME}" "${INSTANCE_DIR}"
-    fi
-
-    if [[ ! -d "${INSTANCE_DIR}/environments/${ENVIRONMENT_NAME}" ]]; then
-        info "Renaming default environment '${DEFAULT_ENV_DIR_NAME}' to '${ENVIRONMENT_NAME}'..."
-        run mv "${INSTANCE_DIR}/environments/${DEFAULT_ENV_DIR_NAME}" \
-            "${INSTANCE_DIR}/environments/${ENVIRONMENT_NAME}"
-    fi
-
-    if [[ ! -d "${INSTANCE_DIR}/route-config/${ENVIRONMENT_GROUP_NAME}" ]]; then
-        info "Renaming default envgroup '${DEFAULT_ENVGROUP_DIR_NAME}' to '${ENVIRONMENT_GROUP_NAME}'..."
-        run mv "${INSTANCE_DIR}/route-config/${DEFAULT_ENVGROUP_DIR_NAME}" \
-            "${INSTANCE_DIR}/route-config/${ENVIRONMENT_GROUP_NAME}"
-    fi
-}
 
 ################################################################################
 # Replace appropriate values like org, env, envgroup name in the yamls.
@@ -433,9 +380,12 @@ create_demo_service_account() {
 
     banner_info "Configuring GCP non-prod service account..."
 
+    local SERVICE_ACCOUNT_OUTPUT_DIR="${ROOT_DIR}/service-accounts"
+
+
     if [ ! -f "${SERVICE_ACCOUNT_OUTPUT_DIR}/${ORGANIZATION_NAME}-${GCP_NON_PROD_SERVICE_ACCOUNT_NAME}.json" ]; then
         info "Service account keys NOT FOUND. Attempting to create a new service account and downloading its keys."
-        run "${REL_PATH_CREATE_SERVICE_ACCOUNT}" \
+        run "${SCRIPT_DIR}/create-service-account.sh" \
             --project-id "${ORGANIZATION_NAME}" \
             --env "non-prod" \
             --name "${GCP_NON_PROD_SERVICE_ACCOUNT_NAME}" \
@@ -463,35 +413,6 @@ create_demo_service_account() {
 
 }
 
-################################################################################
-# Create kubernetes Certificate which will generate a self signed cert/key pair
-# to be used to ingress TLS communication
-################################################################################
-add_ingress_tls_cert() {
-
-    banner_info "Adding ingress Certificate..."
-
-    export APIGEE_NAMESPACE ORGANIZATION_NAME ENVIRONMENT_GROUP_NAME ENVIRONMENT_GROUP_HOSTNAME
-
-    if [[ -d "${INSTANCE_DIR}/route-config/${ENVIRONMENT_GROUP_NAME}" ]]; then
-        run cp <(envsubst <"${ROOT_DIR}/templates/certificate-org-envgroup.yaml") \
-         "${INSTANCE_DIR}/route-config/${ENVIRONMENT_GROUP_NAME}/ingress-certificate.yaml"
-
-    elif [[ -d "${ROOT_DIR}/overlays/instances/${DEFAULT_INSTANCE_DIR_NAME}/route-config/${DEFAULT_ENVGROUP_DIR_NAME}" ]]; then
-        run cp <(envsubst <"${ROOT_DIR}/templates/certificate-org-envgroup.yaml") \
-         "${ROOT_DIR}/overlays/instances/${DEFAULT_INSTANCE_DIR_NAME}/route-config/${DEFAULT_ENVGROUP_DIR_NAME}/ingress-certificate.yaml"
-
-    else
-        error ""
-        error "Unable to locate instance->route-config-environmentgroup folder to place cert manifest"
-        error "tried:"
-        error "  ${INSTANCE_DIR}/route-config/${ENVIRONMENT_GROUP_NAME}"
-        error "  ${ROOT_DIR}/overlays/instances/${DEFAULT_INSTANCE_DIR_NAME}/route-config/${DEFAULT_ENVGROUP_DIR_NAME}"
-        error ""
-        fatal "Unable place certificate manifest"
-    fi
-
-}
 
 
 
@@ -521,7 +442,7 @@ check_prerequisites() {
     local NOTFOUND
     NOTFOUND="0"
 
-    if [[ "${DEMO_CONFIGURATION}" == "1" ]]; then
+    if [[ "${CREATE_DEMO}" == "1" ]]; then
         info "Checking prerequisites for the Demo Configuration commands..."
         while read -r dependency; do
             if ! command -v "${dependency}" &>/dev/null; then
@@ -564,7 +485,7 @@ validate_args() {
     local VALIDATION_FAILED="0"
 
 
-    if [[ "${DEMO_CONFIGURATION}" == "1" ]]; then
+    if [[ "${CREATE_DEMO}" == "1" ]]; then
         if [[ -z "${ORGANIZATION_NAME}" ]]; then
             VALIDATION_FAILED="1"
             warn "--org is REQUIRED to auto-configure the demo"
@@ -572,7 +493,7 @@ validate_args() {
     fi
 
 
-    if [[ "${DEMO_CONFIGURATION}" != "1" ]]; then
+    if [[ "${CREATE_DEMO}" != "1" ]]; then
 
         if [[ "${ADD_CLUSTER}" == "1" ]]; then
             if [[ -z "${APIGEE_NAMESPACE}" ]]; then
@@ -666,27 +587,9 @@ validate_args() {
 resolve_flags() {
     banner_info "Resolving Flags..."
 
-    if [[ "${DEMO_CONFIGURATION}" == "1" ]]; then
-        SHOULD_RENAME_DIRECTORIES="1"
-        SHOULD_FILL_VALUES="1"
-        SHOULD_ADD_INGRESS_TLS_CERT="1"
-        SHOULD_CREATE_DEMO_SERVICE_ACCOUNT="1"
+    # if [[ "${CREATE_DEMO}" == "1" ]]; then
 
-        readonly SHOULD_RENAME_DIRECTORIES
-        readonly SHOULD_FILL_VALUES
-        readonly SHOULD_ADD_INGRESS_TLS_CERT
-        readonly SHOULD_CREATE_DEMO_SERVICE_ACCOUNT
-    fi
-
-    if [[ "${CONFIGURE_ALL}" == "1" ]]; then
-        SHOULD_RENAME_DIRECTORIES="1"
-        SHOULD_FILL_VALUES="1"
-        SHOULD_ADD_INGRESS_TLS_CERT="1"
-
-        readonly SHOULD_RENAME_DIRECTORIES
-        readonly SHOULD_FILL_VALUES
-        readonly SHOULD_ADD_INGRESS_TLS_CERT
-    fi
+    # fi
 
 
 }
@@ -700,7 +603,7 @@ configure_vars() {
     readonly ORGANIZATION_NAME
     info "ORGANIZATION_NAME='${ORGANIZATION_NAME}'"
 
-    if [[ "${DEMO_CONFIGURATION}" == "1" ]]; then
+    if [[ "${CREATE_DEMO}" == "1" ]]; then
 
         APIGEE_NAMESPACE="${APIGEE_NAMESPACE:-"apigee"}"
         CLUSTER_NAME="${CLUSTER_NAME:-"demo-instance"}"
@@ -898,28 +801,6 @@ parse_args() {
             readonly ENABLE_OPENSHIFT_SCC
             shift 1
             ;;
-        --configure-directory-names)
-            SHOULD_RENAME_DIRECTORIES="1"
-            shift 1
-            ;;
-        --fill-values)
-            SHOULD_FILL_VALUES="1"
-            shift 1
-            ;;
-        --add-ingress-tls-cert)
-            SHOULD_ADD_INGRESS_TLS_CERT="1"
-            shift 1
-            ;;
-        --configure-all)
-            CONFIGURE_ALL="1"
-            readonly CONFIGURE_ALL
-            shift 1
-            ;;
-        --demo-autoconfiguration)
-            DEMO_CONFIGURATION="1"
-            readonly DEMO_CONFIGURATION
-            shift 1
-            ;;
         --verbose)
             VERBOSE="1"
             readonly VERBOSE
@@ -974,7 +855,7 @@ usage() {
                                 and creating and configuring a non-prod Service Account
                                 NOTEs:
                                    1) curl is required
-                                   2) the user executing --demo-autoconfiguration must have a
+                                   2) the user executing [create demo] must have a
                                 valid GCP account and gcloud installed and configured
                                         
 EOF
@@ -1015,24 +896,8 @@ EOF
     # Flags that DON'T require an argument
     FLAGS_2="$(
         cat <<EOF
-#    --configure-directory-names  Rename the instance, environment and environment group
-#                                 directories to their correct names.
-#    --fill-values                Replace the values for organization, environment, etc.
-#                                 in the kubernetes yaml files.
-    --add-ingress-tls-cert       Add Certificate resource which will generate
-                                 a self signed TLS cert for the provided --ingress-domain
-#    --configure-all              Used to execute all the tasks that can be performed
-#                                 by the script.
-#                                 NOTE: does not include --enable-openshift-scc
     --enable-openshift-scc       Indicates that the cluster is on
                                  OpenShift and will enable scc configurations.
-#    --demo-autoconfiguration     Auto configures with a Single EnvironmentGroup & Environment
-#                                 reading information from the Apigee Organization (Mgmt Plane)
-#                                 and creating and configuring a non-prod Service Account
-#                                 NOTEs:
-#                                   1) curl is required
-#                                   2) the user executing --demo-autoconfiguration must have a
-#                                 valid GCP account and gcloud installed and configured
     --verbose                    Show detailed output for debugging.
     --version                    Display version of apigee hybrid setup.
     --help                       Display usage information.
@@ -1094,7 +959,7 @@ Basic setup (requires all 3 runs):
     --cluster-name apigee-hybrid-cluster \\
     --cluster-region us-west1
     --envgroup dev-environments \\
-    --add-ingress-tls-cert dev.mycompany.com \\
+    --ingress-domain dev.mycompany.com \\
 
 ./apigee-hybrid-setup.sh add environment \\
     --namespace apigee \\
