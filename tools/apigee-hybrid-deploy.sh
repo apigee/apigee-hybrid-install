@@ -215,12 +215,6 @@ deploy_components() {
 
     info "Creating apigee initialization kubernetes resources..."
     run kubectl apply --server-side --force-conflicts -k "${ROOT_DIR}/overlays/initialization"
-    # run kubectl apply -f "${ROOT_DIR}/overlays/initialization/namespace.yaml"
-    # run kubectl apply -k "${ROOT_DIR}/overlays/initialization/certificates"
-    # run kubectl apply --server-side --force-conflicts -k "${ROOT_DIR}/overlays/initialization/crds"
-    # run kubectl apply -k "${ROOT_DIR}/overlays/initialization/webhooks"
-    # run kubectl apply -k "${ROOT_DIR}/overlays/initialization/rbac"
-    # run kubectl apply -k "${ROOT_DIR}/overlays/initialization/ingress"
 
     info "Creating controllers..."
     run kubectl apply -k "${ROOT_DIR}/overlays/controllers"
