@@ -102,7 +102,7 @@ main() {
 deploy_service_accounts() {
 
     banner_info "Creating kubernetes secrets containing the GCP service account keys..."
-    kubectl apply -f "${ROOT_DIR}/overlays/initialization/namespace.yaml"
+    kubectl apply -k "${ROOT_DIR}/overlays/initialization/namespace"
 
 
     if [[ -f "${SERVICE_ACCOUNT_OUTPUT_DIR}/${ORGANIZATION_NAME}-apigee-mart.json" ]]; then
