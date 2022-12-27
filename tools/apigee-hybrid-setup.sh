@@ -589,79 +589,100 @@ validate_args() {
             VALIDATION_FAILED="1"
             warn "--org is REQUIRED to auto-configure the demo"
         fi
-    fi
+    
 
+    
+    elif [[ "${ADD_CLUSTER}" == "1" ]]; then
+        if [[ -z "${APIGEE_NAMESPACE}" ]]; then
+            VALIDATION_FAILED="1"
+            warn "--namespace is REQUIRED"
+        fi
+        if [[ -z "${ORGANIZATION_NAME}" ]]; then
+            VALIDATION_FAILED="1"
+            warn "--org is REQUIRED"
+        fi
+        if [[ -z "${CLUSTER_NAME}" ]]; then
+            VALIDATION_FAILED="1"
+            warn "--cluster-name is REQUIRED"
+        fi
+        if [[ -z "${CLUSTER_REGION}" ]]; then
+            VALIDATION_FAILED="1"
+            warn "--cluster-region is REQUIRED"
+        fi
+    
+    
 
-    if [[ "${CREATE_DEMO}" != "1" ]]; then
+    elif [[ "${ADD_ENVIRONMENT}" == "1" ]]; then
+        if [[ -z "${ORGANIZATION_NAME}" ]]; then
+            VALIDATION_FAILED="1"
+            warn "--org is REQUIRED"
+        fi
+        if [[ -z "${ENVIRONMENT_NAME}" ]]; then
+            VALIDATION_FAILED="1"
+            warn "--env is REQUIRED"
+        fi
+        if [[ -z "${APIGEE_NAMESPACE}" ]]; then
+            VALIDATION_FAILED="1"
+            warn "--namespace is REQUIRED"
+        fi
+        if [[ -z "${CLUSTER_NAME}" ]]; then
+            VALIDATION_FAILED="1"
+            warn "--cluster-name is REQUIRED"
+        fi
+        if [[ -z "${CLUSTER_REGION}" ]]; then
+            VALIDATION_FAILED="1"
+            warn "--cluster-region is REQUIRED"
+        fi
+    
+    
 
-        if [[ "${ADD_CLUSTER}" == "1" ]]; then
-            if [[ -z "${APIGEE_NAMESPACE}" ]]; then
-                VALIDATION_FAILED="1"
-                warn "--namespace is REQUIRED"
-            fi
-            if [[ -z "${ORGANIZATION_NAME}" ]]; then
-                VALIDATION_FAILED="1"
-                warn "--org is REQUIRED"
-            fi
-            if [[ -z "${CLUSTER_NAME}" ]]; then
-                VALIDATION_FAILED="1"
-                warn "--cluster-name is REQUIRED"
-            fi
-            if [[ -z "${CLUSTER_REGION}" ]]; then
-                VALIDATION_FAILED="1"
-                warn "--cluster-region is REQUIRED"
-            fi
+    elif [[ "${ADD_ENVIRONGROUP}" == "1" ]]; then
+        if [[ -z "${ORGANIZATION_NAME}" ]]; then
+            VALIDATION_FAILED="1"
+            warn "--org is REQUIRED"
+        fi
+        if [[ -z "${ENVIRONMENT_GROUP_NAME}" ]]; then
+            VALIDATION_FAILED="1"
+            warn "--envgroup is REQUIRED"
+        fi
+        if [[ -z "${ENVIRONMENT_GROUP_HOSTNAME}" ]]; then
+            VALIDATION_FAILED="1"
+            warn "--ingress-domain is REQUIRED"
+        fi
+        if [[ -z "${APIGEE_NAMESPACE}" ]]; then
+            VALIDATION_FAILED="1"
+            warn "--namespace is REQUIRED"
+        fi
+        if [[ -z "${CLUSTER_NAME}" ]]; then
+            VALIDATION_FAILED="1"
+            warn "--cluster-name is REQUIRED"
+        fi
+        if [[ -z "${CLUSTER_REGION}" ]]; then
+            VALIDATION_FAILED="1"
+            warn "--cluster-region is REQUIRED"
         fi
 
-        if [[ "${ADD_ENVIRONMENT}" == "1" ]]; then
-            if [[ -z "${ORGANIZATION_NAME}" ]]; then
-                VALIDATION_FAILED="1"
-                warn "--org is REQUIRED"
-            fi
-            if [[ -z "${ENVIRONMENT_NAME}" ]]; then
-                VALIDATION_FAILED="1"
-                warn "--env is REQUIRED"
-            fi
-            if [[ -z "${APIGEE_NAMESPACE}" ]]; then
-                VALIDATION_FAILED="1"
-                warn "--namespace is REQUIRED"
-            fi
-            if [[ -z "${CLUSTER_NAME}" ]]; then
-                VALIDATION_FAILED="1"
-                warn "--cluster-name is REQUIRED"
-            fi
-            if [[ -z "${CLUSTER_REGION}" ]]; then
-                VALIDATION_FAILED="1"
-                warn "--cluster-region is REQUIRED"
-            fi
-        fi
 
-        if [[ "${ADD_ENVIRONGROUP}" == "1" ]]; then
-            if [[ -z "${ORGANIZATION_NAME}" ]]; then
+
+    elif [[ "${ENABLE_ADD_ON}" == "1" ]]; then
+        case ${ADD_ON} in
+            all)
+                if [[ -z "${ORGANIZATION_NAME}" ]]; then
+                    VALIDATION_FAILED="1"
+                    warn "--org is REQUIRED"
+                fi
+                if [[ -z "${CLUSTER_REGION}" ]]; then
+                    VALIDATION_FAILED="1"
+                    warn "--cluster-region is REQUIRED"
+                fi
+                ;;
+            openshift-scc)
+                ;;
+            *)
                 VALIDATION_FAILED="1"
-                warn "--org is REQUIRED"
-            fi
-            if [[ -z "${ENVIRONMENT_GROUP_NAME}" ]]; then
-                VALIDATION_FAILED="1"
-                warn "--envgroup is REQUIRED"
-            fi
-            if [[ -z "${ENVIRONMENT_GROUP_HOSTNAME}" ]]; then
-                VALIDATION_FAILED="1"
-                warn "--ingress-domain is REQUIRED"
-            fi
-            if [[ -z "${APIGEE_NAMESPACE}" ]]; then
-                VALIDATION_FAILED="1"
-                warn "--namespace is REQUIRED"
-            fi
-            if [[ -z "${CLUSTER_NAME}" ]]; then
-                VALIDATION_FAILED="1"
-                warn "--cluster-name is REQUIRED"
-            fi
-            if [[ -z "${CLUSTER_REGION}" ]]; then
-                VALIDATION_FAILED="1"
-                warn "--cluster-region is REQUIRED"
-            fi
-        fi
+                warn "Unrecognized Add-On name: ${ADD_ON}, please check spelling."
+        esac
+
     fi
 
 
@@ -963,6 +984,8 @@ usage() {
                                         valid GCP account and gcloud installed and configured
 
     enable                              Adds patch files that enable specified feature
+                                        !! CRITICAL: many add-ons require variables or fields
+                                        to be filled in manually. Please review all added files
                     all                 -- Adds all available feature patches
                     openshift-scc       -- Add environment (prerequisite: cluster)
                     another             -- Add environment group (prerequisite: cluster)
