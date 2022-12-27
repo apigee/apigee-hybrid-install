@@ -368,28 +368,37 @@ create_demo() {
 enable_add_on() {
 
     banner_info "Enabling Add-on: ${ADD_ON}."
+    info "Note: this feature is not fully tested yet"
 
     local SELECTED_ADD_ONS_DIR="${ADD_ONS_DIR}/${ADD_ON}"
 
     # copy in the top of the overlays
-    run cp -R "${SELECTED_ADD_ONS_DIR}/add-on-overlays/"* "${ROOT_DIR}/overlays"
+    if [ -d "${SELECTED_ADD_ONS_DIR}/add-on-overlays/" ]; then
+        run cp -R "${SELECTED_ADD_ONS_DIR}/add-on-overlays/"* "${ROOT_DIR}/overlays"
+    fi
 
     # for each instance
     for instance in $(find ${ROOT_DIR}/overlays/instances/ -maxdepth 1 -type d -not -path ${ROOT_DIR}/overlays/instances/ )
     do
 
-        run cp -R "${SELECTED_ADD_ONS_DIR}/add-on-instance/"* ${instance}
+        if [ -d "${SELECTED_ADD_ONS_DIR}/add-on-instance/" ]; then
+            run cp -R "${SELECTED_ADD_ONS_DIR}/add-on-instance/"* ${instance}
+        fi
 
         # for each group
         for group in $(find ${instance}/route-config/ -maxdepth 1 -type d -not -path ${instance}/route-config/ )
         do
-            run cp -R "${SELECTED_ADD_ONS_DIR}/add-on-envgroup/"* ${group}
+            if [ -d "${SELECTED_ADD_ONS_DIR}/add-on-envgroup/" ]; then
+                run cp -R "${SELECTED_ADD_ONS_DIR}/add-on-envgroup/"* ${group}
+            fi
         done
 
         # for each environment
         for environment in $(find ${instance}/environments/ -maxdepth 1 -type d -not -path ${instance}/environments/ )
         do
-            run cp -R "${SELECTED_ADD_ONS_DIR}/add-on-environment/"* ${environment}
+            if [ -d "${SELECTED_ADD_ONS_DIR}/add-on-environment/" ]; then
+                run cp -R "${SELECTED_ADD_ONS_DIR}/add-on-environment/"* ${environment}
+            fi
         done
 
     done
