@@ -12,5 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+
 resources:
-- ../../bases/initialization/namespace
+- ../../../../bases/instance/datastore/
+
+components:
+# - ./components/control-plane-http-proxy/
+# - ./components/nodeselector/
+# - ./components/imagepullsecret
+# - ./components/workload-identity
+# - ./components/openshift-scc
+# - ./components/gcs-backup
+# - ./components/gcs-restore
+# - ./components/non-gcs-backup
+# - ./components/non-gcs-restore
+# - ./components/multi-region
+
+patches:
+- path: ./datastore-patch.yaml

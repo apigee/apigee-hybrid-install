@@ -12,11 +12,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apiVersion: v1
-kind: Secret
-metadata:
-  name: "apigee-redis-default-creds"
-  namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
-type: Opaque
-data:
-  redis.auth.password: "aWxvdmVhcGlzMTIz"
+resources:
+- ../../../bases/initialization/namespace/

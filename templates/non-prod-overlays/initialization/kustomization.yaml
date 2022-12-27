@@ -13,4 +13,11 @@
 # limitations under the License.
 
 resources:
-- ../../bases/initialization/namespace
+- ./namespace/
+- ./certificates/
+- ./crds/
+- ./webhooks/
+- ../../bases/initialization/rbac/
+- ../../bases/initialization/ingress/
+
+# - ../../bases/initialization/openshift/
