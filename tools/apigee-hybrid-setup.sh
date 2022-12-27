@@ -44,8 +44,6 @@ CLUSTER_REGION="${CLUSTER_REGION:-""}"                         # --cluster-regio
 GCP_PROJECT_ID="${GCP_PROJECT_ID:-""}"                         # --gcp-project-id
 # X~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~X END X~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~X
 
-# The following variables control individual actions performed by the script.
-ENABLE_OPENSHIFT_SCC="0"                      # --enable-openshift-scc
 
 # Commands
 ADD_CLUSTER="0"
@@ -54,7 +52,8 @@ ADD_ENVIRONMENT="0"
 CHECK_ALL="0"
 PRINT_YAML_ALL="0"
 CREATE_DEMO="0"
-
+ENABLE_ADD_ON="0"
+ADD_ON=""
 
 
 VERBOSE="0" # --verbose
@@ -73,9 +72,11 @@ INSTANCE_DIR=""
 # shellcheck disable=SC1090
 source "${SCRIPT_DIR}/common.sh" || exit 1
 
-NONPROD_INSTANCE_TEMP="${ROOT_DIR}/templates/non-prod-instance"
-NONPROD_ENVGROUP_TEMP="${ROOT_DIR}/templates/non-prod-envgroup"
-NONPROD_ENVIRONMENT_TEMP="${ROOT_DIR}/templates/non-prod-environment"
+TEMPLATES_DIR="${ROOT_DIR}/templates"
+NONPROD_INSTANCE_TEMP="${TEMPLATES_DIR}/non-prod-instance"
+NONPROD_ENVGROUP_TEMP="${TEMPLATES_DIR}/non-prod-envgroup"
+NONPROD_ENVIRONMENT_TEMP="${TEMPLATES_DIR}/non-prod-environment"
+ADD_ONS_DIR="${TEMPLATES_DIR}/add-ons"
 
 ################################################################################
 # `main` is the ENTRYPOINT for the shell script.
@@ -111,6 +112,9 @@ main() {
 
     elif [[ "${CREATE_DEMO}" == "1" ]]; then
         create_demo
+
+    elif [[ "${ENABLE_ADD_ON}" == "1" ]]; then
+        enable_add_on
     fi
 
     banner_info "SUCCESS"
@@ -135,13 +139,14 @@ print_diagnostics() {
     info "INSTANCE_DIR='${INSTANCE_DIR}'"
     info ""
     info "Commands..."
-    info "ENABLE_OPENSHIFT_SCC='${ENABLE_OPENSHIFT_SCC}'"
     info "ADD_CLUSTER='${ADD_CLUSTER}'"
     info "ADD_ENVIRONGROUP='${ADD_ENVIRONGROUP}'"
     info "ADD_ENVIRONMENT='${ADD_ENVIRONMENT}'"
     info "CHECK_ALL='${CHECK_ALL}'"
     info "PRINT_YAML_ALL='${PRINT_YAML_ALL}'"
     info "CREATE_DEMO='${CREATE_DEMO}'"
+    info "ENABLE_ADD_ON='${ENABLE_ADD_ON}'"
+    info "ADD_ON='${ADD_ON}'"
     info ""
     info "Flags..."
     info "VERBOSE='${VERBOSE}'"
@@ -152,9 +157,11 @@ print_diagnostics() {
     info "SCRIPT_PATH='${SCRIPT_PATH}'"
     info "SCRIPT_DIR='${SCRIPT_DIR}'"
     info "ROOT_DIR='${ROOT_DIR}'"
+    info "TEMPLATES_DIR='${TEMPLATES_DIR}'"
     info "NONPROD_INSTANCE_TEMP='${NONPROD_INSTANCE_TEMP}'"
     info "NONPROD_ENVGROUP_TEMP='${NONPROD_ENVGROUP_TEMP}'"
     info "NONPROD_ENVIRONMENT_TEMP='${NONPROD_ENVIRONMENT_TEMP}'"
+    info "ADD_ONS_DIR='${ADD_ONS_DIR}'"
 }
 
 
@@ -356,6 +363,73 @@ create_demo() {
 
 
 ################################################################################
+# enable add on
+################################################################################
+enable_add_on() {
+
+    banner_info "Enabling Add-on: ${ADD_ON}."
+
+    local SELECTED_ADD_ONS_DIR="${ADD_ONS_DIR}/${ADD_ON}"
+
+    # copy in the top of the overlays
+    run cp -R "${SELECTED_ADD_ONS_DIR}/add-on-overlays/"* "${ROOT_DIR}/overlays"
+
+    # for each instance
+    for instance in $(find ${ROOT_DIR}/overlays/instances/ -maxdepth 1 -type d -not -path ${ROOT_DIR}/overlays/instances/ )
+    do
+
+        run cp -R "${SELECTED_ADD_ONS_DIR}/add-on-instance/"* ${instance}
+
+        # for each group
+        for group in $(find ${instance}/route-config/ -maxdepth 1 -type d -not -path ${instance}/route-config/ )
+        do
+            run cp -R "${SELECTED_ADD_ONS_DIR}/add-on-envgroup/"* ${group}
+        done
+
+        # for each environment
+        for environment in $(find ${instance}/environments/ -maxdepth 1 -type d -not -path ${instance}/environments/ )
+        do
+            run cp -R "${SELECTED_ADD_ONS_DIR}/add-on-environment/"* ${environment}
+        done
+
+    done
+
+
+    # Merge all kustomization.yaml.append files to their parent
+        # a = info to be appended
+        # f = kustomize file to append to
+    for a in $(find ${ROOT_DIR}/overlays/ -type f -name *.append )
+    do
+        local f=${a:0:-7} #chop off the .append
+        run cat ${f} ${a} >> ${f}.tmp
+        run mv ${f}.tmp ${f}
+        run rm ${a}
+    done
+
+
+    fill_values_in_yamls
+
+
+
+
+
+    # info "Enabling SecurityContextConstraints for OpenShift..."
+
+    # sed -i -E -e '/initialization\/openshift/s/^# *//g' "${ROOT_DIR}/overlays/initialization/openshift/kustomization.yaml"
+
+    # sed -i -E -e '/components:/s/^# *//g' "${INSTANCE_DIR}/datastore/kustomization.yaml"
+    # sed -i -E -e '/components\/openshift-scc/s/^# *//g' "${INSTANCE_DIR}/datastore/kustomization.yaml"
+
+    # sed -i -E -e '/components:/s/^# *//g' "${INSTANCE_DIR}/telemetry/kustomization.yaml"
+    # sed -i -E -e '/components\/openshift-scc/s/^# *//g' "${INSTANCE_DIR}/telemetry/kustomization.yaml"
+
+
+}
+
+
+
+
+################################################################################
 # Replace appropriate values like org, env, envgroup name in the yamls.
 ################################################################################
 fill_values_in_yamls() {
@@ -383,20 +457,6 @@ fill_values_in_yamls() {
         mv ${f}.tmp ${f}
     done
 
-
-    # If the current cluster uses openshift, uncomment the openshift patches by
-    # the '# ' prefix from those lines.
-    if [[ "${ENABLE_OPENSHIFT_SCC}" == "1" ]]; then
-        info "Enabling SecurityContextConstraints for OpenShift..."
-
-        sed -i -E -e '/initialization\/openshift/s/^# *//g' "${ROOT_DIR}/overlays/initialization/openshift/kustomization.yaml"
-
-        sed -i -E -e '/components:/s/^# *//g' "${INSTANCE_DIR}/datastore/kustomization.yaml"
-        sed -i -E -e '/components\/openshift-scc/s/^# *//g' "${INSTANCE_DIR}/datastore/kustomization.yaml"
-
-        sed -i -E -e '/components:/s/^# *//g' "${INSTANCE_DIR}/telemetry/kustomization.yaml"
-        sed -i -E -e '/components\/openshift-scc/s/^# *//g' "${INSTANCE_DIR}/telemetry/kustomization.yaml"
-    fi
 }
 
 ################################################################################
@@ -786,6 +846,14 @@ parse_args() {
             readonly CREATE_DEMO
             shift 2
             ;;
+        enable)
+            arg_required "${@}"
+            ENABLE_ADD_ON="1"
+            ADD_ON="${2}"
+            readonly ENABLE_ADD_ON
+            readonly ADD_ON
+            shift 2
+            ;;
         --org)
             arg_required "${@}"
             ORGANIZATION_NAME="${2}"
@@ -825,11 +893,6 @@ parse_args() {
             arg_required "${@}"
             GCP_PROJECT_ID="${2}"
             shift 2
-            ;;
-        --enable-openshift-scc)
-            ENABLE_OPENSHIFT_SCC="1"
-            readonly ENABLE_OPENSHIFT_SCC
-            shift 1
             ;;
         --verbose)
             VERBOSE="1"
@@ -882,13 +945,18 @@ usage() {
                                         Service Accounts and Secrets
                                         
     create          demo                Creates a pre-configured Demo setup that Auto
-                                configures with a Single EnvironmentGroup & Environment
-                                reading information from the Apigee Organization (Mgmt Plane)
-                                and creating and configuring a non-prod Service Account
-                                NOTEs:
-                                   1) curl is required
-                                   2) the user executing [create demo] must have a
-                                valid GCP account and gcloud installed and configured
+                                        configures with a Single EnvironmentGroup & Environment
+                                        reading information from the Apigee Organization (Mgmt Plane)
+                                        and creating and configuring a non-prod Service Account
+                                        NOTEs:
+                                        1) curl is required
+                                        2) the user executing [create demo] must have a
+                                        valid GCP account and gcloud installed and configured
+
+    enable                              Adds patch files that enable specified feature
+                    all                 -- Adds all available feature patches
+                    openshift-scc       -- Add environment (prerequisite: cluster)
+                    another             -- Add environment group (prerequisite: cluster)
                                         
 EOF
     )"
@@ -928,8 +996,6 @@ EOF
     # Flags that DON'T require an argument
     FLAGS_2="$(
         cat <<EOF
-    --enable-openshift-scc       Indicates that the cluster is on
-                                 OpenShift and will enable scc configurations.
     --verbose                    Show detailed output for debugging.
     --version                    Display version of apigee hybrid setup.
     --help                       Display usage information.
