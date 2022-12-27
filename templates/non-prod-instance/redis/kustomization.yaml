@@ -15,7 +15,4 @@
 resources:
 - ../../../../bases/instance/redis/
 
-# components:
-# - ./components/nodeselector/
-# - ./components/imagepullsecret
-# - ./components/workload-identity
+components:

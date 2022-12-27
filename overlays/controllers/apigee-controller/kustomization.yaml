@@ -17,6 +17,3 @@ resources:
 - ../../../bases/controllers/apigee-controller
 
 components:
-# - ./components/imagepullsecret/
-# - ./components/nodeselector/
-# - ./components/control-plane-http-proxy/

@@ -15,5 +15,4 @@
 resources:
 - ../../../bases/initialization/certificates/
 
-# components:
-# - ./components/disable-apigee-root-certificate-generation
+components:

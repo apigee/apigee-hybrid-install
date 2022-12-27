@@ -16,7 +16,4 @@ resources:
 - enviro-group-ingress-certificate.yaml
 - apigee-route-config.yaml
 
-# components:
-# - ./components/http-client
-# - ./components/non-sni-client
-# - ./components/http-and-non-sni-client
+components:

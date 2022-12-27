@@ -16,6 +16,4 @@ namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
 resources:
 - ../../../bases/controllers/apigee-ingressgateway-manager
 
-# components:
-# - ./components/imagepullsecret/
-# - ./components/nodeselector/
+components:
