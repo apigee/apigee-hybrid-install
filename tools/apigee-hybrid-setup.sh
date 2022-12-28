@@ -38,7 +38,7 @@ ORGANIZATION_NAME="${ORGANIZATION_NAME:-""}"                   # --org
 ENVIRONMENT_NAME="${ENVIRONMENT_NAME:-""}"                     # --env
 ENVIRONMENT_GROUP_NAME="${ENVIRONMENT_GROUP_NAME:-""}"         # --envgroup
 ENVIRONMENT_GROUP_HOSTNAME="${ENVIRONMENT_GROUP_HOSTNAME:-""}" # --ingress-domain
-APIGEE_NAMESPACE="${APIGEE_NAMESPACE:-""}"                     # --namespace, The kubernetes namespace name where Apigee components will be created
+APIGEE_NAMESPACE="${APIGEE_NAMESPACE:-"apigee"}"               # --namespace, The kubernetes namespace name where Apigee components will be created
 CLUSTER_NAME="${CLUSTER_NAME:-""}"                             # --cluster-name
 CLUSTER_REGION="${CLUSTER_REGION:-""}"                         # --cluster-region
 GCP_PROJECT_ID="${GCP_PROJECT_ID:-""}"                         # --gcp-project-id
@@ -999,16 +999,17 @@ usage() {
 
     enable                          Adds patch files that enable specified feature
                                     !! CRITICAL: many add-ons require variables or fields
-                                    to be filled in manually. Please review all added files
-                all                 -- Adds all available feature patches
-                openshift-scc       -- Adds SecurityContextConstraints needed for OpenShift 
-                image-pull-secret   -- Adds support for private repository
-                node-selector       -- Adds node selector patches
-                workload-identity   -- Adds Google Workload Identity configuration
+                                    to be filled in manually. Please review all added files!
+                                    The standard variable replacement may not work correctly
+        all                         -- Adds all available feature patches
+        openshift-scc               -- Adds SecurityContextConstraints needed for OpenShift 
+        image-pull-secret           -- Adds support for private repository
+        node-selector               -- Adds node selector patches
+        workload-identity           -- Adds Google Workload Identity configuration
         control-plane-http-proxy    -- Adds Forward Proxy to Control Plane support
-                env-group-extras    -- Adds a collection of common Environment Group configurations
-                environment-extras  -- Adds a collection of common Environment configurations
-                datastore-extras    -- Adds a collection of common DataStore configurations
+        env-group-extras            -- Adds a collection of common Environment Group configurations
+        environment-extras          -- Adds a collection of common Environment configurations
+        datastore-extras            -- Adds a collection of common DataStore configurations
                                         
 EOF
     )"
@@ -1067,6 +1068,9 @@ additional clusters, environment groups, and environments as needed to fully rep
 Apigee Organization.
 
 Once an Entity is added, it can be customized using standard Kubernetes Kustomize practices.
+
+!!!CRITICAL NOTE: The currently available configurations are designed for non-production
+environments. Production environment configurations are on the roadmap.
 
 The setup script can also enable a variety of standard customizations. These are added in
 the form of patches to the /overrides structure.
