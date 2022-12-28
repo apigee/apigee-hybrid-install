@@ -678,6 +678,20 @@ validate_args() {
                 ;;
             openshift-scc)
                 ;;
+            env-group-extras)
+                ;;
+            environment-extras)
+                ;;
+            image-pull-secret)
+                ;;
+            node-selector)
+                ;;
+            workload-identity)
+                ;;
+            control-plane-http-proxy)
+                ;;
+            datastore-extras)
+                ;;
             *)
                 VALIDATION_FAILED="1"
                 warn "Unrecognized Add-On name: ${ADD_ON}, please check spelling."
@@ -959,36 +973,42 @@ usage() {
     # Available commands
     COMMANDS_0="$(
         cat <<EOF
-    COMMAND         ENTITY              NOTES
-    ---------       -----------         ---------
-    add                                 Adds specified entity to the /overrides folder.
-                    cluster             -- Add cluster (without environment/group)
-                    environment         -- Add environment (prerequisite: cluster)
-                    environment-group   -- Add environment group (prerequisite: cluster)
-                                        
-    check           all                 Confirms that at least 1 cluster, 1 environment,
-                                        and 1 environment group has been added. Also check
-                                        for placeholder variables that have not be set.
-                                        
-    print-yaml      all                 Prints all core yaml manifests as configured
-                                        However, this will NOT PRINT the yamls for:
-                                        Service Accounts and Secrets
-                                        
-    create          demo                Creates a pre-configured Demo setup that Auto
-                                        configures with a Single EnvironmentGroup & Environment
-                                        reading information from the Apigee Organization (Mgmt Plane)
-                                        and creating and configuring a non-prod Service Account
-                                        NOTEs:
-                                        1) curl is required
-                                        2) the user executing [create demo] must have a
-                                        valid GCP account and gcloud installed and configured
+    COMMAND     ENTITY              NOTES
+    ---------   -----------         ---------
+    add                             Adds specified entity to the /overrides folder.
+                cluster             -- Add cluster (without environment/group)
+                environment         -- Add environment (prerequisite: cluster)
+                environment-group   -- Add environment group (prerequisite: cluster)
+                
+    check       all                 Confirms that at least 1 cluster, 1 environment,
+                                    and 1 environment group has been added. Also check
+                                    for placeholder variables that have not be set.
+                                    
+    print-yaml  all                 Prints all core yaml manifests as configured
+                                    However, this will NOT PRINT the yamls for:
+                                    Service Accounts and Secrets
+                                    
+    create      demo                Creates a pre-configured Demo setup that Auto
+                                    configures with a Single EnvironmentGroup & Environment
+                                    reading information from the Apigee Organization (Mgmt Plane)
+                                    and creating and configuring a non-prod Service Account
+                                    NOTEs:
+                                    1) curl is required
+                                    2) the user executing [create demo] must have a
+                                    valid GCP account and gcloud installed and configured
 
-    enable                              Adds patch files that enable specified feature
-                                        !! CRITICAL: many add-ons require variables or fields
-                                        to be filled in manually. Please review all added files
-                    all                 -- Adds all available feature patches
-                    openshift-scc       -- Add environment (prerequisite: cluster)
-                    another             -- Add environment group (prerequisite: cluster)
+    enable                          Adds patch files that enable specified feature
+                                    !! CRITICAL: many add-ons require variables or fields
+                                    to be filled in manually. Please review all added files
+                all                 -- Adds all available feature patches
+                openshift-scc       -- Adds SecurityContextConstraints needed for OpenShift 
+                image-pull-secret   -- Adds support for private repository
+                node-selector       -- Adds node selector patches
+                workload-identity   -- Adds Google Workload Identity configuration
+        control-plane-http-proxy    -- Adds Forward Proxy to Control Plane support
+                env-group-extras    -- Adds a collection of common Environment Group configurations
+                environment-extras  -- Adds a collection of common Environment configurations
+                datastore-extras    -- Adds a collection of common DataStore configurations
                                         
 EOF
     )"
@@ -1028,6 +1048,7 @@ EOF
     # Flags that DON'T require an argument
     FLAGS_2="$(
         cat <<EOF
+    --non-production <default>   Configuration is for non-prod environments.
     --verbose                    Show detailed output for debugging.
     --version                    Display version of apigee hybrid setup.
     --help                       Display usage information.
