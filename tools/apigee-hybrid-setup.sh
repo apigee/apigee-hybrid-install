@@ -369,6 +369,9 @@ enable_add_on() {
 
     banner_info "Enabling Add-on: ${ADD_ON}."
     info "Note: this feature is not fully tested yet"
+    warn "Many of the Add-on Features require custom information to be filled in."
+    warn "Be careful to check all added files for variables and consistancy."
+    warn "The added files are typically in a folder with the same name as the Add-on."
 
     local SELECTED_ADD_ONS_DIR="${ADD_ONS_DIR}/${ADD_ON}"
 
@@ -415,22 +418,9 @@ enable_add_on() {
         run rm ${a}
     done
 
-
+    # attempt to fill values.
+    # NOTE: THIS IS NOT PERFECT. It will need some work to handle multi-instance, env, env-group configs
     fill_values_in_yamls
-
-
-
-
-
-    # info "Enabling SecurityContextConstraints for OpenShift..."
-
-    # sed -i -E -e '/initialization\/openshift/s/^# *//g' "${ROOT_DIR}/overlays/initialization/openshift/kustomization.yaml"
-
-    # sed -i -E -e '/components:/s/^# *//g' "${INSTANCE_DIR}/datastore/kustomization.yaml"
-    # sed -i -E -e '/components\/openshift-scc/s/^# *//g' "${INSTANCE_DIR}/datastore/kustomization.yaml"
-
-    # sed -i -E -e '/components:/s/^# *//g' "${INSTANCE_DIR}/telemetry/kustomization.yaml"
-    # sed -i -E -e '/components\/openshift-scc/s/^# *//g' "${INSTANCE_DIR}/telemetry/kustomization.yaml"
 
 
 }
@@ -691,6 +681,14 @@ validate_args() {
             control-plane-http-proxy)
                 ;;
             datastore-extras)
+                if [[ -z "${ORGANIZATION_NAME}" ]]; then
+                    VALIDATION_FAILED="1"
+                    warn "--org is REQUIRED"
+                fi
+                if [[ -z "${CLUSTER_REGION}" ]]; then
+                    VALIDATION_FAILED="1"
+                    warn "--cluster-region is REQUIRED"
+                fi
                 ;;
             *)
                 VALIDATION_FAILED="1"
@@ -716,12 +714,12 @@ validate_args() {
 
 
 ################################################################################
-# Resolves flags such as --all
+# Resolves flags
 ################################################################################
 resolve_flags() {
-    banner_info "Resolving Flags..."
+    # banner_info "Resolving Flags..."
 
-    # if [[ "${CREATE_DEMO}" == "1" ]]; then
+    # if [[ "${SOMETHING IN THE FUTURE}" == "1" ]]; then
 
     # fi
 
