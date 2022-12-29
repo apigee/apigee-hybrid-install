@@ -717,7 +717,7 @@ validate_args() {
 # Resolves flags
 ################################################################################
 resolve_flags() {
-    # banner_info "Resolving Flags..."
+    banner_info "Resolving Flags..."
 
     # if [[ "${SOMETHING IN THE FUTURE}" == "1" ]]; then
 
