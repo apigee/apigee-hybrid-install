@@ -14,7 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-APIGEE_HYBRID_VERSION="1.8.0-preview.2"   # Apigee hybrid version that will be installed.
+APIGEE_HYBRID_VERSION="1.8.3"   # Apigee hybrid version that will be installed.
+GCP_NON_PROD_SERVICE_ACCOUNT_NAME="apigee-non-prod"   # Name of the service account that will be created
 
 ################################################################################
 # Functions for logging error and info.

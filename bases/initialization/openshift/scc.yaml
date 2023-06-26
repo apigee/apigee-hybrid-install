@@ -15,7 +15,7 @@
 apiVersion: security.openshift.io/v1
 kind: SecurityContextConstraints
 metadata:
-  name: "apigee"
+  name: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
 priority: 9
 allowHostDirVolumePlugin: false
 allowHostIPC: false
@@ -42,4 +42,4 @@ fsGroup:
   - min: 998
     max: 998
 groups:
-- system:serviceaccounts:apigee
+- system:serviceaccounts:apigee # kpt-set: system:serviceaccounts:${APIGEE_NAMESPACE}

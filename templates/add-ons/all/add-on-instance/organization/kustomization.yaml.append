@@ -1,0 +1,4 @@
+- ./components/control-plane-http-proxy/
+- ./components/nodeselector/
+- ./components/imagepullsecret
+- ./components/workload-identity

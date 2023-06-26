@@ -1,0 +1,58 @@
+# Copyright 2022 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: apigee.cloud.google.com/v1alpha2
+kind: ApigeeOrganization
+metadata:
+  name: "${ORGANIZATION_NAME}" # kpt-set: ${ORGANIZATION_NAME}
+  namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+  labels:
+    apigee.cloud.google.com/platform: apigee
+spec:
+  name: "${ORGANIZATION_NAME}" # kpt-set: ${ORGANIZATION_NAME}
+  datastoreRef: "default"
+  datastoreCredentialRef: "apigee-datastore-default-creds"
+  dataEncryptionRef: "org-data-encryption" # kpt-set: ${ORGANIZATION_NAME}-data-encryption
+  redisRef: "default"
+  axHashingSaltRef: "org-ax-salt" # kpt-set: ${ORGANIZATION_NAME}-ax-salt
+  apigeeEndpoint: "https://apigee.googleapis.com"
+  apigeeConnectEndpoint: "apigeeconnect.googleapis.com:443"
+  instanceID: "${CLUSTER_NAME}-${CLUSTER_REGION}" # kpt-set: ${CLUSTER_NAME}-${CLUSTER_REGION}
+  clusterName: "${CLUSTER_NAME}" # kpt-set: ${CLUSTER_NAME}
+  clusterRegion: "${CLUSTER_REGION}" # kpt-set: ${CLUSTER_REGION}
+  gcpProjectID: "${GCP_PROJECT_ID}" # kpt-set: ${GCP_PROJECT_ID}
+  components:
+    connectAgent:
+      appServiceAccountSecretName: "apigee-mart-gcp-sa-key" # kpt-set: apigee-mart-gcp-sa-key
+    watcher:
+      appServiceAccountSecretName: "apigee-watcher-gcp-sa-key" # kpt-set: apigee-watcher-gcp-sa-key
+    mart:
+      appServiceAccountSecretName: "apigee-mart-gcp-sa-key" # kpt-set: apigee-mart-gcp-sa-key
+      containers:
+      - name: "apigee-mart"
+        env:
+        - name: "${ORGANIZATION_NAME_UPPER}_KMS_ENCRYPTION_KEY" # kpt-set: ${ORGANIZATION_NAME_UPPER}_KMS_ENCRYPTION_KEY
+          valueFrom:
+            secretKeyRef:
+              name: "org-encryption-keys" # kpt-set: ${ORGANIZATION_NAME}-encryption-keys
+              key: kmsEncryptionKey
+        - name: "${ORGANIZATION_NAME_UPPER}_KVM_ENCRYPTION_KEY" # kpt-set: ${ORGANIZATION_NAME_UPPER}_KVM_ENCRYPTION_KEY
+          valueFrom:
+            secretKeyRef:
+              name: "org-encryption-keys" # kpt-set: ${ORGANIZATION_NAME}-encryption-keys
+              key: kvmEncryptionKey
+    udca:
+      appServiceAccountSecretName: "apigee-udca-gcp-sa-key" # kpt-set: apigee-udca-gcp-sa-key
+    ingressGateways:
+    - name: "prod-1"

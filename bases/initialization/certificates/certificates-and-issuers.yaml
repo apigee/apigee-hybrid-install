@@ -75,14 +75,16 @@ spec:
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
+  annotations:
+    apigeeNamespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
   name: apigee-serving-cert
   namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
   labels:
     apigee.cloud.google.com/platform: apigee
 spec:
   dnsNames:
-  - apigee-webhook-service.apigee.svc
-  - apigee-webhook-service.apigee.svc.cluster.local
+  - apigee-webhook-service.${APIGEE_NAMESPACE}.svc
+  - apigee-webhook-service.${APIGEE_NAMESPACE}.svc.cluster.local
   issuerRef:
     group: cert-manager.io
     kind: ClusterIssuer
@@ -101,9 +103,9 @@ metadata:
   labels:
     apigee.cloud.google.com/platform: apigee
 spec:
-  commonName: apigee-ingressgateway-manager.apigee.svc
+  commonName: apigee-ingressgateway-manager.${APIGEE_NAMESPACE}.svc
   dnsNames:
-  - "apigee-ingressgateway-manager.apigee.svc"
+  - apigee-ingressgateway-manager.${APIGEE_NAMESPACE}.svc
   duration: 48h0m0s
   issuerRef:
     group: cert-manager.io

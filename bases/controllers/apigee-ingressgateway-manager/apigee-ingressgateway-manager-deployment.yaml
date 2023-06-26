@@ -122,14 +122,14 @@ spec:
         - name: INJECTION_WEBHOOK_CONFIG_NAME
           value: istio-sidecar-injector
         - name: ISTIOD_ADDR
-          value: apigee-ingressgateway-manager.apigee.svc:15012
+          value: apigee-ingressgateway-manager.${APIGEE_NAMESPACE}.svc:15012
         - name: PILOT_ENABLE_ANALYSIS
           value: "false"
         - name: CLUSTER_ID
           value: kubernetes
         - name: XDS_AUTH
           value: "true"
-        image: gcr.io/apigee-release/hybrid/apigee-asm-istiod:1.12.6-asm.2
+        image: gcr.io/apigee-release/hybrid/apigee-asm-istiod:1.12.9-asm.3
         imagePullPolicy: IfNotPresent
         name: discovery
         ports:
@@ -219,7 +219,7 @@ spec:
               fieldPath: metadata.namespace
         command:
         - /manager
-        image: gcr.io/apigee-release/hybrid/apigee-operators:1.8.1
+        image: gcr.io/apigee-release/hybrid/apigee-operators:1.8.3
         imagePullPolicy: Always
         name: manager
         ports:
@@ -262,7 +262,7 @@ spec:
         - --upstream=http://127.0.0.1:8080/
         - --logtostderr=true
         - --v=10
-        image: gcr.io/apigee-release/hybrid/apigee-kube-rbac-proxy:v0.11.0
+        image: gcr.io/apigee-release/hybrid/apigee-kube-rbac-proxy:v0.13.0
         imagePullPolicy: IfNotPresent
         name: kube-rbac-proxy
         ports:

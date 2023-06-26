@@ -11,20 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
+
 commonAnnotations:
   cert-manager.io/inject-ca-from: apigee/apigee-serving-cert # kpt-set: ${APIGEE_NAMESPACE}/apigee-serving-cert
   certmanager.k8s.io/inject-ca-from: apigee/apigee-serving-cert # kpt-set: ${APIGEE_NAMESPACE}/apigee-serving-cert
+
 resources:
 - ../../../bases/initialization/webhooks/
-patches:
-- path: mutatingwebhookconfiguration.yaml
-  target:
-    group: admissionregistration.k8s.io
-    version: v1
-    kind: MutatingWebhookConfiguration
-- path: validatingwebhookconfiguration.yaml
-  target:
-    group: admissionregistration.k8s.io
-    version: v1
-    kind: ValidatingWebhookConfiguration
+

@@ -26,7 +26,7 @@ webhooks:
   clientConfig:
     service:
       name: apigee-webhook-service
-      namespace: apigee
+      namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
       path: /mutate-apigee-cloud-google-com-v1alpha1-apigeedatastore
   failurePolicy: Fail
   name: mapigeedatastore.apigee.cloud.google.com
@@ -47,7 +47,7 @@ webhooks:
   clientConfig:
     service:
       name: apigee-webhook-service
-      namespace: apigee
+      namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
       path: /mutate-apigee-cloud-google-com-v1alpha2-apigeeenvironment
   failurePolicy: Fail
   name: mapigeeenvironment.apigee.cloud.google.com
@@ -68,7 +68,7 @@ webhooks:
   clientConfig:
     service:
       name: apigee-webhook-service
-      namespace: apigee
+      namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
       path: /mutate-apigee-cloud-google-com-v1alpha2-apigeeorganization
   failurePolicy: Fail
   name: mapigeeorganization.apigee.cloud.google.com
@@ -89,7 +89,7 @@ webhooks:
   clientConfig:
     service:
       name: apigee-webhook-service
-      namespace: apigee
+      namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
       path: /mutate-apigee-cloud-google-com-v1alpha1-apigeeredis
   failurePolicy: Fail
   name: mapigeeredis.apigee.cloud.google.com
@@ -110,7 +110,7 @@ webhooks:
   clientConfig:
     service:
       name: apigee-webhook-service
-      namespace: apigee
+      namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
       path: /mutate-apigee-cloud-google-com-v1alpha1-apigeeroute
   failurePolicy: Fail
   name: mapigeeroute.apigee.cloud.google.com
@@ -131,7 +131,7 @@ webhooks:
   clientConfig:
     service:
       name: apigee-webhook-service
-      namespace: apigee
+      namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
       path: /mutate-apigee-cloud-google-com-v1alpha2-apigeetelemetry
   failurePolicy: Fail
   name: mapigeetelemetry.apigee.cloud.google.com
@@ -152,7 +152,7 @@ webhooks:
   clientConfig:
     service:
       name: apigee-webhook-service
-      namespace: apigee
+      namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
       path: /mutate-apigee-cloud-google-com-v1alpha3-apigeedeployment
   failurePolicy: Fail
   name: mapigeedeployment.apigee.cloud.google.com

@@ -11,16 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 namespace: "apigee" # kpt-set: ${APIGEE_NAMESPACE}
 resources:
-- apigee-istio-mesh-config.yaml
 - ../../../bases/controllers/apigee-ingressgateway-manager
-# components:
-# - ./components/imagepullsecret/
-# - ./components/nodeselector/
-patches:
-- path: apigee-ingressgateway-manager-deployment-patch.yaml
-  target:
-    group: apps
-    version: v1
-    kind: Deployment
+
+components:

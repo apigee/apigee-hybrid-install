@@ -30,7 +30,7 @@ spec:
             - /bin/bash
             - -c
             - /usr/bin/BackupDBMaster.sh
-            image: gcr.io/apigee-release/hybrid/apigee-cassandra-backup-utility:1.8.0-preview.2
+            image: gcr.io/apigee-release/hybrid/apigee-cassandra-backup-utility:1.8.3
             imagePullPolicy: IfNotPresent
             env:
             - name: CASSANDRA_CLUSTER_NAME
@@ -72,9 +72,9 @@ spec:
             secret:
               defaultMode: 0644
               items:
-              - key: dbbackup_key.json
-                path: dbbackup_key.json
-              secretName: "apigee-cassandra-backup-and-restore-gcp-sa-key"
+              - key: client_secret.json
+                path: client_secret.json
+              secretName: "apigee-cassandra-gcp-sa-key"
               optional: true
           - name: apigee-cassandra-backup-key-file # Used with non-GCS backup and restores only.
             secret:
